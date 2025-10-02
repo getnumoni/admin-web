@@ -14,7 +14,8 @@
     "start": "next start",
     "lint": "eslint",
     "prepare": "husky",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "commitlint": "commitlint --edit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -33,9 +34,11 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "cookies-next": "^6.1.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
@@ -48,7 +51,8 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
-    "zod": "^4.1.11"
+    "zod": "^4.1.11",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
