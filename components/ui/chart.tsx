@@ -125,6 +125,14 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    payload?: Array<{
+      dataKey?: string
+      name?: string
+      value?: number | string
+      color?: string
+      fill?: string
+      payload?: Record<string, unknown>
+    }>
   }) {
   const { config } = useChart()
 
