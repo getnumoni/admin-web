@@ -1,3 +1,4 @@
+import Admin from "@/components/admin";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>Dashboard</div>;
+  return <Admin />;
 }

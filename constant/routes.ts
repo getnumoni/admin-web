@@ -3,7 +3,7 @@
 const SIGN_IN_URL: string = '/auth/sign-in';
 
 //admin
-const ADMIN_URL: string = '/admin';
+const ADMIN_URL: string = '/dashboard';
 const ADMIN_NOTIFICATIONS_URL: string = `${ADMIN_URL}/notifications`;
 const ADMIN_MERCHANTS_URL: string = `${ADMIN_URL}/merchants`;
 const ADMIN_MERCHANTS_ADD_URL: string = `${ADMIN_MERCHANTS_URL}/add-merchant`;
