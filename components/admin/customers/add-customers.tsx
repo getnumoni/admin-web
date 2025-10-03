@@ -11,7 +11,7 @@ import ProfileUploadSection from '../add-merchants/profile-upload-section';
 import BasicInformation from './basic-information';
 
 export default function AddCustomers() {
-  const { handleCreateCustomers, isPending, isSuccess } = useCreateCustomers();
+  const { handleCreateCustomers, isPending } = useCreateCustomers();
 
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
