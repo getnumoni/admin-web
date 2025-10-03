@@ -15,12 +15,17 @@ export const customerSchema = z.object({
   region: z.string().min(1, 'Region is required'),
   state: z.string().min(1, 'State is required'),
   lga: z.string().min(1, 'LGA is required'),
+  postalCode: z.string().min(1, 'Postal code is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
 
   // Notification Preference
   notifyByEmail: z.boolean().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine((data) => {
+  // Only validate if both fields have values
+  if (!data.password || !data.confirmPassword) return true;
+  return data.password === data.confirmPassword;
+}, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
