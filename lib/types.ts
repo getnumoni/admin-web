@@ -438,5 +438,21 @@ type AccountInformationProps = {
   maxPointsIssued: string;
 }
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload };
+type CreateCustomersPayload = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  notifyByEmail: boolean;
+  password: string;
+  preferredLanguage: string;
+  address: string;
+  lga: string;
+  state: string;
+  region: string;
+  postalCode: string;
+}
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomersPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload };
 

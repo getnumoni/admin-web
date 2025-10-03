@@ -2,55 +2,118 @@
 
 import SearchInput from '@/components/common/search-input';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { ADMIN_CUSTOMERS_ADD_URL } from '@/constant/routes';
-import { customersData } from '@/data/customers-data';
+import useGetCustomers from '@/hooks/query/useGetCustomers';
+import { Customer } from '@/lib/types/customer';
 import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { customerColumns } from './customer-columns';
 
 export default function Customers() {
+  const { data, isPending, error, isError, refetch } = useGetCustomers();
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
   const itemsPerPage = 20;
 
-  // Filter customers based on search term
-  const filteredCustomers = useMemo(() => {
-    if (!searchTerm.trim()) return customersData;
+  // Client-side filtering and pagination
+  const filteredData = useMemo(() => {
+    const apiCustomers = data?.data?.data.pageData || [];
+    let filtered = apiCustomers;
 
-    const searchLower = searchTerm.toLowerCase().trim();
-    return customersData.filter(customer =>
-      customer.name.toLowerCase().includes(searchLower) ||
-      customer.email.toLowerCase().includes(searchLower) ||
-      customer.customerId.toLowerCase().includes(searchLower) ||
-      customer.address.toLowerCase().includes(searchLower)
-    );
-  }, [searchTerm]);
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter((customer: Customer) =>
+        customer.customer.toLowerCase().includes(searchLower) ||
+        customer.emailAddress.toLowerCase().includes(searchLower) ||
+        customer.customerId.toLowerCase().includes(searchLower) ||
+        customer.address.toLowerCase().includes(searchLower)
+      );
+    }
 
-  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentCustomers = filteredCustomers.slice(startIndex, endIndex);
+    // Apply status filter (if needed)
+    if (statusFilter) {
+      // Add status filtering logic here if needed
+    }
+
+    return filtered;
+  }, [data?.data?.data.pageData, searchTerm, statusFilter]);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+  const currentCustomers = filteredData.slice(startIndex, endIndex);
 
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage(prev => Math.max(prev - 1, 0));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
+
   const handleResetFilter = () => {
-    setFilterBy('');
-    setDateFilter('');
     setStatusFilter('');
     setSearchTerm('');
+    setCurrentPage(0);
   };
+
+  // Show loading state
+  if (isPending) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="p-4 sm:p-6 border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+            <div className="w-full lg:max-w-md">
+              <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 w-16 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-10 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+        <TableSkeleton rows={5} columns={6} />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="p-8 text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Customers</h3>
+          <p className="text-gray-600 mb-4">
+            {error?.message || "There was an error loading the customer data. Please try again."}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:bg-theme-dark-green/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -90,7 +153,7 @@ export default function Customers() {
 
             <button
               onClick={handleResetFilter}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Reset Filter</span>
@@ -148,7 +211,7 @@ export default function Customers() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Row Count */}
             <div className="text-sm text-gray-600 order-2 sm:order-1">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredCustomers.length)} of {filteredCustomers.length}
+              Showing {startIndex + 1}-{endIndex} of {filteredData.length}
             </div>
 
             {/* Row Action Icons */}
@@ -177,17 +240,17 @@ export default function Customers() {
             <div className="flex items-center justify-center gap-2 order-3">
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span className="px-3 py-1 text-sm text-gray-600 whitespace-nowrap">
-                Page {currentPage} of {totalPages}
+                Page {currentPage + 1} of {totalPages}
               </span>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages - 1}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />
