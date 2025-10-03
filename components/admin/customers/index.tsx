@@ -16,18 +16,14 @@ export default function Customers() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [dateFilter, setDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Get customers data from API response
-  const apiCustomers = data?.data?.data.pageData || [];
-
-  const totalRows = data?.data?.totalRows || 0;
   const itemsPerPage = 20;
 
   // Client-side filtering and pagination
   const filteredData = useMemo(() => {
+    const apiCustomers = data?.data?.data.pageData || [];
     let filtered = apiCustomers;
 
     // Apply search filter
@@ -47,7 +43,7 @@ export default function Customers() {
     }
 
     return filtered;
-  }, [apiCustomers, searchTerm, statusFilter]);
+  }, [data?.data?.data.pageData, searchTerm, statusFilter]);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
@@ -67,7 +63,6 @@ export default function Customers() {
   }, [searchTerm]);
 
   const handleResetFilter = () => {
-    setDateFilter('');
     setStatusFilter('');
     setSearchTerm('');
     setCurrentPage(0);
@@ -106,7 +101,9 @@ export default function Customers() {
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Customers</h3>
-          <p className="text-gray-600 mb-4">There was an error loading the customer data. Please try again.</p>
+          <p className="text-gray-600 mb-4">
+            {error?.message || "There was an error loading the customer data. Please try again."}
+          </p>
           <button
             onClick={() => refetch()}
             className="px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:bg-theme-dark-green/90 transition-colors"
