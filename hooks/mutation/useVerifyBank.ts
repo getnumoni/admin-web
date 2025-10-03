@@ -9,7 +9,7 @@ export const useVerifyBank = () => {
   const { mutate, isPending, isSuccess, data } = useMutation({
     mutationFn: (data: VerifyBankPayload) => bankApi.post("/v1/ng/identities/nuban", data),
     onSuccess: (response) => {
-      console.log("verification response", response);
+      // console.log("verification response", response);
       toast.success("Account verified successfully");
     },
     onError: (error: { response: { data: { message: string } } }) => {
