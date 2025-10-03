@@ -2,15 +2,16 @@
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { useCreateCustomers } from '@/hooks/mutation/useCreateCustomers';
 import { customerSchema, type CustomerFormData } from '@/lib/schemas/customer-schema';
+import { CreateCustomersPayload } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ProfileUploadSection from '../add-merchants/profile-upload-section';
 import BasicInformation from './basic-information';
 
 export default function AddCustomers() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { handleCreateCustomers, isPending, isSuccess } = useCreateCustomers();
 
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
@@ -26,6 +27,7 @@ export default function AddCustomers() {
       region: '',
       state: '',
       lga: '',
+      postalCode: '',
       password: '',
       confirmPassword: '',
       notifyByEmail: false
@@ -39,22 +41,24 @@ export default function AddCustomers() {
   };
 
   const onSubmit = async (data: CustomerFormData) => {
-    setIsSubmitting(true);
+    const payload: CreateCustomersPayload = {
+      fullName: data.fullName,
+      email: data.emailAddress,
+      phoneNumber: data.phoneNumber,
+      dateOfBirth: data.dateOfBirth,
+      gender: data.gender,
+      notifyByEmail: data.notifyByEmail ?? false,
+      password: data.password,
+      preferredLanguage: data.preferredLanguage,
+      address: data.address,
+      lga: data.lga,
+      state: data.state,
+      region: data.region,
+      postalCode: data.postalCode
+    };
 
-    try {
-      // Log the payload to console
-      console.log('Customer Form Payload:', data);
+    handleCreateCustomers(payload);
 
-      // Here you would typically send the data to your API
-      // await createCustomer(data);
-
-      alert('Customer created successfully!');
-
-    } catch (error: unknown) {
-      console.error('Error creating customer:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   return (
@@ -76,9 +80,9 @@ export default function AddCustomers() {
         <div className="p-6 flex justify-end">
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
             className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            isLoading={isSubmitting}
+            isLoading={isPending}
             loadingText="Creating Customer..."
           >
             Create Customer

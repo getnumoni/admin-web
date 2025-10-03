@@ -1,6 +1,7 @@
 'use client';
 
 import { FormInputTopLabel } from '@/components/ui/form-input';
+import { FormPasswordInput } from '@/components/ui/form-password-input';
 import { FormPhoneInput } from '@/components/ui/form-phone-input';
 import { FormSelectTopLabel } from '@/components/ui/form-select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -9,7 +10,7 @@ import useGetLga from '@/hooks/query/useGetLga';
 import useGetStates from '@/hooks/query/useGetStates';
 import { CustomerFormData, genders, languages } from '@/lib/schemas/customer-schema';
 import { useEffect } from 'react';
-import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
+import { Control, useFormContext, UseFormSetValue, useWatch } from 'react-hook-form';
 
 interface BasicInformationProps {
   control: Control<CustomerFormData>;
@@ -17,6 +18,8 @@ interface BasicInformationProps {
 }
 
 export default function BasicInformation({ control, setValue }: BasicInformationProps) {
+  const { trigger } = useFormContext<CustomerFormData>();
+
   // Get regions data
   const { data: regionsData, isPending: regionsPending } = useGetAllRegions();
 
@@ -29,6 +32,17 @@ export default function BasicInformation({ control, setValue }: BasicInformation
   const selectedState = useWatch({
     control,
     name: "state"
+  });
+
+  // Watch password and confirmPassword for real-time validation
+  const password = useWatch({
+    control,
+    name: "password"
+  });
+
+  const confirmPassword = useWatch({
+    control,
+    name: "confirmPassword"
   });
 
   // Get states based on selected region
@@ -85,6 +99,13 @@ export default function BasicInformation({ control, setValue }: BasicInformation
       setValue("lga", "");
     }
   }, [selectedState, setValue]);
+
+  // Trigger validation for confirmPassword when password or confirmPassword changes
+  useEffect(() => {
+    if (password && confirmPassword) {
+      trigger("confirmPassword");
+    }
+  }, [password, confirmPassword, trigger]);
   return (
     <div className="m-6 border border-gray-100 rounded-xl p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
@@ -156,8 +177,8 @@ export default function BasicInformation({ control, setValue }: BasicInformation
           required
         />
 
-        {/* Region, State, LGA */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        {/* Region, State, LGA, Postal Code */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
           <FormSelectTopLabel
             control={control}
             name="region"
@@ -187,27 +208,40 @@ export default function BasicInformation({ control, setValue }: BasicInformation
             disabled={!selectedState || lgasPending}
             required
           />
+
+          <FormInputTopLabel
+            control={control}
+            name="postalCode"
+            label="Postal Code"
+            placeholder="200283"
+            required
+          />
         </div>
       </div>
 
       {/* Password Section - 2 Columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <FormInputTopLabel
+        <FormPasswordInput
           control={control}
           name="password"
           label="Password"
-          type="password"
           placeholder="Enter password"
           required
         />
 
-        <FormInputTopLabel
+        <FormPasswordInput
           control={control}
           name="confirmPassword"
           label="Confirm Password"
-          type="password"
           placeholder="Confirm password"
           required
+          customErrorMessage={
+            !confirmPassword
+              ? "Please confirm your password"
+              : password && confirmPassword && password !== confirmPassword
+                ? "Passwords don't match"
+                : undefined
+          }
         />
       </div>
 
