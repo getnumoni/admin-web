@@ -10,12 +10,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { numoniLogoDark } from "@/constant/icons";
 import { useSignIn } from "@/hooks/mutation/useSignIn";
 import { generateUUID } from "@/lib/helper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -61,19 +59,19 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-8">
+    <div className=" flex flex-col items-center justify-center px-4 py-8">
       {/* Logo */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <Image src={numoniLogoDark} alt="Logo" width={100} height={100} />
-      </div>
+      </div> */}
 
       {/* Main Form Container */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border-l-4 border-t-4 border-green-200 p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xs border-l-4 border-t-4 border-green-200 p-8">
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-black mb-2">Welcome Back</h2>
           <p className="text-gray-600 text-sm">
-            Enter your mobile/Email and password to login
+            Enter your email and password to login
           </p>
         </div>
 
@@ -87,12 +85,12 @@ export default function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-gray-700">
-                    Email/Phone Number
+                    Email
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="Enter your email or phone number"
+                      placeholder="Enter your email address"
                       className="w-full px-4 py-6 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       {...field}
                     />
