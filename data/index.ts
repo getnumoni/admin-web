@@ -1,6 +1,7 @@
+import { DealIcon } from "@/components/common/icon-svg";
 import { avatarIcon, branchIcon, calenderIcon, dealIcon, emailIcon, giftIcon, graphDirectionIcon, grayPointIcon, instagramIcon, musicPauseIcon, phoneNotificationIcon, twitterIcon, whatsappIcon } from "@/constant/icons";
 import { sampleUserIcon } from "@/constant/images";
-import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_URL } from "@/constant/routes";
+import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_URL } from "@/constant/routes";
 import { AdminNavigationItem } from "@/lib/types";
 import { BarChart3, Bell, Building, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, User, Users } from "lucide-react";
 
@@ -249,6 +250,14 @@ const adminNavigationItem: AdminNavigationItem[] = [
     children: [
       { name: 'All Charities', path: ADMIN_CHARITY_URL, icon: Heart },
       { name: 'Add New Charities', path: ADMIN_CHARITY_ADD_URL, icon: Plus },
+    ]
+  },
+  {
+    name: 'Deals & Promo',
+    icon: DealIcon,
+    children: [
+      { name: 'All Deals & Promo', path: ADMIN_DEALS_PROMO_URL, icon: Heart },
+      { name: 'Add New Deals & Promo', path: ADMIN_DEALS_PROMO_ADD_URL, icon: Plus },
     ]
   },
   {

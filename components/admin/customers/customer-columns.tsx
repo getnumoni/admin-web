@@ -1,10 +1,15 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useDeleteCustomer } from "@/hooks/mutation/useDeleteCustomer";
 import { Customer } from "@/lib/types/customer";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Column definitions
 export const customerColumns: ColumnDef<Customer>[] = [
@@ -87,17 +92,74 @@ export const customerColumns: ColumnDef<Customer>[] = [
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center space-x-2">
-          {/* <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-            <Eye className="h-4 w-4" />
-            View Profile
-          </button> */}
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <MoreVertical className="h-4 w-4 text-gray-400" />
-          </button>
-        </div>
-      );
+      return <ActionCell customer={row.original} />;
     },
   },
 ];
+
+// Action Cell Component
+function ActionCell({ customer }: { customer: Customer }) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { handleDeleteCustomer, isPending, isSuccess } = useDeleteCustomer();
+  const router = useRouter();
+
+  const handleViewProfile = () => {
+    // Navigate to profile page
+    router.push(`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customer.customer)}`);
+  };
+
+  const handleDeleteCustomerClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    handleDeleteCustomer(customer.customerId);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isSuccess]);
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={handleViewProfile}
+              className="cursor-pointer"
+            >
+              View Profile
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={handleDeleteCustomerClick}
+              className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              Delete Customer
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Customer"
+        description="This will permanently delete the customer and all associated data."
+        itemName={customer.customer}
+        isLoading={isPending}
+      />
+    </>
+  );
+}
