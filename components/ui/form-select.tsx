@@ -30,7 +30,7 @@ export function FormSelectTopLabel({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState: { error } }) => (
         <FormItem className="w-full">
           <label htmlFor={name} className="mb-1 block text-sm font-medium text-[#838383]">
             {label} {required && <span className="text-red-500">*</span>}
@@ -51,7 +51,10 @@ export function FormSelectTopLabel({
                     field.onChange(e.target.value)
                   }
                 }}
-                className="w-full appearance-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 disabled:cursor-not-allowed"
+                className={`w-full appearance-none rounded-lg border px-4 py-3 text-base text-gray-900 disabled:cursor-not-allowed ${error
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
               >
                 {placeholder && !multiple && (
                   <option value="" style={{ color: '#83838380' }}>
@@ -68,7 +71,7 @@ export function FormSelectTopLabel({
             </div>
           </FormControl>
           <div className="min-h-[20px]">
-            <FormMessage className="text-sm" />
+            <FormMessage className="text-sm text-red-600" />
           </div>
         </FormItem>
       )}

@@ -27,7 +27,7 @@ export function FormPhoneInput({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState: { error } }) => (
         <FormItem className="w-full">
           <label htmlFor={name} className="mb-1 block text-sm font-medium text-[#838383]">
             {label} {required && <span className="text-red-500">*</span>}
@@ -48,15 +48,38 @@ export function FormPhoneInput({
               <input
                 {...field}
                 id={name}
-                type="number"
+                type="text"
                 placeholder={placeholder}
                 disabled={disabled}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-20 pr-4 py-3 text-base text-gray-900 placeholder-gray-400 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                maxLength={10}
+                onKeyDown={(e) => {
+                  // Prevent typing 0 as the first character
+                  if (e.key === '0' && field.value === '') {
+                    e.preventDefault();
+                  }
+                  // Only allow numbers
+                  if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Remove any non-numeric characters
+                  const numericValue = value.replace(/\D/g, '');
+                  // Ensure it doesn't start with 0 and is max 10 digits
+                  if (numericValue.length <= 10 && !numericValue.startsWith('0')) {
+                    field.onChange(numericValue);
+                  }
+                }}
+                className={`w-full rounded-lg border pl-20 pr-4 py-3 text-base text-gray-900 placeholder-gray-400 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${error
+                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
               />
             </div>
           </FormControl>
           <div className="min-h-[20px]">
-            <FormMessage className="text-sm" />
+            <FormMessage className="text-sm text-red-600" />
           </div>
         </FormItem>
       )}
