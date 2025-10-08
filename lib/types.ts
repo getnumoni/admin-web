@@ -454,5 +454,51 @@ type CreateCustomersPayload = {
   postalCode: string;
 }
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomersPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload };
+type CreateMerchantsPayload = {
+  businessName: string;
+  emailAddress: string;
+  phoneNumber: string;
+  businessImgPath: string;
+  businessCategory: string[];
+  rcNumber: string;
+  userId: string;
+  businessType: string;
+  headquartersAddress: string;
+  region: string;
+  state: string;
+  lga: string;
+  businessDescription: string;
+  password: string;
+  confirmPassword: string;
+  contactPersonName: string;
+  contactEmailAddress: string;
+  contactPhoneNumber: string;
+  contactAddress: string;
+  contactRegion: string;
+  contactState: string;
+  contactIga: string;
+  bankName: string;
+  bankAccountNumber: string;
+  accountHolderName: string;
+}
+
+type MerchantTransaction = {
+  merchantName: string;
+  merchantId: string;
+  transactionId: string;
+  date: string;
+  time: string;
+  type: 'SALES' | 'PAY_OUT' | 'SERVICE_FEE';
+  amount: number;
+  pointIssued: number | null;
+  status: 'SUCCESSFUL' | null;
+}
+
+type VerifyPayOnUsBankPayload = {
+  institutionCode: string;
+  accountNumber: string;
+  businessId: string;
+}
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantTransaction, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
