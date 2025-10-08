@@ -1037,12 +1037,24 @@ export const generateRandomBadgeColor = (input: string): string => {
  */
 export const getTransactionTypeColor = (type: string): string => {
   switch (type) {
+    // Merchant transaction types
     case 'SALES':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'PAY_OUT':
       return 'bg-red-100 text-red-800 border-red-200';
     case 'SERVICE_FEE':
       return 'bg-red-100 text-red-800 border-red-200';
+    // Customer transaction types
+    case 'PURCHASE':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'LOAD_MONEY':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'SHARE_MONEY_DEBIT':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'SHARE_MONEY_CREDIT':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'BONUS':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
