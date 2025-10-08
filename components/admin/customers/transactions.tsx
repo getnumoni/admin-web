@@ -1,10 +1,8 @@
 'use client';
 
-import { DataTable } from '@/components/ui/data-table';
 import { transactionsData } from '@/data/transactions-data';
 import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { transactionColumns } from '../add-merchants/transaction-columns';
 
 export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -172,7 +170,10 @@ export default function Transactions() {
           </div>
         ) : (
           // Data Table
-          <DataTable columns={transactionColumns} data={currentTransactions} />
+          // <DataTable columns={transactionColumns} data={currentTransactions} />
+          <div>
+            <h1>Transactions</h1>
+          </div>
         )}
       </div>
 

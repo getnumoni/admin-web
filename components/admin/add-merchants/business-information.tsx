@@ -3,6 +3,8 @@
 'use client';
 
 import { FormInputTopLabel } from '@/components/ui/form-input';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
+import { FormPasswordInput } from '@/components/ui/form-password-input';
 import { FormPhoneInput } from '@/components/ui/form-phone-input';
 import { FormSelectTopLabel } from '@/components/ui/form-select';
 import { FormTextareaTopLabel } from '@/components/ui/form-textarea';
@@ -73,6 +75,7 @@ export default function BusinessInformation({ control, setValue }: BusinessInfor
     label: type
   }));
 
+
   // Reset state and LGA when region changes
   useEffect(() => {
     if (selectedRegion) {
@@ -122,12 +125,14 @@ export default function BusinessInformation({ control, setValue }: BusinessInfor
 
       {/* Middle Section - 3 Columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <FormSelectTopLabel
+        <FormMultiSelect
           control={control}
           name="businessCategory"
           label="Business Category"
           options={businessCategoryOptions}
-          placeholder="Choose a category"
+          placeholder="Search and select categories..."
+          searchPlaceholder="Search categories..."
+          emptyMessage="No categories found."
           required
         />
 
@@ -206,20 +211,18 @@ export default function BusinessInformation({ control, setValue }: BusinessInfor
 
         {/* Password Fields */}
         <div className="space-y-4">
-          <FormInputTopLabel
+          <FormPasswordInput
             control={control}
             name="password"
             label="Password"
-            type="password"
             placeholder="Enter your password"
             required
           />
 
-          <FormInputTopLabel
+          <FormPasswordInput
             control={control}
             name="confirmPassword"
             label="Confirm Password"
-            type="password"
             placeholder="Confirm your password"
             required
           />

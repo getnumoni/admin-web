@@ -1,6 +1,8 @@
 "use client";
 
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { mockMerchantData } from "@/data";
+import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
 import { useState } from "react";
 import AccountInformation from "./account-information";
 import AdminControls from "./admin-controls";
@@ -18,6 +20,10 @@ interface MerchantDetailsProps {
 
 export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
+
+  console.log('merchantDetails', merchantDetails?.data?.data);
+  const merchantData = merchantDetails?.data?.data;
 
   console.log('merchantId', merchantId);
 
@@ -61,12 +67,15 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
     console.log("Delete account");
   };
 
+  if (isMerchantDetailsPending) {
+    return <LoadingSpinner message="Loading merchant details..." />
+  }
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <MerchantHeader
-          merchantName={mockMerchantData.businessName}
-          userId={mockMerchantData.userId}
+          merchantName={merchantData?.businessName}
+          userId={merchantData?.merchantId}
           level={mockMerchantData.level}
         />
 
@@ -76,7 +85,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PersonalInformation
-                {...mockMerchantData.personalInfo}
+                {...merchantData}
                 onEdit={handleEditPersonalInfo}
               />
               <AccountInformation {...mockMerchantData.accountInfo} />
@@ -84,18 +93,18 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MerchantDescription
-                description={mockMerchantData.description}
+                description={merchantData?.businessDescription}
                 onEdit={handleEditDescription}
               />
               <EndorsedCharity
-                charityCount={mockMerchantData.charityCount}
+                charityCount={merchantData?.charityCount}
                 onManage={handleManageCharity}
               />
             </div>
 
             <ReportsSection
-              reportsCompleted={mockMerchantData.reportsCompleted}
-              totalReports={mockMerchantData.totalReports}
+              reportsCompleted={merchantData?.reportsCompleted}
+              totalReports={merchantData?.totalReports}
               onNotifyMerchant={handleNotifyMerchant}
             />
 

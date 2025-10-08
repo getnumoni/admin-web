@@ -396,6 +396,20 @@ export const formatDate = (dateString: string | null, fallback: string) => {
 };
 
 /**
+ * Formats a date string to a readable format (e.g., "27 Sep 2025")
+ * @param dateString - Date string to format
+ * @returns Formatted date string in "DD MMM YYYY" format
+ */
+export const formatDateReadable = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+};
+
+/**
  * Creates summary data array from rewards object
  * @param rewards - The rewards object or null
  * @returns Array of summary data objects
@@ -966,4 +980,70 @@ export const calculatePayloadSize = (data: { logo?: File; images?: File[]; manag
   }
 
   return totalSize;
+};
+
+/**
+ * Generates a random color for badges based on a string input
+ * Uses a simple hash function to ensure consistent colors for the same input
+ * @param input - The string to generate a color for (e.g., category name)
+ * @returns A Tailwind CSS color class for badges
+ * 
+ * @example
+ * generateRandomBadgeColor('Agriculture') // Returns: 'bg-blue-100 text-blue-800 border-blue-200'
+ * generateRandomBadgeColor('Fashion') // Returns: 'bg-pink-100 text-pink-800 border-pink-200'
+ */
+export const generateRandomBadgeColor = (input: string): string => {
+  // Predefined color combinations for badges
+  const colorCombinations = [
+    'bg-blue-100 text-blue-800 border-blue-200',
+    'bg-green-100 text-green-800 border-green-200',
+    'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'bg-red-100 text-red-800 border-red-200',
+    'bg-purple-100 text-purple-800 border-purple-200',
+    'bg-pink-100 text-pink-800 border-pink-200',
+    'bg-indigo-100 text-indigo-800 border-indigo-200',
+    'bg-cyan-100 text-cyan-800 border-cyan-200',
+    'bg-orange-100 text-orange-800 border-orange-200',
+    'bg-teal-100 text-teal-800 border-teal-200',
+    'bg-lime-100 text-lime-800 border-lime-200',
+    'bg-emerald-100 text-emerald-800 border-emerald-200',
+    'bg-rose-100 text-rose-800 border-rose-200',
+    'bg-violet-100 text-violet-800 border-violet-200',
+    'bg-amber-100 text-amber-800 border-amber-200',
+    'bg-sky-100 text-sky-800 border-sky-200',
+  ];
+
+  // Simple hash function to convert string to number
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+
+  // Use absolute value and modulo to get index
+  const index = Math.abs(hash) % colorCombinations.length;
+  return colorCombinations[index];
+};
+
+/**
+ * Gets the appropriate color classes for transaction type badges
+ * @param type - The transaction type ('SALES', 'PAY_OUT', 'SERVICE_FEE')
+ * @returns Tailwind CSS color classes for badges
+ * 
+ * @example
+ * getTransactionTypeColor('SALES') // Returns: 'bg-green-100 text-green-800 border-green-200'
+ * getTransactionTypeColor('PAY_OUT') // Returns: 'bg-red-100 text-red-800 border-red-200'
+ */
+export const getTransactionTypeColor = (type: string): string => {
+  switch (type) {
+    case 'SALES':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'PAY_OUT':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'SERVICE_FEE':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
 };

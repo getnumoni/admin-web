@@ -1,4 +1,4 @@
-export interface Transaction {
+interface Transaction {
   id: string;
   merchant: {
     id: string;

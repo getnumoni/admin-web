@@ -6,7 +6,7 @@ import { Edit2 } from "lucide-react";
 interface PersonalInformationProps {
   businessName: string;
   category: string;
-  email: string;
+  businessEmail: string;
   address: string;
   phone: string;
   bankName: string;
@@ -18,7 +18,7 @@ interface PersonalInformationProps {
 export default function PersonalInformation({
   businessName,
   category,
-  email,
+  businessEmail,
   address,
   phone,
   bankName,
@@ -28,7 +28,7 @@ export default function PersonalInformation({
 }: PersonalInformationProps) {
   const leftColumnItems = [
     { label: "Business Name", value: businessName },
-    { label: "Email Address", value: email },
+    { label: "Email Address", value: businessEmail },
     { label: "Phone Number", value: phone },
     { label: "Account Number", value: accountNumber },
   ];
