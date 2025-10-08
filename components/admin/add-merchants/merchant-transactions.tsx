@@ -1,75 +1,39 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
-import { transactionsData } from '@/data/transactions-data';
-import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+
+import { Button } from '@/components/ui/button';
+import useGetMerchantTransactions from '@/hooks/query/useGetMerchantTransactions';
+import { MerchantTransaction } from '@/lib/types';
+import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { transactionColumns } from './transaction-columns';
 
 export default function MerchantTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
-  const [orderStatus, setOrderStatus] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const { data, isPending, error, isError } = useGetMerchantTransactions();
+  const apiData = data?.data?.data;
+  const transactionsData: MerchantTransaction[] = apiData?.pageData || [];
+  // const totalRows = apiData?.totalRows || 0;
+  // const totalPages = apiData?.totalPages || 1;
+  // const currentApiPage = apiData?.currentPage || 0;
 
   const itemsPerPage = 12; // Based on the design showing 12 items
 
-  // Filter transactions based on search term and all filters
+  // Filter transactions based on search term only
   const filteredTransactions = useMemo(() => {
-    let filtered = transactionsData;
+    if (!searchTerm.trim()) return transactionsData;
 
-    // Search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(transaction =>
-        transaction.customer.toLowerCase().includes(searchLower) ||
-        transaction.merchant.name.toLowerCase().includes(searchLower) ||
-        transaction.txnId.toLowerCase().includes(searchLower) ||
-        transaction.type.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Type filter
-    if (filterBy) {
-      filtered = filtered.filter(transaction => transaction.type === filterBy);
-    }
-
-    // Status filter
-    if (orderStatus) {
-      filtered = filtered.filter(transaction => transaction.status === orderStatus);
-    }
-
-    // Date filter
-    if (dateFilter) {
-      const now = new Date();
-      filtered = filtered.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
-
-        switch (dateFilter) {
-          case 'today':
-            return transactionDate.toDateString() === now.toDateString();
-          case 'week':
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            return transactionDate >= weekAgo;
-          case 'month':
-            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-            return transactionDate >= monthAgo;
-          case 'quarter':
-            const quarterAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-            return transactionDate >= quarterAgo;
-          case 'year':
-            const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-            return transactionDate >= yearAgo;
-          default:
-            return true;
-        }
-      });
-    }
-
-    return filtered;
-  }, [searchTerm, filterBy, dateFilter, orderStatus]);
+    const searchLower = searchTerm.toLowerCase().trim();
+    return transactionsData.filter(transaction =>
+      transaction.merchantName.toLowerCase().includes(searchLower) ||
+      transaction.transactionId.toLowerCase().includes(searchLower) ||
+      transaction.type.toLowerCase().includes(searchLower)
+    );
+  }, [searchTerm]);
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -85,12 +49,48 @@ export default function MerchantTransactions() {
   };
 
   const handleResetFilter = () => {
-    setFilterBy('');
-    setDateFilter('');
-    setOrderStatus('');
     setSearchTerm('');
   };
 
+  // Show loading state after all hooks
+  if (isPending) {
+    return <LoadingSpinner />;
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 p-8">
+        <div className="text-center">
+          <div className="text-red-500 text-lg font-semibold mb-2">Error Loading Transactions</div>
+          <div className="text-gray-600 mb-4">
+            {error?.message || "Failed to load transactions. Please try again."}
+          </div>
+          <Button
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="px-4 py-2  text-white rounded-lg  transition-colors"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Render function for data table content
+  const renderDataTableContent = () => {
+    if (currentTransactions.length === 0) {
+      return (
+        <EmptyState
+          title="No Transactions Found"
+          description="No transactions match your current search or filter criteria. Try adjusting your search terms or filters."
+        />
+      );
+    }
+
+    return <DataTable columns={transactionColumns} data={currentTransactions} />;
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -102,7 +102,7 @@ export default function MerchantTransactions() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search Customer Name"
+              placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -117,32 +117,14 @@ export default function MerchantTransactions() {
             )}
           </div>
 
-          {/* Filter Buttons */}
+          {/* Reset Button */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <Filter className="h-4 w-4" />
-              Filter By
-            </button>
-
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              Date
-              <ChevronDown className="h-4 w-4" />
-            </button>
-
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              Order Status
-              <ChevronDown className="h-4 w-4" />
-            </button>
-
             <button
               onClick={handleResetFilter}
               className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               <RefreshCw className="h-4 w-4" />
-              Reset Filter
+              Reset Search
             </button>
           </div>
         </div>
@@ -150,31 +132,7 @@ export default function MerchantTransactions() {
 
       {/* Data Table */}
       <div className="p-0">
-        {currentTransactions.length === 0 ? (
-          // Empty State
-          <div className="flex flex-col items-center justify-center py-16 px-8">
-            <div className="w-32 h-32 mb-6 flex items-center justify-center">
-              <div className="w-24 h-20 bg-gray-100 rounded-lg relative">
-                <div className="absolute inset-2 border-2 border-gray-300 rounded"></div>
-                <div className="absolute top-0 left-2 right-2 h-2 bg-gray-300 rounded-t"></div>
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <div className="w-8 h-8 border-2 border-dashed border-green-400 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  </div>
-                </div>
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></div>
-                <div className="absolute -top-1 -left-1 w-2 h-2 bg-green-400 rounded-full"></div>
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">No Transactions Found</h3>
-            <p className="text-gray-600 text-center max-w-md mb-8 leading-relaxed">
-              No transactions match your current search or filter criteria. Try adjusting your search terms or filters.
-            </p>
-          </div>
-        ) : (
-          // Data Table
-          <DataTable columns={transactionColumns} data={currentTransactions} />
-        )}
+        {renderDataTableContent()}
       </div>
 
       {/* Pagination and Row Actions */}

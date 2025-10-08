@@ -1,36 +1,29 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
+import { formatDateReadable, generateRandomBadgeColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// Merchant type definition
+// Merchant type definition based on API response
 export type Merchant = {
-  id: number;
-  name: string;
-  logo: string;
-  dateJoined: string;
+  id: string;
+  userId: string;
+  businessName: string;
+  createdDt: string;
   email: string;
-  phone: string;
-  category: string;
-  status: "Verified" | "Pending" | "Suspended";
-  statusColor: "green" | "orange" | "red";
+  businessPhoneNo: string | null;
+  category: string[];
 };
 
-// Status color mapping
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Verified':
-      return 'bg-green-100 text-green-800';
-    case 'Pending':
-      return 'bg-orange-100 text-orange-800';
-    case 'Suspended':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
+
 
 // Column definitions
 export const merchantColumns: ColumnDef<Merchant>[] = [
@@ -57,19 +50,19 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "merchant",
-    header: "Merchant",
+    accessorKey: "businessName",
+    header: "Business Name",
     cell: ({ row }) => {
       const merchant = row.original;
       return (
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm">
-            {merchant.logo}
+            {merchant.businessName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <Link href={`/admin/merchants/${merchant.id}/?merchantName=${encodeURIComponent(merchant.name)}`}>
+            <Link href={`/dashboard/merchants/${merchant.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
-                {merchant.name}
+                {merchant.businessName}
               </div>
             </Link>
             <div className="text-xs text-gray-500">ID: {merchant.id}</div>
@@ -79,10 +72,10 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
     },
   },
   {
-    accessorKey: "dateJoined",
+    accessorKey: "createdDt",
     header: "Date Joined",
     cell: ({ row }) => (
-      <div className="text-gray-600 text-sm">{row.getValue("dateJoined")}</div>
+      <div className="text-gray-600 text-sm">{formatDateReadable(row.getValue("createdDt"))}</div>
     ),
   },
   {
@@ -92,29 +85,30 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
       <div className="text-gray-600 text-sm">{row.getValue("email")}</div>
     ),
   },
-  {
-    accessorKey: "phone",
-    header: "Phone Number",
-    cell: ({ row }) => (
-      <div className="text-gray-600 text-sm">{row.getValue("phone")}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "businessPhoneNo",
+  //   header: "Phone Number",
+  //   cell: ({ row }) => (
+  //     <div className="text-gray-600 text-sm">{row.getValue("businessPhoneNo") || "N/A"}</div>
+  //   ),
+  // },
   {
     accessorKey: "category",
     header: "Category",
-    cell: ({ row }) => (
-      <div className="text-gray-600 text-sm">{row.getValue("category")}</div>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const categories = row.getValue("category") as string[];
       return (
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status)}`}>
-          {status}
-        </span>
+        <div className="flex flex-wrap gap-1">
+          {categories.map((cat, index) => (
+            <Badge
+              key={index}
+              variant="outline"
+              className={`${generateRandomBadgeColor(cat)} text-xs`}
+            >
+              {cat}
+            </Badge>
+          ))}
+        </div>
       );
     },
   },
@@ -122,16 +116,75 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center space-x-2">
-          <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-            View Profile
-          </button>
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <MoreVertical className="h-4 w-4 text-gray-400" />
-          </button>
-        </div>
-      );
+      return <ActionCell merchant={row.original} />;
     },
   },
 ];
+
+// Action Cell Component
+function ActionCell({ merchant }: { merchant: Merchant }) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { handleDeleteMerchant, isPending, isSuccess } = useDeleteMerchant();
+  const router = useRouter();
+
+  const handleViewProfile = () => {
+    // Navigate to profile page
+    router.push(`/dashboard/merchants/${merchant.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`);
+  };
+
+  const handleDeleteMerchantClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    handleDeleteMerchant(merchant.userId);
+
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isSuccess]);
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={handleViewProfile}
+              className="cursor-pointer"
+            >
+              View Profile
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={handleDeleteMerchantClick}
+              className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              Delete Merchant
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Merchant"
+        description="This will permanently delete the merchant and all associated data."
+        itemName={merchant.businessName}
+        isLoading={isPending}
+      />
+    </>
+  );
+}
