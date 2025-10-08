@@ -13,6 +13,7 @@ interface FormPasswordInputProps {
   disabled?: boolean
   required?: boolean
   placeholder?: string
+  customErrorMessage?: string
 }
 
 export function FormPasswordInput({
@@ -22,6 +23,7 @@ export function FormPasswordInput({
   disabled,
   required,
   placeholder = "Enter your password",
+  customErrorMessage,
 }: FormPasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -66,7 +68,11 @@ export function FormPasswordInput({
             </div>
           </FormControl>
           <div className="min-h-[20px]">
-            <FormMessage className="text-sm text-red-600" />
+            {customErrorMessage ? (
+              <p className="text-sm text-red-600">{customErrorMessage}</p>
+            ) : (
+              <FormMessage className="text-sm text-red-600" />
+            )}
           </div>
         </FormItem>
       )}
