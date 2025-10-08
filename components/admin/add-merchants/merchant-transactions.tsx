@@ -33,7 +33,7 @@ export default function MerchantTransactions() {
       transaction.transactionId.toLowerCase().includes(searchLower) ||
       transaction.type.toLowerCase().includes(searchLower)
     );
-  }, [searchTerm]);
+  }, [searchTerm, transactionsData]);
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

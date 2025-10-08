@@ -38,7 +38,7 @@ export default function ViewMerchants() {
       merchant.email.toLowerCase().includes(searchLower) ||
       merchant.category.some(cat => cat.toLowerCase().includes(searchLower))
     );
-  }, [searchTerm]);
+  }, [searchTerm, merchantsData]);
 
   const itemsPerPage = 20;
   const startIndex = (currentPage - 1) * itemsPerPage;
