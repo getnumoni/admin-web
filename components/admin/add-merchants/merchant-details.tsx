@@ -9,10 +9,13 @@ import AdminControls from "./admin-controls";
 import EndorsedCharity from "./endorsed-charity";
 import MerchantDescription from "./merchant-description";
 import MerchantHeader from "./merchant-header";
+import MerchantKyc from "./merchant-kyc";
+import MerchantRewardPoints from "./merchant-reward-points";
 import MerchantTabs from "./merchant-tabs";
 import PersonalInformation from "./personal-information";
 import ReportsSection from "./reports-section";
 import ReviewsSection from "./reviews-section";
+import SingleMerchantTransaction from "./single-merchant-transaction";
 
 interface MerchantDetailsProps {
   merchantId: string | string[] | undefined;
@@ -22,10 +25,10 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
 
-  console.log('merchantDetails', merchantDetails?.data?.data);
+  // console.log('merchantDetails', merchantDetails?.data?.data);
   const merchantData = merchantDetails?.data?.data;
 
-  console.log('merchantId', merchantId);
+  // console.log('merchantId', merchantId);
 
   const handleEditPersonalInfo = () => {
     console.log("Edit personal information");
@@ -93,7 +96,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MerchantDescription
-                description={merchantData?.businessDescription}
+                description={merchantData?.description}
                 onEdit={handleEditDescription}
               />
               <EndorsedCharity
@@ -124,24 +127,15 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
         )}
 
         {activeTab === "kyc" && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">KYC Information</h3>
-            <p className="text-gray-600">KYC details will be displayed here.</p>
-          </div>
+          <MerchantKyc merchantDetails={merchantData} merchantId={merchantId ?? ""} />
         )}
 
         {activeTab === "transactions" && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Transactions</h3>
-            <p className="text-gray-600">Transaction history will be displayed here.</p>
-          </div>
+          <SingleMerchantTransaction />
         )}
 
         {activeTab === "rewards" && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Reward & Points</h3>
-            <p className="text-gray-600">Reward and points information will be displayed here.</p>
-          </div>
+          <MerchantRewardPoints />
         )}
       </div>
     </div>

@@ -1,11 +1,12 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit2 } from "lucide-react";
 
 interface PersonalInformationProps {
   businessName: string;
-  category: string;
+  category: string[];
   businessEmail: string;
   address: string;
   phone: string;
@@ -30,14 +31,14 @@ export default function PersonalInformation({
     { label: "Business Name", value: businessName },
     { label: "Email Address", value: businessEmail },
     { label: "Phone Number", value: phone },
-    { label: "Account Number", value: accountNumber },
+
   ];
 
   const rightColumnItems = [
-    { label: "Category", value: category },
     { label: "Address", value: address },
     { label: "Bank Name", value: bankName },
     { label: "Account Name", value: accountName },
+    { label: "Account Number", value: accountNumber },
   ];
 
   return (
@@ -71,6 +72,20 @@ export default function PersonalInformation({
               <span className="text-sm text-gray-900 font-semibold  max-w-[90%]">{item.value}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Categories section with badges */}
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="flex flex-col items-start">
+          <span className="text-sm text-gray-500 font-medium mb-2">Categories:</span>
+          <div className="flex flex-wrap gap-2">
+            {category.map((cat, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {cat}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -85,7 +85,7 @@ export default function ViewMerchants() {
   // Show loading state
   if (isPending) {
     return (
-      <LoadingSpinner />
+      <LoadingSpinner message="Loading All Merchants..." />
     );
   }
 
