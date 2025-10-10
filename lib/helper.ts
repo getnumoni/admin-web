@@ -903,8 +903,26 @@ export const validateFileSize = (file: File, maxSizeString: string): { isValid: 
 
 // File type validation utility
 export const validateFileType = (file: File, allowedTypes: string[] = ['image/png', 'image/jpeg', 'image/jpg']): { isValid: boolean; error?: string } => {
-  if (!allowedTypes.includes(file.type)) {
-    const allowedExtensions = allowedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ');
+  // Check if file type matches any of the allowed types
+  const isValidType = allowedTypes.some(type => {
+    // Handle MIME types (e.g., 'image/png', 'application/pdf')
+    if (type.includes('/')) {
+      return file.type === type;
+    }
+    // Handle file extensions (e.g., 'pdf', 'png')
+    return file.type === `application/${type}` || file.type === `image/${type}`;
+  });
+
+  if (!isValidType) {
+    const allowedExtensions = allowedTypes.map(type => {
+      // If it's a MIME type, extract the extension
+      if (type.includes('/')) {
+        return type.split('/')[1].toUpperCase();
+      }
+      // If it's already an extension, just uppercase it
+      return type.toUpperCase();
+    }).join(', ');
+
     return {
       isValid: false,
       error: `File type not supported. Please upload ${allowedExtensions} files only.`
