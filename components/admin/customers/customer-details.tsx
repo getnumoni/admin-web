@@ -4,6 +4,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetCustomerDetailsById from "@/hooks/query/useGetCustomerDetailsById";
 import { useState } from "react";
 import CustomerHeader from "./customer-header";
+import CustomerOverview from "./customer-overview";
 import CustomersTabs from "./customers-tab";
 
 export default function CustomerDetails({ customerId }: { customerId: string }) {
@@ -45,6 +46,19 @@ export default function CustomerDetails({ customerId }: { customerId: string }) 
       />
 
       <CustomersTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+
+      {activeTab === "overview" && (
+        <CustomerOverview customerData={customerData} />
+      )}
+
+      {activeTab === "transactions" && (
+        <h2>Transactions</h2>
+      )}
+
+      {activeTab === "reward-points" && (
+        <h2>Reward & Points</h2>
+      )}
     </div>
   </div>;
 }

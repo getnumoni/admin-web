@@ -619,5 +619,57 @@ type MerchantDetailsResponse = {
   wallet: string | null
 }
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+type CustomerDetailsResponse = {
+  id: string,
+  name: string;
+  email: string;
+  termAndCondition: string | null;
+  userId: string;
+  phoneNumber: string;
+  qrCode: string | null;
+  createdDt: string;
+  updatedDt: string | null;
+  kudaAccountNumber: string | null;
+  kudaAccountHolderName: string | null;
+  profilePicture: string | null;
+  dateOfBirth: string;
+  gender: string;
+  loyaltyPoints: string | null;
+  membershipTier: string | null;
+  totalSpent: string | null;
+  lastPurchaseDate: string | null;
+  globalWalletBalance: string | null;
+  level2WalletBalance: string | null;
+  savedCharities: string | null;
+  referralCode: string | null;
+  referredBy: string | null;
+  referralPoints: string | null;
+  switchAccountEnabled: boolean;
+  language: string;
+  currency: string | null;
+  wallet: string | null;
+  locations: [
+    {
+      id: string;
+      customerId: string;
+      homeNumber: string | null;
+      latitude: string | null;
+      longitude: string | null;
+      street: string | null;
+      address: string;
+      city: string;
+      state: string;
+      country: string;
+      postalCode: string;
+      locationType: string;
+      createdDt: string;
+      updatedDt: string | null;
+      default: boolean;
+    }
+  ],
+  emailVerified: boolean;
+  phoneVerified: boolean;
+}
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
