@@ -4,24 +4,24 @@ import ReviewCard from "@/components/common/review-card";
 
 interface Review {
   id: string;
-  customerName: string;
-  customerAvatar?: string;
+  merchantName: string;
+  merchantAvatar?: string;
   rating: number;
   reviewText: string;
   date: string;
 }
 
-interface ReviewsSectionProps {
+interface CustomerReviewsSectionProps {
   reviews: Review[];
   onHideReview?: (id: string) => void;
   onDeleteReview?: (id: string) => void;
 }
 
-export default function ReviewsSection({
+export default function CustomerReviewsSection({
   reviews,
   onHideReview,
   onDeleteReview
-}: ReviewsSectionProps) {
+}: CustomerReviewsSectionProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Reviews</h3>
@@ -30,7 +30,12 @@ export default function ReviewsSection({
         {reviews.map((review) => (
           <ReviewCard
             key={review.id}
-            {...review}
+            id={review.id}
+            customerName={review.merchantName}
+            customerAvatar={review.merchantAvatar}
+            rating={review.rating}
+            reviewText={review.reviewText}
+            date={review.date}
             onHide={onHideReview}
             onDelete={onDeleteReview}
           />
