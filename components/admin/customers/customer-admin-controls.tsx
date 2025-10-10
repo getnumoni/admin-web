@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-interface AdminControlsProps {
+interface CustomerAdminControlsProps {
   onAdjustPoints?: () => void;
   onAdjustBalance?: () => void;
   onResetPassword?: () => void;
@@ -21,17 +21,18 @@ interface AdminControlsProps {
   userId?: string;
 }
 
-export default function AdminControls({
+export default function CustomerAdminControls({
   onAdjustPoints,
   onAdjustBalance,
   onResetPassword,
   onDeleteAccount,
   userName,
   userId,
-}: AdminControlsProps) {
+}: CustomerAdminControlsProps) {
   const [isAdjustPointsOpen, setIsAdjustPointsOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+
   const handleAdjustPointsConfirm = (data: { wallet: string; points: number; reason: string }) => {
     console.log("Adjust Points:", data);
     onAdjustPoints?.();
@@ -79,7 +80,7 @@ export default function AdminControls({
   ];
 
   return (
-    <>
+    <main className="mt-6">
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Controls</h3>
 
@@ -122,6 +123,6 @@ export default function AdminControls({
         userName={userName}
         userId={userId}
       />
-    </>
+    </main>
   );
 }
