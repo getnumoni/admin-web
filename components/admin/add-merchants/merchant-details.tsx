@@ -122,6 +122,8 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               onAdjustBalance={handleAdjustBalance}
               onResetPassword={handleResetPassword}
               onDeleteAccount={handleDeleteAccount}
+              userName={merchantData?.businessName}
+              userId={merchantData?.merchantId}
             />
           </div>
         )}
