@@ -10,8 +10,7 @@ import { activityLogColumns } from './activity-log-columns';
 export default function ActivityLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
+
   const [showFilters, setShowFilters] = useState(false);
 
   const itemsPerPage = 10;
@@ -44,8 +43,7 @@ export default function ActivityLogs() {
   };
 
   const handleResetFilter = () => {
-    setFilterBy('');
-    setRoleFilter('');
+
     setSearchTerm('');
   };
 

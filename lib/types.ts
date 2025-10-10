@@ -514,5 +514,110 @@ type CustomerTransaction = {
   status: 'SUCCESSFUL' | null;
 };
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantTransaction, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+
+type MetricCardProps = {
+  title: string;
+  value: string;
+  change?: string;
+  changeType?: 'positive' | 'negative';
+  icon: React.ReactNode;
+  bgColor: string;
+  iconBgColor: string;
+}
+
+
+type CreateCustomerKycPayload = {
+  identificationType: string,
+  identificationTypeNumber?: string,
+  businessRegNo: string,
+  cacDocumentPath?: string,
+  reqCertificatePath?: string,
+  tinNo?: string,
+  tinPath?: string,
+  menuPath?: string,
+  verifiedNin: boolean,
+  verifiedTinNo: boolean,
+  verifiedCac: boolean
+}
+
+type MerchantDetailsResponse = {
+
+  merchantId: string,
+  userId: string | null,
+  businessName: string,
+  brandName: string | null,
+  businessImagePath: string | null,
+  businessPhoneNo: string | null,
+  businessEmail: string,
+  qrCode: string | null,
+  registeredBusiness: string | null,
+  businessReqNo: string | null,
+  spendMinimumAmount: number | null,
+  sellOffline: boolean | null,
+  sellOnline: boolean | null,
+  cacDocumentPath: string | null,
+  verifiedNin: boolean | null,
+  verifiedTin: boolean | null,
+  verifiedCac: boolean | null,
+  reqCertificatePath: string | null,
+  tinNo: string | null,
+  tinPath: string | null,
+  menuPath: string | null,
+  userInformation: string | null,
+  menu: string | null,
+  "status": "Active",
+  averageRating: number | null,
+  numberOfReviews: number | null,
+  category: string[] | null,
+  description: string | null,
+  locations: [
+    {
+      id: string | null,
+      userId: string | null,
+      storeNo: string | null,
+      address: string | null,
+      street: string | null,
+      city: string | null,
+      country: string | null,
+      postalCode: string | null,
+      latitude: string | null,
+      longitude: string | null,
+      contactPersonName: string | null,
+      contactEmailAddress: string | null,
+      contactPhoneNumber: string | null,
+      contactAddress: string | null,
+      createdDt: string | null,
+      updatedDt: string | null,
+      active: boolean | null,
+    }
+  ],
+  bankInformation: [
+    {
+      id: string | null,
+      merchantId: string | null,
+      bankname: string | null,
+      bankcode: string | null,
+      accountNo: string | null,
+      accountHolderName: string | null,
+      bankTransferCode: string | null,
+      primary: boolean | null,
+      minimumSpentAmount: number | null,
+      active: boolean | null,
+      createdDt: string | null,
+      updatedDt: string | null
+    }
+  ],
+  businessImages: string | null,
+  percentage: number | null,
+  facebook: string | null,
+  instagram: string | null,
+  twitter: string | null,
+  linkedin: string | null,
+  snapchat: string | null,
+  website: string | null,
+  tiktok: string | null,
+  wallet: string | null
+}
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 

@@ -1,6 +1,5 @@
 import { DealIcon } from "@/components/common/icon-svg";
-import { avatarIcon, branchIcon, calenderIcon, dealIcon, emailIcon, giftIcon, graphDirectionIcon, grayPointIcon, instagramIcon, musicPauseIcon, phoneNotificationIcon, twitterIcon, whatsappIcon } from "@/constant/icons";
-import { sampleUserIcon } from "@/constant/images";
+import { calenderIcon, dealIcon, emailIcon, giftIcon, graphDirectionIcon, grayPointIcon, instagramIcon, musicPauseIcon, phoneNotificationIcon, twitterIcon, whatsappIcon } from "@/constant/icons";
 import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_ROLES_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_REPORTS_CHARITY_URL, ADMIN_REPORTS_POINTS_URL, ADMIN_REPORTS_URL, ADMIN_URL } from "@/constant/routes";
 import { AdminNavigationItem } from "@/lib/types";
 import { BarChart3, Bell, Building, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, User, Users } from "lucide-react";
@@ -149,69 +148,7 @@ const months = [
 
 const years = ["2023", "2024", "2025"];
 
-const customerData = [
-  {
-    id: 1,
-    name: "Adebimpe Adedola",
-    spent: "2,967,415",
-    earned: "4,091",
-    branch: "Chicken republic Ikeja Branch",
-    loyaltyRank: 1,
-    profileIcon: avatarIcon,
-    merchantIcon: sampleUserIcon
 
-  },
-  {
-    id: 2,
-    name: "Adebimpe Adedola",
-    spent: "2,041,112",
-    earned: "3,524",
-    branch: "Chicken republic Ikeja Branch",
-    loyaltyRank: 2,
-    profileIcon: avatarIcon,
-    merchantIcon: sampleUserIcon
-  },
-  {
-    id: 3,
-    name: "Adebimpe Adedola",
-    spent: "1,234,551",
-    earned: "2,678",
-    branch: "Chicken republic Ikeja Branch",
-    loyaltyRank: 3,
-    profileIcon: avatarIcon,
-    merchantIcon: sampleUserIcon
-  },
-  {
-    id: 4,
-    name: "Adebimpe Adedola",
-    spent: "967,415",
-    earned: "1,346",
-    branch: "Chicken republic Abuja Branch",
-    loyaltyRank: null,
-    profileIcon: avatarIcon,
-    merchantIcon: branchIcon
-  },
-  {
-    id: 5,
-    name: "Adebimpe Adedola",
-    spent: "967,415",
-    earned: "1,346",
-    branch: "Chicken republic Vi Branch",
-    loyaltyRank: null,
-    profileIcon: avatarIcon,
-    merchantIcon: sampleUserIcon
-  },
-  {
-    id: 6,
-    name: "Adebimpe Adedola",
-    spent: "967,415",
-    earned: "1,346",
-    branch: "Chicken republic Ketu Branch",
-    loyaltyRank: null,
-    profileIcon: avatarIcon,
-    merchantIcon: sampleUserIcon
-  }
-];
 
 
 const adminNavigationItem: AdminNavigationItem[] = [
@@ -397,10 +334,12 @@ const mockMerchantData = {
   ],
 };
 
+
+
 export {
   adminNavigationItem, benefitsData,
   branches,
-  customerData, mockMerchantData, months,
+  mockMerchantData, months,
 
   regions,
   rewardTableData,
