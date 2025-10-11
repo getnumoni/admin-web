@@ -1,3 +1,4 @@
+import CharityReport from "@/components/admin/deals-and-promo/charity-report";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>Charity Report Page, work in progress</div>;
+  return <CharityReport />;
 }

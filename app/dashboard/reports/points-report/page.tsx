@@ -1,3 +1,4 @@
+import ViewPointsReport from "@/components/admin/deals-and-promo/view-points-report";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>Points Report Page, work in progress</div>;
+  return <ViewPointsReport />;
 } 

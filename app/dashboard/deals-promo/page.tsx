@@ -1,3 +1,4 @@
+import ViewDealsPromo from "@/components/admin/deals-and-promo/view-deals-promo";
 import { Metadata } from "next";
 
 
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>DealsPromo</div>;
+  return <ViewDealsPromo />;
 }

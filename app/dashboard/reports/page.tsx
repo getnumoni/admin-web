@@ -1,3 +1,4 @@
+import SalesReport from "@/components/admin/reports/sales-report";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>Reports Page, work in progress</div>;
+  return <SalesReport />;
 }
