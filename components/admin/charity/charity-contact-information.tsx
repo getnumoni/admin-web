@@ -3,7 +3,7 @@
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { FormPhoneInput } from "@/components/ui/form-phone-input";
 import { FormSelectTopLabel } from "@/components/ui/form-select";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
+import { Control, FieldValues } from "react-hook-form";
 
 interface CharityContactInformationProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -19,7 +19,6 @@ interface CharityContactInformationProps<
 
 export default function CharityContactInformation<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >({
   control,
   regions,

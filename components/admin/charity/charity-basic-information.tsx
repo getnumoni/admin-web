@@ -12,7 +12,7 @@ interface CharityBasicInformationProps<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > {
   control: Control<TFieldValues>;
-  setValue: (name: TName, value: any) => void;
+  setValue: (name: TName, value: string | string[] | undefined) => void;
   regions: string[];
   states: string[];
   lgas: string[];

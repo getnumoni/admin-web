@@ -15,10 +15,11 @@ import { useState } from "react";
 interface CustomerAdminControlsProps {
   onAdjustPoints?: () => void;
   onAdjustBalance?: () => void;
-  onResetPassword?: () => void;
+  onResetPassword?: (data: { newPassword: string; confirmPassword: string }) => void;
   onDeleteAccount?: () => void;
   userName?: string;
   userId?: string;
+  isResetPending?: boolean;
 }
 
 export default function CustomerAdminControls({
@@ -28,6 +29,7 @@ export default function CustomerAdminControls({
   onDeleteAccount,
   userName,
   userId,
+  isResetPending = false,
 }: CustomerAdminControlsProps) {
   const [isAdjustPointsOpen, setIsAdjustPointsOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
@@ -44,8 +46,7 @@ export default function CustomerAdminControls({
   };
 
   const handleResetPasswordConfirm = (data: { newPassword: string; confirmPassword: string }) => {
-    console.log("Reset Password:", data);
-    onResetPassword?.();
+    onResetPassword?.(data);
   };
 
   const controls = [
@@ -122,6 +123,7 @@ export default function CustomerAdminControls({
         onConfirm={handleResetPasswordConfirm}
         userName={userName}
         userId={userId}
+        isLoading={isResetPending}
       />
     </main>
   );
