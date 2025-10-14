@@ -1,3 +1,4 @@
+import { useResetCustomerPassword } from "@/hooks/mutation/useResetCustomerPassword";
 import { CustomerDetailsResponse } from "@/lib/types";
 import CustomerAccountInfo from "./customer-account-info";
 import CustomerAdminControls from "./customer-admin-controls";
@@ -6,6 +7,8 @@ import CustomerPersonalInfo from "./customer-personal-info";
 import CustomerReviewsSection from "./customer-reviews-section";
 
 export default function CustomerOverview({ customerData }: { customerData: CustomerDetailsResponse }) {
+  const { handleResetCustomerPassword, isPending: isResetPending } = useResetCustomerPassword();
+
   // Mock customer reviews data
   const mockCustomerReviews = [
     {
@@ -50,8 +53,13 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
     console.log("Adjust customer balance");
   };
 
-  const handleResetPassword = () => {
-    console.log("Reset customer password");
+  const handleResetPassword = (data: { newPassword: string; confirmPassword: string }) => {
+    if (customerData?.userId) {
+      handleResetCustomerPassword({
+        id: customerData.userId,
+        newPassword: data.newPassword,
+      });
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -84,6 +92,7 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
       onDeleteAccount={handleDeleteAccount}
       userName={customerData?.name}
       userId={customerData?.userId}
+      isResetPending={isResetPending}
     />
   </main>;
 }
