@@ -4,6 +4,7 @@ import AdjustBalanceDialog from "@/components/common/adjust-balance-dialog";
 import AdjustPointsDialog from "@/components/common/adjust-points-dialog";
 import ResetPasswordDialog from "@/components/common/reset-password-dialog";
 import { Button } from "@/components/ui/button";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import {
   Coins,
   DollarSign,
@@ -15,10 +16,13 @@ import { useState } from "react";
 interface AdminControlsProps {
   onAdjustPoints?: () => void;
   onAdjustBalance?: () => void;
-  onResetPassword?: () => void;
+  onResetPassword?: (data: { newPassword: string; confirmPassword: string }) => void;
   onDeleteAccount?: () => void;
   userName?: string;
   userId?: string;
+  businessName?: string;
+  isDeletePending?: boolean;
+  isResetPending?: boolean;
 }
 
 export default function AdminControls({
@@ -28,10 +32,14 @@ export default function AdminControls({
   onDeleteAccount,
   userName,
   userId,
+  businessName,
+  isDeletePending = false,
+  isResetPending = false,
 }: AdminControlsProps) {
   const [isAdjustPointsOpen, setIsAdjustPointsOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const handleAdjustPointsConfirm = (data: { wallet: string; points: number; reason: string }) => {
     console.log("Adjust Points:", data);
     onAdjustPoints?.();
@@ -43,8 +51,15 @@ export default function AdminControls({
   };
 
   const handleResetPasswordConfirm = (data: { newPassword: string; confirmPassword: string }) => {
-    console.log("Reset Password:", data);
-    onResetPassword?.();
+    onResetPassword?.(data);
+  };
+
+  const handleDeleteMerchantClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDeleteAccount?.();
   };
 
   const controls = [
@@ -70,9 +85,9 @@ export default function AdminControls({
       className: "border-gray-300 text-gray-700 hover:bg-gray-50",
     },
     {
-      label: "Delete Account",
+      label: "Delete Merchant",
       icon: Trash2,
-      onClick: onDeleteAccount,
+      onClick: handleDeleteMerchantClick,
       variant: "outline" as const,
       className: "border-red-300 text-red-600 hover:bg-red-50",
     },
@@ -119,8 +134,19 @@ export default function AdminControls({
         isOpen={isResetPasswordOpen}
         onClose={() => setIsResetPasswordOpen(false)}
         onConfirm={handleResetPasswordConfirm}
-        userName={userName}
+        userName={businessName || userName}
         userId={userId}
+        isLoading={isResetPending}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Merchant"
+        description="This will permanently delete the merchant and all associated data."
+        itemName={businessName || userName || ""}
+        isLoading={isDeletePending}
       />
     </>
   );

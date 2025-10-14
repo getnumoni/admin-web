@@ -1,11 +1,10 @@
 "use client";
 
 import { formatCurrency } from "@/lib/helper";
-import { CustomerDetailsResponse } from "@/lib/types";
 
-interface CustomerFinancialOverviewProps {
-  customerData: CustomerDetailsResponse;
-}
+// interface CustomerFinancialOverviewProps {
+//   customerData: CustomerDetailsResponse;
+// }
 
 export default function CustomerFinancialOverview() {
   // Mock data - replace with actual customer data when available

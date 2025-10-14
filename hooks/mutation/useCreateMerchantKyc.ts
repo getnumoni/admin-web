@@ -12,7 +12,7 @@ export const useCreateMerchantKyc = (merchantId: string) => {
   const router = useRouter();
 
   const { mutate, isPending, isSuccess } = useMutation({
-    mutationFn: (data: CreateCustomerKycPayload) => api.post(`admin/kycdocuments?merchantId=${merchantId}`, data),
+    mutationFn: (data: CreateCustomerKycPayload) => api.post(`/admin/kycdocuments?merchantId=${merchantId}`, data),
     onSuccess: (data) => {
       if (data) {
         toast.success(data?.data?.message ?? "Customer KYC documents created successfully");

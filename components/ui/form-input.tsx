@@ -13,6 +13,7 @@ interface FormInputTopLabelProps {
   required?: boolean
   placeholder?: string
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  transform?: (value: string) => string
 }
 
 export function FormInputTopLabel({
@@ -24,6 +25,7 @@ export function FormInputTopLabel({
   required,
   placeholder,
   onKeyDown,
+  transform,
 }: FormInputTopLabelProps) {
   return (
     <FormField
@@ -42,6 +44,10 @@ export function FormInputTopLabel({
               placeholder={placeholder}
               disabled={disabled}
               onKeyDown={onKeyDown}
+              onChange={(e) => {
+                const value = transform ? transform(e.target.value) : e.target.value;
+                field.onChange(value);
+              }}
               className={`w-full rounded-lg border px-4 py-3 text-base text-gray-900 placeholder-gray-400 disabled:cursor-not-allowed ${error
                 ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500'
                 : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-blue-500'

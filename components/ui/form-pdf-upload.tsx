@@ -9,7 +9,7 @@ interface FormPdfUploadProps {
   label: string
   description?: string
   required?: boolean
-  onPdfChange: (base64: string | null) => void
+  onPdfChange: (value: string | null) => void
   maxSize?: string
   currentValue?: string | null
   error?: string
@@ -60,8 +60,12 @@ export function FormPdfUpload({
         const base64 = e.target?.result as string
         // Remove the data:application/pdf;base64, prefix
         const cleanBase64 = base64.split(',')[1]
+        // Extract file extension
+        const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'pdf'
+        // Concatenate base64 with extension
+        const base64WithExtension = `${cleanBase64}.${fileExtension}`
         setPdfPreview(cleanBase64)
-        onPdfChange(cleanBase64)
+        onPdfChange(base64WithExtension)
         setIsUploading(false)
       }
       reader.readAsDataURL(file)

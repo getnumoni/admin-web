@@ -23,13 +23,13 @@ export default function ViewMerchants() {
 
   // Extract merchants data from API response
   const apiData = data?.data?.data;
-  const merchantsData: Merchant[] = apiData?.pageData || [];
   // const totalRows = apiData?.totalRows || 0;
   // const totalPages = apiData?.totalPages || 1;
   // const currentApiPage = apiData?.currentPage || 0;
 
   // Filter merchants based on search term
   const filteredMerchants = useMemo(() => {
+    const merchantsData: Merchant[] = apiData?.pageData || [];
     if (!searchTerm.trim()) return merchantsData;
 
     const searchLower = searchTerm.toLowerCase().trim();
@@ -38,7 +38,7 @@ export default function ViewMerchants() {
       merchant.email.toLowerCase().includes(searchLower) ||
       merchant.category.some(cat => cat.toLowerCase().includes(searchLower))
     );
-  }, [searchTerm, merchantsData]);
+  }, [searchTerm, apiData?.pageData]);
 
   const itemsPerPage = 20;
   const startIndex = (currentPage - 1) * itemsPerPage;

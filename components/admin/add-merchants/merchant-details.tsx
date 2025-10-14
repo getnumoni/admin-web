@@ -2,6 +2,8 @@
 
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { mockMerchantData } from "@/data";
+import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
+import { useResetMerchantPassword } from "@/hooks/mutation/useResetMerchantPassword";
 import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
 import { useState } from "react";
 import AccountInformation from "./account-information";
@@ -24,6 +26,8 @@ interface MerchantDetailsProps {
 export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
+  const { handleDeleteMerchant, isPending: isDeletePending } = useDeleteMerchant();
+  const { handleResetMerchantPassword, isPending: isResetPending } = useResetMerchantPassword();
 
   // console.log('merchantDetails', merchantDetails?.data?.data);
   const merchantData = merchantDetails?.data?.data;
@@ -62,12 +66,19 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
     console.log("Adjust balance");
   };
 
-  const handleResetPassword = () => {
-    console.log("Reset password");
+  const handleResetPassword = (data: { newPassword: string; confirmPassword: string }) => {
+    if (merchantId) {
+      handleResetMerchantPassword({
+        id: merchantId as string,
+        newPassword: data.newPassword
+      });
+    }
   };
 
   const handleDeleteAccount = () => {
-    console.log("Delete account");
+    if (merchantId) {
+      handleDeleteMerchant(merchantId as string);
+    }
   };
 
   if (isMerchantDetailsPending) {
@@ -89,6 +100,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PersonalInformation
                 {...merchantData}
+                merchantId={merchantId}
                 onEdit={handleEditPersonalInfo}
               />
               <AccountInformation {...mockMerchantData.accountInfo} />
@@ -98,6 +110,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               <MerchantDescription
                 description={merchantData?.description}
                 onEdit={handleEditDescription}
+                userId={merchantId ? merchantId as string : undefined}
               />
               <EndorsedCharity
                 charityCount={merchantData?.charityCount}
@@ -123,7 +136,10 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               onResetPassword={handleResetPassword}
               onDeleteAccount={handleDeleteAccount}
               userName={merchantData?.businessName}
-              userId={merchantData?.merchantId}
+              userId={merchantId ? merchantId as string : undefined}
+              businessName={merchantData?.businessName}
+              isDeletePending={isDeletePending}
+              isResetPending={isResetPending}
             />
           </div>
         )}

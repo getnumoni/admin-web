@@ -1,14 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Check, ChevronDown } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface MerchantHeaderProps {
   merchantName: string;
@@ -32,7 +25,7 @@ export default function MerchantHeader({ merchantName, userId, level }: Merchant
         </div>
       </div>
 
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="bg-green-600 hover:bg-green-700 text-white">
             Select Action
@@ -45,7 +38,7 @@ export default function MerchantHeader({ merchantName, userId, level }: Merchant
           <DropdownMenuItem>Send Notification</DropdownMenuItem>
           <DropdownMenuItem>Export Data</DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
     </div>
   );
 }

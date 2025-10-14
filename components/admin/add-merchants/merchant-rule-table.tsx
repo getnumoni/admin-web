@@ -30,17 +30,17 @@ export default function MerchantRuleTable() {
     }).format(amount);
   };
 
-  const handleEditRule = (ruleId: string) => {
-    console.log('Edit rule:', ruleId);
-  };
+  // const handleEditRule = (ruleId: string) => {
+  //   console.log('Edit rule:', ruleId);
+  // };
 
-  const handleDeleteRule = (ruleId: string) => {
-    console.log('Delete rule:', ruleId);
-  };
+  // const handleDeleteRule = (ruleId: string) => {
+  //   console.log('Delete rule:', ruleId);
+  // };
 
-  const handleAddRule = () => {
-    console.log('Add new rule');
-  };
+  // const handleAddRule = () => {
+  //   console.log('Add new rule');
+  // };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">

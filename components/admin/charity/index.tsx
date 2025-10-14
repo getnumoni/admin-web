@@ -10,8 +10,8 @@ import { charityColumns } from './charity-columns';
 export default function Charity() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  // const [filterBy, setFilterBy] = useState('');
+  // const [dateFilter, setDateFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
   const itemsPerPage = 12;
@@ -43,8 +43,7 @@ export default function Charity() {
   };
 
   const handleResetFilter = () => {
-    setFilterBy('');
-    setDateFilter('');
+
     setSearchTerm('');
   };
 

@@ -111,7 +111,6 @@ function PointAllocationItem({ allocation, onFreeze, onUnfreeze, onEditExpiry, o
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFreezeDialogOpen, setIsFreezeDialogOpen] = useState(false);
-  const [isEditPointsDialogOpen, setIsEditPointsDialogOpen] = useState(false);
   const [isEditExpiryDialogOpen, setIsEditExpiryDialogOpen] = useState(false);
 
   const formatCurrency = (amount: number) => {

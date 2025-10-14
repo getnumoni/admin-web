@@ -15,7 +15,7 @@ interface CustomerHeaderProps {
   level: string;
 }
 
-export default function CustomerHeader({ customerName, customerId, level }: CustomerHeaderProps) {
+export default function CustomerHeader({ customerName, customerId }: CustomerHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg">
       <div className="flex items-center gap-3 bg-white">

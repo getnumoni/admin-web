@@ -11,9 +11,9 @@ import { adminColumns } from './admin-columns';
 export default function ViewAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterBy, setFilterBy] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [teamFilter, setTeamFilter] = useState('');
+  // const [filterBy, setFilterBy] = useState('');
+  // const [roleFilter, setRoleFilter] = useState('');
+  // const [teamFilter, setTeamFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
   const itemsPerPage = 12;
@@ -46,9 +46,7 @@ export default function ViewAdmin() {
   };
 
   const handleResetFilter = () => {
-    setFilterBy('');
-    setRoleFilter('');
-    setTeamFilter('');
+
     setSearchTerm('');
   };
 

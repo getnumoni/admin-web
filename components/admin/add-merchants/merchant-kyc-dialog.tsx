@@ -33,15 +33,15 @@ const identificationTypes = [
   { value: "NIN", label: "NIN" }
 ];
 
-const kycSchema = z.object({
+const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertificatePath?: string | null }) => z.object({
   identificationType: z.string().min(1, "Please select an identification type"),
   identificationTypeNumber: z.string().optional(),
   businessRegNo: z.string().min(1, "Business registration number is required"),
   cacDocumentPath: z.string().optional(),
-  reqCertificatePath: z.string().min(1, "Required certificate is required"),
+  reqCertificatePath: existingKycData?.reqCertificatePath ? z.string().optional() : z.string().min(1, "Required certificate is required"),
   tinNo: z.string().optional(),
   tinPath: z.string().optional(),
-  menuPath: z.string().min(1, "Menu document is required"),
+  menuPath: existingKycData?.menuPath ? z.string().optional() : z.string().min(1, "Menu document is required"),
   verifiedNin: z.boolean(),
   verifiedTinNo: z.boolean(),
   verifiedCac: z.boolean(),
@@ -64,21 +64,25 @@ const kycSchema = z.object({
   path: ["identificationType"]
 });
 
-type KycFormValues = z.infer<typeof kycSchema>;
+type KycFormValues = z.infer<ReturnType<typeof createKycSchema>>;
 
 interface MerchantKycDialogProps {
   isOpen: boolean;
   onClose: () => void;
   merchantId: string;
   businessName: string;
+  existingKycData?: {
+    menuPath?: string | null;
+    reqCertificatePath?: string | null;
+  };
 }
 
-export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName }: MerchantKycDialogProps) {
-  console.log('merchantId', merchantId);
+export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName, existingKycData }: MerchantKycDialogProps) {
+  // console.log('merchantId', merchantId);
   const { handleCreateMerchantKyc, isPending, isSuccess } = useCreateMerchantKyc(merchantId);
 
   const form = useForm<KycFormValues>({
-    resolver: zodResolver(kycSchema),
+    resolver: zodResolver(createKycSchema(existingKycData)),
     defaultValues: {
       identificationType: "",
       identificationTypeNumber: "",
@@ -97,10 +101,10 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
   const selectedIdentificationType = form.watch("identificationType");
 
   const onSubmit = (data: KycFormValues) => {
-    // console.log('Form submitted with data:', data);
+    console.log('Form submitted with data:', data);
     // console.log('Form validation state:', form.formState);
     // console.log('Form errors:', form.formState.errors);
-    handleCreateMerchantKyc(data);
+    // handleCreateMerchantKyc(data);
   };
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="min-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-[860px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add KYC Information for {businessName}</DialogTitle>
           <DialogDescription>
@@ -142,23 +146,47 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                 <div className="transition-all duration-300 ease-in-out">
                   {/* Show identification number for CAC and NIN */}
                   {(selectedIdentificationType === "CAC" || selectedIdentificationType === "NIN") && (
-                    <FormInputTopLabel
+                    <FormField
                       control={form.control}
                       name="identificationTypeNumber"
-                      label="Identification Number"
-                      placeholder="Enter identification number"
-                      required
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <FormInputTopLabel
+                              control={form.control}
+                              name="identificationTypeNumber"
+                              label="CAC Identification Number"
+                              placeholder="Enter identification number"
+                              required
+                              transform={(value) => value?.toUpperCase()}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   )}
 
                   {/* Show TIN number for TIN */}
                   {selectedIdentificationType === "TIN" && (
-                    <FormInputTopLabel
+                    <FormField
                       control={form.control}
                       name="tinNo"
-                      label="TIN Number"
-                      placeholder="Enter TIN number"
-                      required
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <FormInputTopLabel
+                              control={form.control}
+                              name="tinNo"
+                              label="TIN Number"
+                              placeholder="Enter TIN number"
+                              required
+                              transform={(value) => value?.toUpperCase()}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   )}
                 </div>
@@ -166,12 +194,24 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
 
               {/* Business Registration Number - full width with animation */}
               <div className="w-full transition-all duration-300 ease-in-out">
-                <FormInputTopLabel
+                <FormField
                   control={form.control}
                   name="businessRegNo"
-                  label="Business Registration Number"
-                  placeholder="Enter business registration number"
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FormInputTopLabel
+                          control={form.control}
+                          name="businessRegNo"
+                          label="Business Registration Number"
+                          placeholder="Enter business registration number"
+                          required
+                          transform={(value) => value?.toUpperCase()}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
             </div>
@@ -236,51 +276,55 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                 )}
               </div>
 
-              {/* Required Certificate - always show */}
-              <div className="transition-all duration-300 ease-in-out">
-                <FormField
-                  control={form.control}
-                  name="reqCertificatePath"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FormPdfUpload
-                          label="Required Certificate"
-                          onPdfChange={field.onChange}
-                          currentValue={field.value}
-                          required
-                          maxSize="500kb"
-                          error={form.formState.errors.reqCertificatePath?.message}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* Required Certificate - only show if not already uploaded */}
+              {!existingKycData?.reqCertificatePath && (
+                <div className="transition-all duration-300 ease-in-out">
+                  <FormField
+                    control={form.control}
+                    name="reqCertificatePath"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <FormPdfUpload
+                            label="Required Certificate"
+                            onPdfChange={field.onChange}
+                            currentValue={field.value}
+                            required
+                            maxSize="500kb"
+                            error={form.formState.errors.reqCertificatePath?.message}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
-              {/* Menu Document - always show */}
-              <div className="transition-all duration-300 ease-in-out">
-                <FormField
-                  control={form.control}
-                  name="menuPath"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FormPdfUpload
-                          label="Menu Document"
-                          onPdfChange={field.onChange}
-                          currentValue={field.value}
-                          required
-                          maxSize="500kb"
-                          error={form.formState.errors.menuPath?.message}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* Menu Document - only show if not already uploaded */}
+              {!existingKycData?.menuPath && (
+                <div className="transition-all duration-300 ease-in-out">
+                  <FormField
+                    control={form.control}
+                    name="menuPath"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <FormPdfUpload
+                            label="Menu Document"
+                            onPdfChange={field.onChange}
+                            currentValue={field.value}
+                            required
+                            maxSize="500kb"
+                            error={form.formState.errors.menuPath?.message}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">

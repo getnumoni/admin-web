@@ -1,59 +1,109 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Edit2 } from "lucide-react";
+import { useState } from "react";
+import PersonalInformationEditDialog from "./personal-information-edit-dialog";
+
+interface BankInformation {
+  id: string;
+  merchantId: string;
+  bankname: string;
+  bankcode: string | null;
+  accountNo: string;
+  accountHolderName: string;
+  bankTransferCode: string | null;
+  primary: boolean;
+  minimumSpentAmount: number;
+  active: boolean;
+  createdDt: string | null;
+  updatedDt: string | null;
+}
+
+interface Location {
+  id: string;
+  userId: string;
+  storeNo: string | null;
+  address: string | null;
+  street: string | null;
+  city: string;
+  country: string;
+  postalCode: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  contactPersonName: string;
+  contactEmailAddress: string;
+  contactPhoneNumber: string;
+  contactAddress: string;
+  createdDt: string | null;
+  updatedDt: string | null;
+  active: boolean;
+}
 
 interface PersonalInformationProps {
+  merchantId?: string;
   businessName: string;
   category: string[];
   businessEmail: string;
-  address: string;
-  phone: string;
-  bankName: string;
-  accountName: string;
-  accountNumber: string;
+  businessPhoneNo: string;
+  locations: Location[];
+  bankInformation: BankInformation[];
+  userId?: string;
   onEdit?: () => void;
 }
 
 export default function PersonalInformation({
+  merchantId,
   businessName,
   category,
   businessEmail,
-  address,
-  phone,
-  bankName,
-  accountName,
-  accountNumber,
+  businessPhoneNo,
+  locations,
+  bankInformation,
+  userId,
   onEdit,
 }: PersonalInformationProps) {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const leftColumnItems = [
     { label: "Business Name", value: businessName },
     { label: "Email Address", value: businessEmail },
-    { label: "Phone Number", value: phone },
+    { label: "Phone Number", value: businessPhoneNo },
 
   ];
+
+  // Get the primary bank or first bank if no primary is set
+  const primaryBank = bankInformation.find(bank => bank.primary) || bankInformation[0];
+
+  // Get address from locations array
+  const address = locations?.[0]?.contactAddress || locations?.[0]?.address || "No address provided";
 
   const rightColumnItems = [
     { label: "Address", value: address },
-    { label: "Bank Name", value: bankName },
-    { label: "Account Name", value: accountName },
-    { label: "Account Number", value: accountNumber },
   ];
+
+  // const handleEditClick = () => {
+  //   setIsEditDialogOpen(true);
+  //   onEdit?.();
+  // };
+
+  // const handleEditConfirm = (data: { businessName: string; businessEmail: string; businessPhoneNo: string; address: string; businessCategory: string[] }) => {
+  //   console.log('Updated personal information:', data);
+  //   // Here you would typically call an API to update the information
+  //   setIsEditDialogOpen(false);
+  // };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 ">
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
         <h3 className="text-lg font-bold text-gray-900">Personal Information</h3>
-        <Button
+        {/* <Button
           variant="ghost"
           size="sm"
-          onClick={onEdit}
+          onClick={handleEditClick}
           className="text-green-600 hover:text-green-700 hover:bg-green-50 text-sm font-medium"
         >
           <Edit2 className="h-4 w-4 mr-2" />
           Edit details
-        </Button>
+        </Button>  */}
       </div>
 
       <div className="grid grid-cols-2 gap-8">
@@ -72,6 +122,30 @@ export default function PersonalInformation({
               <span className="text-sm text-gray-900 font-semibold  max-w-[90%]">{item.value}</span>
             </div>
           ))}
+
+          {/* Bank Information */}
+          {primaryBank && (
+            <>
+              <div className="flex flex-col items-start">
+                <span className="text-sm text-gray-500 font-medium">Bank Name:</span>
+                <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{primaryBank.bankname}</span>
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-sm text-gray-500 font-medium">Account Name:</span>
+                <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{primaryBank.accountHolderName}</span>
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-sm text-gray-500 font-medium">Account Number:</span>
+                <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{primaryBank.accountNo}</span>
+              </div>
+              {primaryBank.bankTransferCode && (
+                <div className="flex flex-col items-start">
+                  <span className="text-sm text-gray-500 font-medium">Transfer Code:</span>
+                  <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{primaryBank.bankTransferCode}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -80,7 +154,7 @@ export default function PersonalInformation({
         <div className="flex flex-col items-start">
           <span className="text-sm text-gray-500 font-medium mb-2">Categories:</span>
           <div className="flex flex-wrap gap-2">
-            {category.map((cat, index) => (
+            {category?.map((cat, index) => (
               <Badge key={index} variant="secondary" className="text-xs">
                 {cat}
               </Badge>
@@ -88,6 +162,18 @@ export default function PersonalInformation({
           </div>
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      <PersonalInformationEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        businessName={businessName}
+        category={category}
+        businessEmail={businessEmail}
+        address={address}
+        businessPhoneNo={businessPhoneNo}
+        userId={merchantId}
+      />
     </div>
   );
 }

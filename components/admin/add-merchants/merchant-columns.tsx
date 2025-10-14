@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
@@ -27,28 +26,28 @@ export type Merchant = {
 
 // Column definitions
 export const merchantColumns: ColumnDef<Merchant>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "businessName",
     header: "Business Name",
@@ -57,15 +56,15 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
       return (
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm">
-            {merchant.businessName.charAt(0).toUpperCase()}
+            {merchant?.businessName?.charAt(0).toUpperCase()}
           </div>
           <div>
-            <Link href={`/dashboard/merchants/${merchant.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`}>
+            <Link href={`/dashboard/merchants/${merchant?.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
-                {merchant.businessName}
+                {merchant?.businessName}
               </div>
             </Link>
-            <div className="text-xs text-gray-500">ID: {merchant.id}</div>
+            <div className="text-xs text-gray-500">ID: {merchant?.id}</div>
           </div>
         </div>
       );
@@ -96,10 +95,10 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => {
-      const categories = row.getValue("category") as string[];
+      const categories = row.getValue("category") as string[] | null;
       return (
         <div className="flex flex-wrap gap-1">
-          {categories.map((cat, index) => (
+          {categories?.map((cat, index) => (
             <Badge
               key={index}
               variant="outline"
@@ -107,7 +106,7 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
             >
               {cat}
             </Badge>
-          ))}
+          )) || <span className="text-gray-500 text-xs">No categories</span>}
         </div>
       );
     },
@@ -129,7 +128,7 @@ function ActionCell({ merchant }: { merchant: Merchant }) {
 
   const handleViewProfile = () => {
     // Navigate to profile page
-    router.push(`/dashboard/merchants/${merchant.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`);
+    router.push(`/dashboard/merchants/${merchant?.userId}/?merchantName=${encodeURIComponent(merchant.businessName)}`);
   };
 
   const handleDeleteMerchantClick = () => {

@@ -8,9 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Form } from "@/components/ui/form";
+import { FormPasswordInput } from "@/components/ui/form-password-input";
+import { useForm } from "react-hook-form";
 
 interface ResetPasswordDialogProps {
   isOpen: boolean;
@@ -18,6 +18,7 @@ interface ResetPasswordDialogProps {
   onConfirm: (data: { newPassword: string; confirmPassword: string }) => void;
   userName?: string;
   userId?: string;
+  isLoading?: boolean;
 }
 
 export default function ResetPasswordDialog({
@@ -25,10 +26,18 @@ export default function ResetPasswordDialog({
   onClose,
   onConfirm,
   userName,
-  userId
+  userId,
+  isLoading = false
 }: ResetPasswordDialogProps) {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const form = useForm({
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: ""
+    }
+  });
+
+  const newPassword = form.watch("newPassword");
+  const confirmPassword = form.watch("confirmPassword");
 
   const handleConfirm = () => {
     if (newPassword && confirmPassword && newPassword === confirmPassword) {
@@ -36,13 +45,12 @@ export default function ResetPasswordDialog({
         newPassword,
         confirmPassword
       });
-      handleClose();
+      // Don't close immediately - let the parent handle closing on success
     }
   };
 
   const handleClose = () => {
-    setNewPassword("");
-    setConfirmPassword("");
+    form.reset();
     onClose();
   };
 
@@ -61,44 +69,40 @@ export default function ResetPasswordDialog({
           </div>
           {userName && userId && (
             <DialogDescription>
-              Resetting password for {userName} ({userId})
+              Resetting password for {userName}
             </DialogDescription>
           )}
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Enter New Password */}
-          <div>
-            <Label htmlFor="new-password">Enter New Password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+        <Form {...form}>
+          <div className="space-y-6">
+            {/* Enter New Password */}
+            <FormPasswordInput
+              control={form.control}
+              name="newPassword"
+              label="Enter New Password"
               placeholder="Enter new password"
-              className="mt-1"
+              required
             />
-          </div>
 
-          {/* Confirm New Password */}
-          <div>
-            <Label htmlFor="confirm-password">Confirm New Password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              className="mt-1"
-            />
-            {passwordsMismatch && (
-              <p className="text-sm text-red-600 mt-1">Passwords do not match</p>
-            )}
-            {passwordsMatch && (
-              <p className="text-sm text-green-600 mt-1">Passwords match</p>
-            )}
+            {/* Confirm New Password */}
+            <div>
+              <FormPasswordInput
+                control={form.control}
+                name="confirmPassword"
+                label="Confirm New Password"
+                placeholder="Confirm new password"
+                required
+              />
+              {passwordsMismatch && (
+                <p className="text-sm text-red-600 mt-1">Passwords do not match</p>
+              )}
+              {passwordsMatch && (
+                <p className="text-sm text-green-600 mt-1">Passwords match</p>
+              )}
+            </div>
           </div>
-        </div>
+        </Form>
 
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="outline" onClick={handleClose} className="border-gray-300 text-gray-700 hover:bg-gray-50">
@@ -106,8 +110,10 @@ export default function ResetPasswordDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!newPassword || !confirmPassword || !passwordsMatch}
+            disabled={!newPassword || !confirmPassword || !passwordsMatch || isLoading}
             className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white"
+            isLoading={isLoading}
+            loadingText="Resetting..."
           >
             Reset
           </Button>

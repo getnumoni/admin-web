@@ -16,7 +16,6 @@ export default function MerchantTransactions() {
   const [currentPage, setCurrentPage] = useState(1);
   const { data, isPending, error, isError } = useGetMerchantTransactions();
   const apiData = data?.data?.data;
-  const transactionsData: MerchantTransaction[] = apiData?.pageData || [];
   // const totalRows = apiData?.totalRows || 0;
   // const totalPages = apiData?.totalPages || 1;
   // const currentApiPage = apiData?.currentPage || 0;
@@ -25,6 +24,7 @@ export default function MerchantTransactions() {
 
   // Filter transactions based on search term only
   const filteredTransactions = useMemo(() => {
+    const transactionsData: MerchantTransaction[] = apiData?.pageData || [];
     if (!searchTerm.trim()) return transactionsData;
 
     const searchLower = searchTerm.toLowerCase().trim();
@@ -33,7 +33,7 @@ export default function MerchantTransactions() {
       transaction.transactionId.toLowerCase().includes(searchLower) ||
       transaction.type.toLowerCase().includes(searchLower)
     );
-  }, [searchTerm, transactionsData]);
+  }, [searchTerm, apiData?.pageData]);
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

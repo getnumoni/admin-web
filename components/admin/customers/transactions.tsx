@@ -17,12 +17,12 @@ export default function Transactions() {
 
   const { data, isPending, error, isError } = useGetCustomersTransactions();
   const apiData = data?.data?.data;
-  const transactionsData: CustomerTransaction[] = apiData?.pageData || [];
 
   const itemsPerPage = 12; // Based on the design showing 12 items
 
   // Filter transactions based on search term and order status (transaction type)
   const filteredTransactions = useMemo(() => {
+    const transactionsData: CustomerTransaction[] = apiData?.pageData || [];
     let filtered = transactionsData;
 
     // Search filter
@@ -42,7 +42,7 @@ export default function Transactions() {
     }
 
     return filtered;
-  }, [searchTerm, orderStatus, transactionsData]);
+  }, [searchTerm, orderStatus, apiData?.pageData]);
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
