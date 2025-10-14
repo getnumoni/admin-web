@@ -18,9 +18,10 @@ export default function Charity() {
   const [showFilters, setShowFilters] = useState(false);
 
   const itemsPerPage = 12;
-  const charityData: CharityData[] = data?.data?.charities || [];
 
   const filteredCharity = useMemo(() => {
+    const charityData: CharityData[] = data?.data?.charities || [];
+
     if (!searchTerm.trim()) return charityData;
 
     const searchLower = searchTerm.toLowerCase().trim();
@@ -30,7 +31,7 @@ export default function Charity() {
       charity.charityRegNumber.toLowerCase().includes(searchLower) ||
       charity.charityAddress.toLowerCase().includes(searchLower)
     );
-  }, [searchTerm, charityData]);
+  }, [searchTerm, data?.data?.charities]);
 
   const totalPages = Math.ceil(filteredCharity.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
