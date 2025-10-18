@@ -1,11 +1,10 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { Control, FieldPath, FieldValues, useController } from 'react-hook-form';
 
@@ -84,7 +83,7 @@ export function FormMultiSelect<
               aria-expanded={open}
               disabled={disabled}
               className={cn(
-                "w-full justify-between h-12 px-3 py-2 text-left font-normal",
+                "w-full justify-between h-12 px-3 py-3 text-left font-normal",
                 selectedValues.length === 0 && "text-gray-500",
                 error && "border-red-500 focus:border-red-500 focus:ring-red-500"
               )}
@@ -126,30 +125,6 @@ export function FormMultiSelect<
           </PopoverContent>
         </Popover>
 
-        {/* Selected Items Badges */}
-        {selectedValues.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {selectedValues.map((selectedValue) => {
-              const option = options.find(opt => opt.value === selectedValue);
-              return (
-                <Badge
-                  key={selectedValue}
-                  variant="outline"
-                  className="bg-blue-50 text-blue-800 border-blue-200 px-3 py-1 text-xs"
-                >
-                  {option?.label || selectedValue}
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(selectedValue)}
-                    className="ml-2 hover:bg-blue-200 rounded-full p-0.5 transition-colors cursor-pointer"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {error && (
