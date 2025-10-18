@@ -56,7 +56,7 @@ export function FormCalendarInput<
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal h-12 px-3 py-2",
+              "w-full justify-start text-left font-normal h-12 px-3 py-3 shadow-none",
               !selectedDate && "text-gray-500",
               error && "border-red-500 focus:border-red-500 focus:ring-red-500"
             )}

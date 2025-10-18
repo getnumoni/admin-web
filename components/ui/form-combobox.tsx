@@ -121,7 +121,7 @@ export function FormCombobox<
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full justify-between h-12 px-3 py-2 text-left font-normal",
+              "w-full justify-between h-12 px-3 py-3 text-left font-normal shadow-none",
               !selectedOption && "text-gray-500",
               error && "border-red-500 focus:border-red-500 focus:ring-red-500"
             )}
