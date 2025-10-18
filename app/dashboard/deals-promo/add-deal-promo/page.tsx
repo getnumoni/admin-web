@@ -1,4 +1,4 @@
-import AddDealAndPromo from "@/components/admin/deals-and-promo/add-deal-and-promot";
+import AddDealAndPromo from "@/components/admin/deals-and-promo/add-deal-and-promo";
 import { Metadata } from "next";
 
 
