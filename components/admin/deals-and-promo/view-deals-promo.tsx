@@ -74,7 +74,7 @@ export default function ViewDealsPromo() {
           dealsData={dealsData}
           isPending={isPending}
           isError={isError}
-          error={error}
+          error={error || undefined}
           refetch={refetch}
         />
       </div>

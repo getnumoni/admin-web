@@ -15,7 +15,7 @@ interface AllDealsDataProps {
   dealsData: DealData[] | undefined;
   isPending: boolean;
   isError: boolean;
-  error: AxiosError;
+  error: AxiosError | undefined;
   refetch: () => void;
 }
 
