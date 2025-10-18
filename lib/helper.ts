@@ -1077,3 +1077,78 @@ export const getTransactionTypeColor = (type: string): string => {
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
+
+/**
+ * Formats a number with thousands separators (commas)
+ * @param value - The number or string to format
+ * @returns Formatted number string with commas (e.g., "40,000")
+ * 
+ * @example
+ * formatNumberWithCommas(40000) // Returns: "40,000"
+ * formatNumberWithCommas("1234567.89") // Returns: "1,234,567.89"
+ */
+export const formatNumberWithCommas = (value: number | string): string => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+  if (isNaN(numValue)) return '0';
+
+  return numValue.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+};
+
+/**
+ * Removes commas from a formatted number string
+ * @param value - The formatted number string (e.g., "40,000")
+ * @returns Clean number string (e.g., "40000")
+ * 
+ * @example
+ * removeCommasFromNumber("40,000") // Returns: "40000"
+ * removeCommasFromNumber("1,234,567.89") // Returns: "1234567.89"
+ */
+export const removeCommasFromNumber = (value: string): string => {
+  return value.replace(/,/g, '');
+};
+
+/**
+ * Calculates the new price based on old price and discount percentage
+ * @param oldPrice - The original price
+ * @param discountPercent - The discount percentage
+ * @returns Calculated new price as a formatted string with 2 decimal places
+ * 
+ * @example
+ * calculateNewPrice(1000, 25) // Returns: "750.00"
+ * calculateNewPrice("1000", "25") // Returns: "750.00"
+ */
+export const calculateNewPrice = (oldPrice: number | string, discountPercent: number | string): string => {
+  const oldPriceNum = typeof oldPrice === 'string' ? parseFloat(oldPrice) : oldPrice;
+  const discountPercentNum = typeof discountPercent === 'string' ? parseFloat(discountPercent) : discountPercent;
+
+  if (isNaN(oldPriceNum) || isNaN(discountPercentNum)) {
+    return '';
+  }
+
+  const discountAmount = (oldPriceNum * discountPercentNum) / 100;
+  const newPrice = oldPriceNum - discountAmount;
+
+  return newPrice.toFixed(2);
+};
+
+/**
+ * Formats a date string to "01-10-2025" format (DD-MM-YYYY)
+ * @param dateString - The date string to format (e.g., "2025-10-01")
+ * @returns Formatted date string in DD-MM-YYYY format
+ * 
+ * @example
+ * formatDateForAPI("2025-10-01") // "01-10-2025"
+ * formatDateForAPI("2025-12-25") // "25-12-2025"
+ */
+export const formatDateForAPI = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};

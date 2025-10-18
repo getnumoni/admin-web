@@ -1,7 +1,15 @@
+'use client';
+
 import { GiftIcon, PeopleIcon, StoreIcon, WarningIcon } from "@/components/common/icon-svg";
 import { MetricCard } from "@/components/common/metric-card";
+import useGetDealList from "@/hooks/query/useGetDealList";
+import AllDealsData from "./all-deals-data";
 
 export default function ViewDealsPromo() {
+  const { data, isPending, error, isError, refetch } = useGetDealList();
+
+
+  const dealsData = data?.data?.data?.pageData;
   // Mock data for deals and promo metrics
   const dealsMetrics = [
     {
@@ -42,6 +50,7 @@ export default function ViewDealsPromo() {
     }
   ];
 
+
   return (
     <div className="min-h-screen bg-gray-50 p-2">
       <div className="max-w-7xl mx-auto">
@@ -61,10 +70,13 @@ export default function ViewDealsPromo() {
             />
           ))}
         </div>
-
-        <main>
-          <h1>Table history implementation would happen when the api is available. The reusable table component is already created.</h1>
-        </main>
+        <AllDealsData
+          dealsData={dealsData}
+          isPending={isPending}
+          isError={isError}
+          error={error || undefined}
+          refetch={refetch}
+        />
       </div>
     </div>
   );
