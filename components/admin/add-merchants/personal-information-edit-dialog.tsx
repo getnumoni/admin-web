@@ -17,20 +17,20 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-interface BankInformation {
-  id: string;
-  bankname: string;
-  bankcode: string | null;
-  accountNo: string;
-  accountHolderName: string;
-  bankTransferCode: string | null;
-  primary: boolean;
-  minimumSpentAmount: number;
-  active: boolean;
-  createdDt: string | null;
-  updatedDt: string | null;
+// interface BankInformation {
+//   id: string;
+//   bankname: string;
+//   bankcode: string | null;
+//   accountNo: string;
+//   accountHolderName: string;
+//   bankTransferCode: string | null;
+//   primary: boolean;
+//   minimumSpentAmount: number;
+//   active: boolean;
+//   createdDt: string | null;
+//   updatedDt: string | null;
 
-}
+// }
 
 interface PersonalInformationEditDialogProps {
   isOpen: boolean;
