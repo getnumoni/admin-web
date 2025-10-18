@@ -728,5 +728,82 @@ type CharityData = {
   numberOfDonations: number;
   message: string | null;
 }
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, CreateCustomerKycPayload, CreateCustomersPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+
+type DealData = {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  dealType: string;
+  initialPrice: string;
+  discount: string;
+  newPrice: string;
+  category: string[];
+  qualifyingPurchase: string;
+  rewardItemQuantity: string;
+  pricePerItem: string;
+  availableStock: string;
+  startDate: string;
+  endDate: string;
+  dealStatus: string;
+  usageLimit: string | null;
+  merchantName: string;
+  merchantLogo: string | null;
+  imagePath: Array<{
+    id: string;
+    dealId: string;
+    imagePath: string;
+  }>;
+}
+
+type Merchant = {
+  id: string;
+  userId: string;
+  businessName: string;
+  description: string;
+  createdDt: string;
+  email: string;
+  businessPhoneNo: string | null;
+  category: string[];
+}
+
+type CreateDealsPayload = {
+  brandOrMerchantId: string;
+  name: string;
+  dealType: string;
+  description: string;
+  availableStock: string;
+  initialPrice?: string;
+  discount?: string;
+  newPrice?: string;
+  qualifyingPurchase?: string;
+  rewardItemQuantity?: string;
+  pricePerItem?: string;
+  category: string[];
+  startDate: string;
+  endDate: string;
+  imagePath: Array<{ imagePath: string }>;
+  dealProducts?: {
+    productId: string;
+    productName: string;
+  }[];
+  dealLocations?: {
+    city: string;
+    street: string;
+    locationId: string;
+  }[];
+  active: boolean;
+}
+
+type EditDealPayload = {
+  dealId: string;
+  title: string;
+  branch: string;
+  category: string[];
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateRewardsPayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
