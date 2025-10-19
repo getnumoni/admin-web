@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const useGetDealList = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["deal"],
+    queryKey: ["deals"],
     queryFn: () => api.get("/admin/dealsList"),
   });
 
