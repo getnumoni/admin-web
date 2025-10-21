@@ -7,7 +7,6 @@ import useGetLga from "@/hooks/query/useGetLga";
 import useGetStates from "@/hooks/query/useGetStates";
 import { charitySchema, type CharityFormData } from "@/lib/schemas/charity-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import CharityBasicInformation from "./charity-basic-information";
@@ -17,7 +16,7 @@ import CharityPayoutInformation from "./charity-payout-information";
 import CharityProfileUploadSection from "./charity-profile-upload-section";
 
 export default function AddCharity() {
-  const router = useRouter();
+
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedContactRegion, setSelectedContactRegion] = useState("");

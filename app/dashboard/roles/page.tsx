@@ -1,3 +1,4 @@
+import ViewRoles from "@/components/admin/roles-and-permission";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <div>Roles Page, work in progress</div>;
+  return <ViewRoles />;
 }

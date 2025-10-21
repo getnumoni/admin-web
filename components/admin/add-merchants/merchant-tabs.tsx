@@ -1,13 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Tabs, { Tab } from "@/components/common/tabs";
 
 interface MerchantTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const tabs = [
+const tabs: Tab[] = [
   { id: "overview", label: "Overview" },
   { id: "kyc", label: "KYC" },
   { id: "transactions", label: "Transactions" },
@@ -16,23 +16,11 @@ const tabs = [
 
 export default function MerchantTabs({ activeTab, onTabChange }: MerchantTabsProps) {
   return (
-    <div className="bg-gray-100 rounded-lg p-1 mb-6">
-      <nav className="flex space-x-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={cn(
-              "flex-1 py-3 px-4 rounded-md font-medium text-sm transition-all duration-200 cursor-pointer",
-              activeTab === tab.id
-                ? "bg-white text-gray-900  border border-gray-200"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-    </div>
+    <Tabs
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={onTabChange}
+      variant="merchant"
+    />
   );
 }
