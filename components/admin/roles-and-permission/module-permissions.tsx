@@ -38,7 +38,7 @@ export default function ModulePermissions({
   isPartiallySelected
 }: ModulePermissionsProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 my-5">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Permissions</h2>
 
       <Accordion type="multiple" className="space-y-2">
