@@ -1,13 +1,14 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-const useGetDealList = () => {
+
+const useGetAllModules = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["deals"],
-    queryFn: () => api.get("/admin/dealsList"),
+    queryKey: ["modules", "roles", "privileges"],
+    queryFn: () => api.get("/admin/getAllModules"),
   });
 
   return { data, isPending, error, isError, refetch };
 };
 
-export default useGetDealList;
+export default useGetAllModules;

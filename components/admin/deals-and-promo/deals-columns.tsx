@@ -3,7 +3,8 @@
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDeleteDeals } from "@/hooks/mutation/useDeleteDeals";
-import { formatCurrency, formatDateReadable, generateRandomBadgeColor } from "@/lib/helper";
+import { useUpdateDeals } from "@/hooks/mutation/useUpdateDeals";
+import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getDealStatusColor, getDealStatusText } from "@/lib/helper";
 import { DealData, EditDealPayload } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Package } from "lucide-react";
@@ -11,37 +12,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import EditDealDialog from "./edit-deal-dialog";
 
-// Helper function to get deal status color
-const getDealStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'expired':
-      return 'bg-orange-100 text-orange-800 border-orange-200';
-    case 'paused':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-};
-
-// Helper function to get deal status text
-const getDealStatusText = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return 'Active';
-    case 'expired':
-      return 'Expired';
-    case 'paused':
-      return 'Paused';
-    case 'pending':
-      return 'Pending';
-    default:
-      return 'Unknown';
-  }
-};
 
 // Column definitions
 export const dealsColumns: ColumnDef<DealData>[] = [
@@ -170,12 +140,6 @@ export const dealsColumns: ColumnDef<DealData>[] = [
       const status = row.getValue("dealStatus") as string;
       return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getDealStatusColor(status)}`}>
-          <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status.toLowerCase() === 'active' ? 'bg-green-500' :
-            status.toLowerCase() === 'expired' ? 'bg-orange-500' :
-              status.toLowerCase() === 'paused' ? 'bg-red-500' :
-                status.toLowerCase() === 'pending' ? 'bg-yellow-500' :
-                  'bg-gray-500'
-            }`} />
           {getDealStatusText(status)}
         </span>
       );
@@ -195,6 +159,7 @@ function ActionCell({ deal }: { deal: DealData }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { handleDeleteDeals, isPending, isSuccess } = useDeleteDeals();
+  const { handleUpdateDeals, isPending: isUpdatePending, isSuccess: isUpdateSuccess } = useUpdateDeals();
 
   const handleDeleteDealClick = () => {
     setIsDeleteDialogOpen(true);
@@ -209,9 +174,7 @@ function ActionCell({ deal }: { deal: DealData }) {
   };
 
   const handleEditSave = (data: Omit<EditDealPayload, 'dealId'>) => {
-    console.log('Saving deal:', deal.id, data);
-    // TODO: Implement update deal mutation
-    // handleUpdateDeals({ dealId: deal.id, ...data });
+    handleUpdateDeals({ ...data, dealId: deal.id });
   };
 
   useEffect(() => {
@@ -219,6 +182,12 @@ function ActionCell({ deal }: { deal: DealData }) {
       setIsDeleteDialogOpen(false);
     }
   }, [isSuccess]);
+
+  useEffect(() => {
+    if (isUpdateSuccess) {
+      setIsEditDialogOpen(false);
+    }
+  }, [isUpdateSuccess]);
 
   return (
     <>
@@ -264,7 +233,7 @@ function ActionCell({ deal }: { deal: DealData }) {
         onClose={() => setIsEditDialogOpen(false)}
         deal={deal}
         onSave={handleEditSave}
-        isLoading={isPending}
+        isLoading={isUpdatePending}
       />
     </>
   );

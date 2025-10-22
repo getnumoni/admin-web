@@ -13,7 +13,7 @@ import { FormInputTopLabel } from "@/components/ui/form-input";
 import { FormMultiSelect } from "@/components/ui/form-multi-select";
 import { useUpdateMerchant } from "@/hooks/mutation/useUpdateMerchant";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -113,10 +113,10 @@ export default function PersonalInformationEditDialog({
 
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     form.reset();
     onClose();
-  };
+  }, [form, onClose]);
 
   // Close dialog only on successful update
   useEffect(() => {

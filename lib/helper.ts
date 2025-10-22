@@ -205,7 +205,7 @@ export const getIndicatorColor = (indicatorColor: string): string => {
  * @returns A formatted string with commas and 2 decimal places (e.g., "12,345.67")
  */
 export const formatValue = (value: number): string => {
-  return value.toLocaleString('en-US', {
+  return value?.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -221,7 +221,11 @@ export const formatCurrency = (amount: number) => {
 };
 
 export const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
+    case 'open':
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    case 'close':
+      return 'bg-green-50 text-green-700 border-green-200';
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'inactive':
@@ -1152,3 +1156,52 @@ export const formatDateForAPI = (dateString: string): string => {
 
   return `${day}-${month}-${year}`;
 };
+
+/**
+ * Converts a date string from DD-MM-YYYY format to YYYY-MM-DD format
+ * @param dateStr - The date string in DD-MM-YYYY format (e.g., "01-10-2025")
+ * @returns Formatted date string in YYYY-MM-DD format (e.g., "2025-10-01")
+ * 
+ * @example
+ * convertDateFormat("01-10-2025") // "2025-10-01"
+ * convertDateFormat("25-12-2025") // "2025-12-25"
+ * convertDateFormat("") // ""
+ */
+export const convertDateFormat = (dateStr: string): string => {
+  if (!dateStr) return '';
+  const [day, month, year] = dateStr.split('-');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to get deal status color
+export const getDealStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'expired':
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'paused':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+// Helper function to get deal status text
+export const getDealStatusText = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return 'Active';
+    case 'expired':
+      return 'Expired';
+    case 'paused':
+      return 'Paused';
+    case 'pending':
+      return 'Pending';
+    default:
+      return 'Unknown';
+  }
+};
+

@@ -1,13 +1,13 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-const useGetDealList = () => {
+const useGetSupportTicketList = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["deals"],
-    queryFn: () => api.get("/admin/dealsList"),
+    queryKey: ["supports"],
+    queryFn: () => api.get("/admin/supportTicketList"),
   });
 
   return { data, isPending, error, isError, refetch };
 };
 
-export default useGetDealList;
+export default useGetSupportTicketList;

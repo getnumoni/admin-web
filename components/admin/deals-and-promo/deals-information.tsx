@@ -61,7 +61,7 @@ export default function DealsInformation({ control, setValue, trigger }: DealsIn
 
   // Transform merchants data for combobox
   const merchantOptions = brandsMerchantsData?.map((merchant: Merchant) => ({
-    value: merchant.id,
+    value: merchant.userId,
     label: merchant.businessName,
   })) || [];
 

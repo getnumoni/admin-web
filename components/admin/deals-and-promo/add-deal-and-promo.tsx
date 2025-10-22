@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateDeals } from '@/hooks/mutation/useCreateDeals';
+import { useUploadDealsFile } from '@/hooks/mutation/useUploadDealsFile';
 import { formatDateForAPI } from '@/lib/helper';
 import { DealFormData, dealSchema } from '@/lib/schemas/deal-schema';
+import { useUploadStore } from '@/lib/stores/upload-store';
 import { CreateDealsPayload } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
@@ -18,11 +20,11 @@ export default function AddDealAndPromo() {
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
 
   // Hooks for API calls
-  // const { handleUploadDealsFile, isPending: isUploading, isSuccess: isUploadSuccess } = useUploadDealsFile();
+  const { handleUploadDealsFile, isPending: isUploading } = useUploadDealsFile();
   const { handleCreateDeals, isPending: isCreating } = useCreateDeals();
 
   // Zustand store for uploaded image paths
-  // const { uploadedImagePaths, clearImagePaths } = useUploadStore();
+  const { clearImagePaths } = useUploadStore();
 
   const methods = useForm<DealFormData>({
     resolver: zodResolver(dealSchema),
@@ -60,21 +62,24 @@ export default function AddDealAndPromo() {
 
   const onSubmit = async (data: DealFormData) => {
     // Clear previous uploads
-    // clearImagePaths();
+    clearImagePaths();
 
-    // // Step 1: Upload images first if there are any
-    // if (uploadedImages.length > 0) {
-    //   const formData = new FormData();
+    let imagePaths: string[] = [];
 
-    //   // Send each file individually with the same key
-    //   uploadedImages.forEach((file) => {
-    //     formData.append('file', file);
-    //   });
+    // Upload images if any
+    if (uploadedImages.length > 0) {
+      const formData = new FormData();
+      uploadedImages.forEach((file) => {
+        formData.append('file', file);
+      });
+      const uploadedImageUrl = await handleUploadDealsFile(formData);
+      if (uploadedImageUrl) {
+        imagePaths = [uploadedImageUrl];
+      }
+    }
 
-    //   await handleUploadDealsFile(formData);
-    // }
 
-    // Step 2: Create the deal payload using image paths from store
+    // Create deal payload
     const payload: CreateDealsPayload = {
       brandOrMerchantId: data.brandsMerchants,
       name: data.dealsTitle,
@@ -84,7 +89,7 @@ export default function AddDealAndPromo() {
       category: data.dealCategory,
       startDate: formatDateForAPI(data.startDate),
       endDate: formatDateForAPI(data.endDate),
-      imagePath: uploadedImages.map(file => ({ imagePath: URL.createObjectURL(file) })),
+      imagePath: imagePaths.map(path => ({ imagePath: path })),
       active: true
     };
 
@@ -99,7 +104,7 @@ export default function AddDealAndPromo() {
       payload.pricePerItem = data.pricePerItem?.toString();
     }
 
-    // Step 3: Create the deal
+    // Create the deal
     handleCreateDeals(payload);
   };
 
@@ -159,9 +164,9 @@ export default function AddDealAndPromo() {
 
               <Button
                 type="submit"
-                disabled={isSubmitting || isCreating}
-                isLoading={isSubmitting || isCreating}
-                loadingText={isCreating ? "Creating Deal..." : "Processing..."}
+                disabled={isSubmitting || isCreating || isUploading}
+                isLoading={isSubmitting || isCreating || isUploading}
+                loadingText={isUploading ? "Uploading Images..." : isCreating ? "Creating Deal..." : "Processing..."}
                 className="px-9 py-6 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
               >
                 Create Deal

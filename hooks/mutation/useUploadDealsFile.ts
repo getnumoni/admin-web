@@ -17,6 +17,7 @@ export const useUploadDealsFile = () => {
       if (data) {
 
         const imagePath = data?.data?.data?.imageUrl;
+        console.log('imagePath', imagePath);
         if (imagePath) {
           addImagePath(imagePath);
         }
@@ -33,7 +34,8 @@ export const useUploadDealsFile = () => {
   });
 
   const handleUploadDealsFile = async (data: FormData) => {
-    await mutateAsync(data);
+    const result = await mutateAsync(data);
+    return result?.data?.data?.imageUrl;
   };
 
   return { handleUploadDealsFile, isPending, isSuccess };
