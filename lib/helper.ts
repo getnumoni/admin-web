@@ -205,7 +205,7 @@ export const getIndicatorColor = (indicatorColor: string): string => {
  * @returns A formatted string with commas and 2 decimal places (e.g., "12,345.67")
  */
 export const formatValue = (value: number): string => {
-  return value.toLocaleString('en-US', {
+  return value?.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -221,7 +221,11 @@ export const formatCurrency = (amount: number) => {
 };
 
 export const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
+    case 'open':
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    case 'close':
+      return 'bg-green-50 text-green-700 border-green-200';
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'inactive':
@@ -1200,3 +1204,4 @@ export const getDealStatusText = (status: string) => {
       return 'Unknown';
   }
 };
+
