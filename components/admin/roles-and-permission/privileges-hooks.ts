@@ -1,3 +1,5 @@
+import { useCreatePrivilegeMapping } from "@/hooks/mutation/useCreatePrivilegeMapping";
+import { CreatePrivilegeMappingPayload } from "@/lib/types";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -44,6 +46,9 @@ export function usePrivilegesLogic(
   displayModules: Module[],
   displayRoles: Role[]
 ) {
+
+  const { handleCreatePrivilegeMapping, isPending: isCreatingPrivilegeMapping } = useCreatePrivilegeMapping();
+
   const handleRoleChange = (roleId: string) => {
     setSelectedRole(roleId);
     const role = displayRoles.find(r => r.id === roleId);
@@ -127,12 +132,17 @@ export function usePrivilegesLogic(
       toast.error("Please select at least one permission before saving.");
       return;
     }
-
-    // TODO: Implement actual save API call
-    // Example: await savePrivileges(activePrivileges);
-
-    toast.success(`Successfully saved ${activePrivileges.length} privilege(s) for the selected role.`);
-    console.log("Active privileges to save:", activePrivileges);
+    const payload: CreatePrivilegeMappingPayload = activePrivileges.map(privilege => ({
+      roleId: selectedRole,
+      roleName: displayRoles.find(r => r.id === selectedRole)?.name || "",
+      moduleId: privilege.moduleId,
+      moduleName: privilege.moduleName,
+      privilegeCreate: privilege.privilegeCreate,
+      privilegeDelete: privilege.privilegeDelete,
+      privilegeView: privilege.privilegeView,
+      privilegeUpdate: privilege.privilegeUpdate
+    }));
+    handleCreatePrivilegeMapping(payload);
   };
 
   const handleCancel = () => {
@@ -161,6 +171,7 @@ export function usePrivilegesLogic(
     isPartiallySelected,
     handleSave,
     handleCancel,
-    hasUnsavedChanges
+    hasUnsavedChanges,
+    isCreatingPrivilegeMapping
   };
 }

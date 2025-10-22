@@ -6,13 +6,15 @@ interface PrivilegesActionsProps {
   onSave: () => void;
   onCancel: () => void;
   hasUnsavedChanges?: boolean;
+  isCreatingPrivilegeMapping?: boolean;
 }
 
 export default function PrivilegesActions({
   selectedRole,
   onSave,
   onCancel,
-  hasUnsavedChanges = false
+  hasUnsavedChanges = false,
+  isCreatingPrivilegeMapping
 }: PrivilegesActionsProps) {
   const [isSaving, setIsSaving] = useState(false);
 
@@ -41,10 +43,10 @@ export default function PrivilegesActions({
         onClick={handleSave}
         className="bg-theme-dark-green text-white px-6"
         disabled={isSaving}
-        isLoading={isSaving}
-        loadingText="Saving..."
+        isLoading={isCreatingPrivilegeMapping}
+        loadingText="Creating..."
       >
-        {isSaving ? "Saving..." : "Update"}
+        Create
       </Button>
 
       {hasUnsavedChanges && (

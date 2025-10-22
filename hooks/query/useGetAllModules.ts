@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const useGetAllModules = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["modules", "roles"],
+    queryKey: ["modules", "roles", "privileges"],
     queryFn: () => api.get("/admin/getAllModules"),
   });
 
