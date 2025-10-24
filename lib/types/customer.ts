@@ -1,10 +1,10 @@
 export type Customer = {
   customerId: string;
-  customer: string;
+  customer: string | null;
   dateJoined: string;
   emailAddress: string;
   phoneNumber: string;
-  address: string;
+  address: string | null;
 };
 
 export type CustomerApiResponse = {
