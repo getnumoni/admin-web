@@ -39,16 +39,17 @@ export const customerColumns: ColumnDef<Customer>[] = [
     header: "Customer",
     cell: ({ row }) => {
       const customer = row.original;
-      const initials = customer.customer.split(' ').map(n => n[0]).join('').toUpperCase();
+      const customerName = customer.customer || 'Unknown Customer';
+      const initials = customerName.split(' ').map(n => n[0]).join('').toUpperCase();
       return (
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
             {initials}
           </div>
           <div>
-            <Link href={`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customer.customer)}`}>
+            <Link href={`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customerName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
-                {customer.customer}
+                {customerName}
               </div>
             </Link>
             <div className="text-xs text-gray-500">ID: {customer.customerId}</div>
@@ -60,9 +61,18 @@ export const customerColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "dateJoined",
     header: "Date Joined",
-    cell: ({ row }) => (
-      <div className="text-gray-600 text-sm">{row.getValue("dateJoined")}</div>
-    ),
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("dateJoined"));
+      return (
+        <div className="text-gray-600 text-sm">
+          {date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "emailAddress",
@@ -81,11 +91,14 @@ export const customerColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "address",
     header: "Address",
-    cell: ({ row }) => (
-      <div className="text-gray-600 text-sm max-w-xs truncate" title={row.getValue("address")}>
-        {row.getValue("address")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const address = row.getValue("address") as string | null;
+      return (
+        <div className="text-gray-600 text-sm max-w-xs truncate" title={address || ''}>
+          {address || 'N/A'}
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -104,7 +117,8 @@ function ActionCell({ customer }: { customer: Customer }) {
 
   const handleViewProfile = () => {
     // Navigate to profile page
-    router.push(`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customer.customer)}`);
+    const customerName = customer.customer || 'Unknown Customer';
+    router.push(`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customerName)}`);
   };
 
   const handleDeleteCustomerClick = () => {
@@ -156,7 +170,7 @@ function ActionCell({ customer }: { customer: Customer }) {
         onConfirm={handleDeleteConfirm}
         title="Delete Customer"
         description="This will permanently delete the customer and all associated data."
-        itemName={customer.customer}
+        itemName={customer.customer || 'Unknown Customer'}
         isLoading={isPending}
       />
     </>

@@ -842,6 +842,19 @@ type CreateTicketTypePayload = {
   userType: string;
 }
 
+type CreateAdminPayload = {
+  id?: string;
+  name?: string;
+  position?: string | null;
+  department?: string | null;
+  email?: string;
+  phone?: string;
+  shift?: string | null;
+  loginAccess?: boolean;
+  roleName?: string;
+  password?: string;
+}
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdminNavigationItem, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, CreateAdminPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 

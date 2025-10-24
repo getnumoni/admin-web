@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import useGetTicketTypeList from "@/hooks/query/useGetTicketTypeList";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import AddTicketTypeModal from "./add-ticket-type";
@@ -14,11 +13,11 @@ export default function Support() {
   const [activeTab, setActiveTab] = useState<string>('ticket-type');
   const [isTicketTypeModalOpen, setIsTicketTypeModalOpen] = useState<boolean>(false);
   const [showCreateTicket, setShowCreateTicket] = useState<boolean>(false);
-  const { data: ticketTypeList, isPending: isPendingTicketTypeList, error: errorTicketTypeList, isError: isErrorTicketTypeList, refetch: refetchTicketTypeList } = useGetTicketTypeList();
+  // const { data: ticketTypeList, isPending: isPendingTicketTypeList, error: errorTicketTypeList, isError: isErrorTicketTypeList, refetch: refetchTicketTypeList } = useGetTicketTypeList();
 
 
 
-  console.log(ticketTypeList);
+  // console.log(ticketTypeList);
 
 
   const handleOpenTicketTypeModal = () => {

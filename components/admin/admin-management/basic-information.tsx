@@ -1,23 +1,28 @@
 'use client';
 
 import { FormInputTopLabel } from '@/components/ui/form-input';
+import { FormPasswordInput } from '@/components/ui/form-password-input';
 import { FormPhoneInput } from '@/components/ui/form-phone-input';
 import { FormSelectTopLabel } from '@/components/ui/form-select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { AdminFormData, roleTypes } from '@/lib/schemas/admin-schema';
+import useGetAllRoles from '@/hooks/query/useGetAllRoles';
+import { AdminFormData } from '@/lib/schemas/admin-schema';
 import { Control, UseFormSetValue } from 'react-hook-form';
 
 interface BasicInformationProps {
   control: Control<AdminFormData>;
   setValue: UseFormSetValue<AdminFormData>;
+  isEditMode?: boolean;
 }
 
-export default function BasicInformation({ control, setValue }: BasicInformationProps) {
-  // Map role types to the expected format
-  const roleTypeOptions = roleTypes.map((role) => ({
-    value: role,
-    label: role
-  }));
+export default function BasicInformation({ control, setValue, isEditMode = false }: BasicInformationProps) {
+  const { data: rolesData, isPending: rolesPending } = useGetAllRoles();
+
+  // Map API roles to the expected format
+  const roleTypeOptions = rolesData?.data?.roles?.map((role: { id: string; name: string }) => ({
+    value: role.name,
+    label: role.name
+  })) || [];
 
   return (
     <div className="m-6 border border-gray-100 rounded-xl p-6">
@@ -58,27 +63,33 @@ export default function BasicInformation({ control, setValue }: BasicInformation
           name="roleType"
           label="Role Type"
           options={roleTypeOptions}
-          placeholder="Choose a role type"
+          placeholder={rolesPending ? "Loading roles..." : "Choose a role type"}
           required
+          disabled={rolesPending || isEditMode}
+        />
+
+        <FormInputTopLabel
+          control={control}
+          name="department"
+          label="Department"
+          placeholder="Enter department"
         />
       </div>
 
       {/* Password Section - 2 Columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <FormInputTopLabel
+        <FormPasswordInput
           control={control}
           name="password"
           label="Password"
-          type="password"
           placeholder="Enter password"
           required
         />
 
-        <FormInputTopLabel
+        <FormPasswordInput
           control={control}
           name="confirmPassword"
           label="Confirm Password"
-          type="password"
           placeholder="Confirm password"
           required
         />

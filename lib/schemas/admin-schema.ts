@@ -9,6 +9,7 @@ export const adminSchema = z.object({
   emailAddress: z.string().email('Invalid email address'),
   phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
   roleType: z.string().min(1, 'Role type is required'),
+  department: z.string().optional(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
 
