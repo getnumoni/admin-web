@@ -2,15 +2,20 @@
 
 import SearchInput from '@/components/common/search-input';
 import { DataTable } from '@/components/ui/data-table';
-import { adminData } from '@/data/admin-data';
-import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, Plus, RefreshCw, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { ErrorState } from '@/components/ui/error-state';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import useGetAdminList from '@/hooks/query/useGetAdminList';
+import { Admin } from '@/lib/types/admin';
+import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, RefreshCw, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { adminColumns } from './admin-columns';
 
 export default function ViewAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const { data: adminList, isPending: isAdminListPending, error: isAdminError, isError: isAdminListError, refetch: refetchAdminList } = useGetAdminList();
+  const admins = adminList?.data?.data?.pageData || [];
+  console.log(admins);
   // const [filterBy, setFilterBy] = useState('');
   // const [roleFilter, setRoleFilter] = useState('');
   // const [teamFilter, setTeamFilter] = useState('');
@@ -20,17 +25,18 @@ export default function ViewAdmin() {
 
   // Filter admins based on search term
   const filteredAdmins = useMemo(() => {
-    if (!searchTerm.trim()) return adminData;
+    if (!searchTerm.trim()) return admins;
 
     const searchLower = searchTerm.toLowerCase().trim();
-    return adminData.filter(admin =>
-      admin.name.toLowerCase().includes(searchLower) ||
-      admin.email.toLowerCase().includes(searchLower) ||
-      admin.adminId.toLowerCase().includes(searchLower) ||
-      admin.role.toLowerCase().includes(searchLower) ||
-      admin.team.toLowerCase().includes(searchLower)
+    return admins.filter((admin: Admin) =>
+      admin.name?.toLowerCase().includes(searchLower) ||
+      admin.email?.toLowerCase().includes(searchLower) ||
+      admin.id?.toLowerCase().includes(searchLower) ||
+      admin.roleName?.toLowerCase().includes(searchLower) ||
+      admin.department?.toLowerCase().includes(searchLower) ||
+      admin.position?.toLowerCase().includes(searchLower)
     );
-  }, [searchTerm]);
+  }, [searchTerm, admins]);
 
   const totalPages = Math.ceil(filteredAdmins.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -49,6 +55,14 @@ export default function ViewAdmin() {
 
     setSearchTerm('');
   };
+
+  if (isAdminListPending) {
+    return <LoadingSpinner message="Loading Admins..." />;
+  }
+
+  if (isAdminListError) {
+    return <ErrorState title="Error Loading Admins" message={isAdminError?.message || "Failed to load admins. Please try again."} onRetry={() => refetchAdminList()} retryText="Try Again" />;
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -100,48 +114,12 @@ export default function ViewAdmin() {
 
       {/* Data Table */}
       <div className="p-0">
-        {currentAdmins.length === 0 ? (
-          // Empty State
-          <div className="flex flex-col items-center justify-center py-16 px-8">
-            {/* Illustration */}
-            <div className="w-32 h-32 mb-6 flex items-center justify-center">
-              <div className="w-24 h-20 bg-gray-100 rounded-lg relative">
-                {/* Box illustration */}
-                <div className="absolute inset-2 border-2 border-gray-300 rounded"></div>
-                <div className="absolute top-0 left-2 right-2 h-2 bg-gray-300 rounded-t"></div>
-                {/* Dashed lines and stars */}
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <div className="w-8 h-8 border-2 border-dashed border-green-400 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  </div>
-                </div>
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></div>
-                <div className="absolute -top-1 -left-1 w-2 h-2 bg-green-400 rounded-full"></div>
-              </div>
-            </div>
+        <DataTable columns={adminColumns} data={currentAdmins} />
 
-            {/* Text Content */}
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">No Admins Found</h3>
-            <p className="text-gray-600 text-center max-w-md mb-8 leading-relaxed">
-              No admins match your current search or filter criteria. Try adjusting your search terms or filters.
-            </p>
-
-            {/* Add Admin Button */}
-            <Link href="/admin/admin-management/add-admin">
-              <button className="flex items-center gap-2 bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer">
-                <Plus className="h-5 w-5" />
-                Add Admin
-              </button>
-            </Link>
-          </div>
-        ) : (
-          // Data Table
-          <DataTable columns={adminColumns} data={currentAdmins} />
-        )}
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentAdmins.length > 0 && (
+      {!isAdminListPending && currentAdmins.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Row Count */}

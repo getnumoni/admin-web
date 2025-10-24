@@ -26,15 +26,16 @@ export interface ProfileUploadProps {
 
 
 export type Admin = {
-  id: number;
+  id: string;
   name: string;
-  adminId: string;
-  avatar: string;
-  dateCreated: string;
+  position: string | null;
+  department: string | null;
   email: string;
   phone: string;
-  role: string;
-  team: string;
-  status: "Active" | "Suspended" | "Pending";
-  statusColor: "green" | "red" | "orange";
+  shift: string | null;
+  loginAccess: boolean;
+  roleName: string;
+  password: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
