@@ -63,9 +63,9 @@ export function FormMultiSelect<
     }
   };
 
-  const handleRemove = (valueToRemove: string) => {
-    onChange(selectedValues.filter(val => val !== valueToRemove));
-  };
+  // const handleRemove = (valueToRemove: string) => {
+  //   onChange(selectedValues.filter(val => val !== valueToRemove));
+  // };
 
   return (
     <div className={cn("space-y-3", className)}>
