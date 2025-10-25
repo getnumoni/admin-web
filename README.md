@@ -1,36 +1,397 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Numoni Admin Dashboard v2
 
-## Getting Started
+A comprehensive admin dashboard for managing the Numoni platform - a loyalty points and rewards system that connects merchants, customers, and charities. This application provides administrative tools for managing merchants, customers, charities, deals & promotions, and generating detailed reports.
 
-First, run the development server:
+## 🚀 Project Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The Numoni Admin Dashboard is a modern, full-featured administrative interface built with Next.js 15 and React 19. It serves as the central management hub for the Numoni ecosystem, enabling administrators to:
+
+-  **Manage Merchants**: Add, edit, and monitor merchant accounts, their transactions, and performance metrics
+-  **Customer Management**: Handle customer accounts, view transaction history, and manage loyalty points
+-  **Charity Operations**: Manage charity organizations, track donations, and monitor impact
+-  **Deals & Promotions**: Create and manage promotional campaigns and special offers
+-  **Admin Management**: Control admin user accounts, roles, and permissions
+-  **Analytics & Reporting**: Generate comprehensive reports on sales, points, and charity activities
+-  **Activity Monitoring**: Track system activities and user interactions
+
+## 🛠️ Tech Stack
+
+### Core Framework
+
+-  **Next.js 15.5.4** - React framework with App Router
+-  **React 19.1.0** - UI library
+-  **TypeScript 5** - Type safety and development experience
+
+### UI & Styling
+
+-  **Tailwind CSS 4** - Utility-first CSS framework
+-  **Radix UI** - Headless UI components for accessibility
+-  **shadcn/ui** - Modern component library built on Radix UI
+-  **Lucide React** - Icon library
+-  **Framer Motion** - Animation library
+-  **Recharts** - Data visualization and charts
+
+### State Management & Data Fetching
+
+-  **Zustand** - Lightweight state management
+-  **TanStack Query (React Query)** - Server state management and caching
+-  **React Hook Form** - Form handling and validation
+-  **Zod** - Schema validation
+
+### Authentication & Security
+
+-  **JWT Tokens** - Authentication with automatic refresh
+-  **Cookie-based Storage** - Secure token storage
+-  **Role-based Access Control** - Admin permission system
+
+### Development Tools
+
+-  **ESLint** - Code linting
+-  **Husky** - Git hooks
+-  **Commitlint** - Commit message linting
+-  **Turbopack** - Fast bundling (Next.js)
+
+## 📁 Project Structure
+
+```
+numoni-admin-v2/
+├── app/                          # Next.js App Router
+│   ├── api/                     # API routes
+│   │   ├── branches/            # Branch management endpoints
+│   │   ├── generateBankToken/   # Bank token generation
+│   │   ├── maps/               # Maps integration
+│   │   ├── pay-on-us/          # Payment processing
+│   │   └── places/             # Location services
+│   ├── auth/                    # Authentication pages
+│   │   └── sign-in/            # Login page
+│   ├── dashboard/              # Main dashboard pages
+│   │   ├── activity-logs/      # System activity monitoring
+│   │   ├── admin-management/   # Admin user management
+│   │   ├── charity/           # Charity management
+│   │   ├── customers/         # Customer management
+│   │   ├── deals-promo/       # Deals and promotions
+│   │   ├── merchants/         # Merchant management
+│   │   ├── notifications/     # Notification center
+│   │   ├── reports/           # Analytics and reporting
+│   │   ├── roles/             # Role and permission management
+│   │   └── support/           # Support ticket system
+│   ├── fonts/                 # Custom font files
+│   ├── globals.css            # Global styles
+│   └── layout.tsx             # Root layout
+├── components/                 # Reusable components
+│   ├── admin/                 # Admin-specific components
+│   │   ├── add-merchants/     # Merchant creation forms
+│   │   ├── admin-management/  # Admin management UI
+│   │   ├── charity/          # Charity management UI
+│   │   ├── customers/        # Customer management UI
+│   │   ├── deals-and-promo/  # Deals management UI
+│   │   ├── roles-and-permission/ # Role management UI
+│   │   └── support/          # Support system UI
+│   ├── auth/                 # Authentication components
+│   ├── common/               # Shared components
+│   └── ui/                   # Base UI components (shadcn/ui)
+├── constant/                 # Application constants
+│   ├── icons.ts             # Icon definitions
+│   ├── images.ts            # Image assets
+│   └── routes.ts            # Route definitions
+├── context/                 # React contexts
+├── data/                   # Mock data and constants
+├── hooks/                  # Custom React hooks
+│   ├── mutation/           # Data mutation hooks
+│   └── query/              # Data fetching hooks
+├── lib/                    # Utility libraries
+│   ├── schemas/            # Zod validation schemas
+│   ├── stores/             # Additional stores
+│   └── types/              # TypeScript type definitions
+├── stores/                 # Zustand stores
+│   ├── bank-store.ts       # Bank integration state
+│   ├── branch-store.ts     # Branch management state
+│   ├── pay-on-us-store.ts  # Payment processing state
+│   └── user-auth-store.ts  # Authentication state
+└── public/                 # Static assets
+    └── assets/             # Images and icons
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-  **Node.js** >= 18.14.0 < 23.0.0
+-  **pnpm** (recommended package manager)
 
-## Learn More
+### Installation
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone the repository**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   git clone <repository-url>
+   cd numoni-admin-v2
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Install dependencies**
 
-## Deploy on Vercel
+   ```bash
+   pnpm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Configure the following environment variables:
+
+   ```env
+   NEXT_PUBLIC_API_URL=your_api_base_url
+   # Add other required environment variables
+   ```
+
+4. **Run the development server**
+
+   ```bash
+   pnpm dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start development server with Turbopack
+pnpm build            # Build for production with Turbopack
+pnpm start            # Start production server
+pnpm clean            # Clean build artifacts and dependencies
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm type-check       # Run TypeScript type checking
+pnpm commitlint       # Lint commit messages
+```
+
+## 🏗️ Architecture
+
+### State Management
+
+The application uses **Zustand** for client-side state management with the following stores:
+
+-  **`user-auth-store`**: Manages authentication state, user data, and token refresh
+-  **`bank-store`**: Handles bank integration tokens and API access
+-  **`pay-on-us-store`**: Manages payment processing tokens
+-  **`branch-store`**: Stores branch-related data and operations
+
+### Data Fetching
+
+**TanStack Query** is used for server state management:
+
+-  **Query Hooks**: Located in `hooks/query/` for data fetching
+-  **Mutation Hooks**: Located in `hooks/mutation/` for data modifications
+-  **Automatic Caching**: Built-in caching and background refetching
+-  **Optimistic Updates**: Enhanced user experience with immediate UI updates
+
+### Authentication Flow
+
+1. **Login**: Users authenticate via JWT tokens
+2. **Token Storage**: Secure cookie-based token storage
+3. **Auto Refresh**: Automatic token refresh using refresh tokens
+4. **Route Protection**: Middleware-based route protection
+5. **Role-based Access**: Admin permissions and role management
+
+### API Integration
+
+-  **Axios**: HTTP client with interceptors
+-  **Automatic Token Refresh**: Built-in token refresh mechanism
+-  **Error Handling**: Centralized error handling and user feedback
+-  **Type Safety**: Full TypeScript integration for API responses
+
+## 🎨 UI Components
+
+### Component Library
+
+Built on **shadcn/ui** with **Radix UI** primitives:
+
+-  **Accessibility**: WCAG compliant components
+-  **Customizable**: Easy theming and customization
+-  **Type Safe**: Full TypeScript support
+-  **Consistent**: Design system consistency
+
+### Key Components
+
+-  **MetricCard**: Dashboard metrics display
+-  **DataTable**: Sortable and filterable data tables
+-  **Form Components**: Validated form inputs with error handling
+-  **Modal Dialogs**: Accessible modal and dialog components
+-  **Navigation**: Responsive sidebar and navbar
+-  **Charts**: Data visualization components
+
+## 📊 Features
+
+### Dashboard Overview
+
+-  Real-time metrics and KPIs
+-  Active users monitoring
+-  Top-performing merchants
+-  Most supported charities
+-  Transaction summaries
+
+### Merchant Management
+
+-  Merchant registration and onboarding
+-  Business information management
+-  Transaction monitoring
+-  Performance analytics
+-  KYC verification
+-  Reward point management
+
+### Customer Management
+
+-  Customer account management
+-  Transaction history
+-  Loyalty points tracking
+-  Account controls (balance adjustment, password reset)
+-  Customer reviews and feedback
+
+### Charity Operations
+
+-  Charity registration and verification
+-  Donation tracking
+-  Impact reporting
+-  Charity performance metrics
+
+### Admin Controls
+
+-  Admin user management
+-  Role and permission assignment
+-  Activity logging and monitoring
+-  System configuration
+
+### Reporting & Analytics
+
+-  Sales reports
+-  Points distribution reports
+-  Charity impact reports
+-  Custom date range filtering
+-  Export capabilities
+
+## 🔧 Development
+
+### Code Style
+
+-  **ESLint**: Configured with Next.js and TypeScript rules
+-  **Prettier**: Code formatting (if configured)
+-  **Husky**: Pre-commit hooks for code quality
+-  **Commitlint**: Conventional commit messages
+
+### TypeScript
+
+-  **Strict Mode**: Enabled for better type safety
+-  **Path Mapping**: `@/*` alias for clean imports
+-  **Type Definitions**: Comprehensive type definitions in `lib/types/`
+
+### Component Development
+
+1. **Create components** in appropriate directories
+2. **Use TypeScript** for all components
+3. **Follow naming conventions**: PascalCase for components
+4. **Add proper prop types** and interfaces
+5. **Include accessibility** attributes where needed
+
+## 🚀 Deployment
+
+### Build Process
+
+```bash
+pnpm build
+```
+
+The build process:
+
+-  TypeScript compilation
+-  Next.js optimization
+-  Static asset optimization
+-  Bundle analysis
+
+### Environment Configuration
+
+Ensure all required environment variables are set:
+
+-  `NEXT_PUBLIC_API_URL`: Backend API base URL
+-  Additional environment variables as needed
+
+### Production Considerations
+
+-  **Image Optimization**: Next.js automatic image optimization
+-  **Bundle Analysis**: Use `@next/bundle-analyzer` for optimization
+-  **Performance**: Built-in Next.js performance optimizations
+-  **Security**: Secure cookie settings and HTTPS enforcement
+
+## 🤝 Contributing
+
+### Development Workflow
+
+1. **Fork the repository**
+2. **Create a feature branch**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes**
+4. **Run tests and linting**
+
+   ```bash
+   pnpm lint
+   pnpm type-check
+   ```
+
+5. **Commit your changes**
+
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+
+6. **Push to your fork**
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+7. **Create a Pull Request**
+
+### Commit Convention
+
+This project uses conventional commits:
+
+-  `feat:` New features
+-  `fix:` Bug fixes
+-  `docs:` Documentation changes
+-  `style:` Code style changes
+-  `refactor:` Code refactoring
+-  `test:` Test additions or changes
+-  `chore:` Build process or auxiliary tool changes
+
+### Code Review Process
+
+1. All changes require code review
+2. Ensure tests pass
+3. Follow TypeScript best practices
+4. Maintain component consistency
+5. Update documentation as needed
+
+## 📝 License
+
+[Add your license information here]
+
+## 🆘 Support
+
+For support and questions:
+
+-  Create an issue in the repository
+-  Contact the development team
+-  Check the documentation
+
+---
+
+**Built with ❤️ using Next.js, React, and modern web technologies**
