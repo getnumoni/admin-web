@@ -650,7 +650,11 @@ type CustomerDetailsResponse = {
   switchAccountEnabled: boolean;
   language: string;
   currency: string | null;
-  wallet: string | null;
+  wallet: {
+    userId: string;
+    amount: number;
+    createdDt: string;
+  },
   locations: [
     {
       id: string;
