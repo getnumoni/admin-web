@@ -10,7 +10,7 @@ interface CustomersTabsProps {
 const tabs = [
   { id: "overview", label: "Overview" },
   { id: "transactions", label: "Transactions" },
-  { id: "reward-points", label: "Reward & Points" },
+  // { id: "reward-points", label: "Reward & Points" },
 ];
 
 export default function CustomersTabs({ activeTab, onTabChange }: CustomersTabsProps) {

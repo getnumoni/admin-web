@@ -2,31 +2,38 @@
 
 import { DataTable } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { transactionsData } from '@/data/transactions-data';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import useGetTransactionByMerchantId from '@/hooks/query/useGetTransactionByMerchantId';
 import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { singleMerchantTransactionColumns } from './single-merchant-transaction-columns';
 
-export default function SingleMerchantTransaction() {
+export default function SingleMerchantTransaction({ merchantId }: { merchantId: string }) {
+  const { data, isPending, error, isError, refetch } = useGetTransactionByMerchantId({ merchantId });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-
   const itemsPerPage = 12;
+
+  // Get transactions from API data
+  const apiTransactions = data?.data?.data?.pageData || [];
+  const totalRows = data?.data?.data?.totalRows || 0;
+  const totalPages = data?.data?.data?.totalPages || 0;
 
   // Filter transactions based on search term
   const filteredTransactions = useMemo(() => {
-    if (!searchTerm.trim()) return transactionsData;
+    if (!searchTerm.trim()) return apiTransactions;
 
     const searchLower = searchTerm.toLowerCase().trim();
-    return transactionsData.filter(transaction =>
-      transaction.txnId.toLowerCase().includes(searchLower) ||
-      transaction.customer.toLowerCase().includes(searchLower) ||
-      transaction.type.toLowerCase().includes(searchLower) ||
-      transaction.status.toLowerCase().includes(searchLower)
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return apiTransactions.filter((transaction: any) =>
+      transaction.txnId?.toLowerCase().includes(searchLower) ||
+      transaction.customer?.toLowerCase().includes(searchLower) ||
+      transaction.type?.toLowerCase().includes(searchLower) ||
+      transaction.status?.toLowerCase().includes(searchLower)
     );
-  }, [searchTerm]);
+  }, [searchTerm, apiTransactions]);
 
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentTransactions = filteredTransactions.slice(startIndex, endIndex);
@@ -45,11 +52,42 @@ export default function SingleMerchantTransaction() {
 
   // Render function for data table content
   const renderDataTableContent = () => {
-    if (currentTransactions.length === 0) {
+    if (isPending) {
+      return <LoadingSpinner message="Loading transactions..." />;
+    }
+
+    if (isError) {
+      return (
+        <EmptyState
+          title="Error Loading Transactions"
+          description="There was an error loading the transaction data. Please try again."
+          actionButton={
+            <button
+              onClick={() => refetch()}
+              className="flex items-center gap-2 bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </button>
+          }
+        />
+      );
+    }
+
+    if (apiTransactions.length === 0) {
       return (
         <EmptyState
           title="No Transactions Found"
-          description="No transactions match your current search or filter criteria. Try adjusting your search terms or filters."
+          description="This merchant has no transactions yet. Transactions will appear here once the merchant starts processing orders."
+        />
+      );
+    }
+
+    if (filteredTransactions.length === 0) {
+      return (
+        <EmptyState
+          title="No Matching Transactions"
+          description="No transactions match your current search criteria. Try adjusting your search terms."
         />
       );
     }
@@ -107,6 +145,7 @@ export default function SingleMerchantTransaction() {
             {/* Row Count */}
             <div className="text-sm text-gray-600">
               Showing {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length}
+              {searchTerm && ` (${totalRows} total)`}
             </div>
 
             {/* Row Action Icons */}

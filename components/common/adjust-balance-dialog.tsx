@@ -12,14 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface AdjustBalanceDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { wallet: string; points: number; reason: string }) => void;
+  onConfirm: (data: { wallet: string; balance: number; reason: string }) => void;
   userName?: string;
   userId?: string;
+  isAdjustBalancePending?: boolean;
+  isAdjustBalanceSuccess?: boolean;
 }
 
 const walletOptions = [
@@ -34,29 +36,36 @@ export default function AdjustBalanceDialog({
   onClose,
   onConfirm,
   userName,
-  userId
+  userId,
+  isAdjustBalancePending,
+  isAdjustBalanceSuccess
 }: AdjustBalanceDialogProps) {
   const [selectedWallet, setSelectedWallet] = useState("");
-  const [points, setPoints] = useState("");
+  const [balance, setBalance] = useState("");
   const [reason, setReason] = useState("");
 
   const handleConfirm = () => {
-    if (selectedWallet && points && reason) {
+    if (selectedWallet && balance && reason) {
       onConfirm({
         wallet: selectedWallet,
-        points: parseFloat(points),
+        balance: parseFloat(balance),
         reason: reason
       });
-      handleClose();
     }
   };
 
   const handleClose = () => {
     setSelectedWallet("");
-    setPoints("");
+    setBalance("");
     setReason("");
     onClose();
   };
+
+  React.useEffect(() => {
+    if (isAdjustBalanceSuccess) {
+      handleClose();
+    }
+  }, [isAdjustBalanceSuccess]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -93,15 +102,15 @@ export default function AdjustBalanceDialog({
             </Select>
           </div>
 
-          {/* Enter Points */}
+          {/* Enter Balance */}
           <div>
-            <Label htmlFor="points-input">Enter Points (positive or negative)</Label>
+            <Label htmlFor="balance-input">Enter Balance (positive or negative)</Label>
             <Input
-              id="points-input"
+              id="balance-input"
               type="number"
-              value={points}
-              onChange={(e) => setPoints(e.target.value)}
-              placeholder="Enter points amount"
+              value={balance}
+              onChange={(e) => setBalance(e.target.value)}
+              placeholder="Enter balance amount"
               className="mt-1"
             />
           </div>
@@ -126,8 +135,10 @@ export default function AdjustBalanceDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!selectedWallet || !points || !reason}
+            disabled={!selectedWallet || !balance || !reason || isAdjustBalancePending}
             className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white"
+            isLoading={isAdjustBalancePending}
+            loadingText="Adjusting balance..."
           >
             Submit
           </Button>

@@ -2,7 +2,7 @@
 
 import AdminNavbar from "@/components/common/admin-navbar";
 import AdminSidebar from "@/components/common/admin-sidebar";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -22,7 +22,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <AdminSidebar isOpen={sidebarOpen} onClose={closeSidebar} />
 
       {/* Navbar */}
-      <AdminNavbar onMenuClick={toggleSidebar} />
+      <Suspense fallback={<div className="h-16 bg-white border-b border-gray-200" />}>
+        <AdminNavbar onMenuClick={toggleSidebar} />
+      </Suspense>
 
       {/* Main content area */}
       <main className="pt-16 lg:ml-64">

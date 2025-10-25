@@ -156,7 +156,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-            <Image src={numoniLogoDark} alt="nuMoni" width={120} height={40} />
+            <Image src={numoniLogoDark} alt="nuMoni" width={120} height={40} style={{ width: "auto", height: "auto" }} priority />
             <button className="p-1 rounded-md hover:bg-gray-100 transition-colors">
               <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
