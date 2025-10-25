@@ -69,17 +69,18 @@ export const isNavigationItemActive = (itemPath: string, currentPath: string, al
  */
 export const getPageTitle = (path: string, searchParams?: Record<string, string>): string => {
   // Debug logging
-  console.log('getPageTitle - path:', path);
-  console.log('getPageTitle - searchParams:', searchParams);
-  console.log('getPageTitle - searchParams type:', typeof searchParams);
-  console.log('getPageTitle - searchParams keys:', searchParams ? Object.keys(searchParams) : 'undefined');
+  // console.log('getPageTitle - path:', path);
+  // console.log('getPageTitle - searchParams:', searchParams);
+  // console.log('getPageTitle - searchParams type:', typeof searchParams);
+  // console.log('getPageTitle - searchParams keys:', searchParams ? Object.keys(searchParams) : 'undefined');
 
   // Check if we have a branchName in search params for branch-level routes
-  if (searchParams?.branchName && path.includes('/branch-level/')) {
-    console.log('Returning branchName:', searchParams.branchName);
-    return searchParams.branchName;
+  if (searchParams?.customerName && path.includes('/customers/')) {
+    // console.log('Returning customerName:', searchParams.customerName);
+    return searchParams.customerName;
   }
-  if (searchParams?.merchantName && path.includes('/merchants/')) {
+  if (searchParams?.merchantName && path.includes('/merchants')) {
+    // console.log('Returning merchantName:', searchParams.merchantName);
     return searchParams.merchantName;
   }
 
@@ -590,7 +591,7 @@ export const downloadQRCodeAsImage = async (printRef: React.RefObject<HTMLDivEle
     // Get the SVG element from the print ref
     const svgElement = printRef.current?.querySelector('svg');
     if (!svgElement) {
-      console.error('QR code SVG not found');
+      // console.error('QR code SVG not found');
       return;
     }
 
@@ -641,7 +642,7 @@ export const downloadQRCodeAsImage = async (printRef: React.RefObject<HTMLDivEle
       img.src = svgUrl;
     }
   } catch (error) {
-    console.error('Error downloading QR code as image:', error);
+    // console.error('Error downloading QR code as image:', error);
     throw error;
   }
 };
