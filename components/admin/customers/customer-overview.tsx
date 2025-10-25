@@ -1,7 +1,6 @@
 import { useResetCustomerPassword } from "@/hooks/mutation/useResetCustomerPassword";
 import { CustomerDetailsResponse } from "@/lib/types";
 import CustomerAccountInfo from "./customer-account-info";
-import CustomerAdminControls from "./customer-admin-controls";
 import CustomerFinancialOverview from "./customer-financial-overview";
 import CustomerPersonalInfo from "./customer-personal-info";
 import CustomerReviewsSection from "./customer-reviews-section";
@@ -85,7 +84,7 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
       onHideReview={handleHideReview}
       onDeleteReview={handleDeleteReview}
     />
-    <CustomerAdminControls
+    {/* <CustomerAdminControls
       onAdjustPoints={handleAdjustPoints}
       onAdjustBalance={handleAdjustBalance}
       onResetPassword={handleResetPassword}
@@ -93,6 +92,6 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
       userName={customerData?.name}
       userId={customerData?.userId}
       isResetPending={isResetPending}
-    />
+    /> */}
   </main>;
 }
