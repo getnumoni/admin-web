@@ -1,12 +1,35 @@
-import { useResetCustomerPassword } from "@/hooks/mutation/useResetCustomerPassword";
 import { CustomerDetailsResponse } from "@/lib/types";
 import CustomerAccountInfo from "./customer-account-info";
+import CustomerAdminControls from "./customer-admin-controls";
 import CustomerFinancialOverview from "./customer-financial-overview";
 import CustomerPersonalInfo from "./customer-personal-info";
 import CustomerReviewsSection from "./customer-reviews-section";
 
-export default function CustomerOverview({ customerData }: { customerData: CustomerDetailsResponse }) {
-  const { handleResetCustomerPassword, isPending: isResetPending } = useResetCustomerPassword();
+interface CustomerOverviewProps {
+  customerData: CustomerDetailsResponse;
+  onAdjustPoints: (customerId: string, walletId: string, walletType: string, points: number, reason: string) => void;
+  onAdjustBalance: (customerId: string, walletId: string, walletType: string, balance: number, reason: string) => void;
+  onResetPassword: (data: { newPassword: string; confirmPassword: string }) => void;
+  onDeleteAccount: () => void;
+  customerId: string;
+  isAdjustPointsPending: boolean;
+  isAdjustPointsSuccess: boolean;
+  isAdjustBalancePending: boolean;
+  isAdjustBalanceSuccess: boolean;
+}
+
+export default function CustomerOverview({
+  customerData,
+  onAdjustPoints,
+  onAdjustBalance,
+  onResetPassword,
+  onDeleteAccount,
+  customerId,
+  isAdjustPointsPending,
+  isAdjustPointsSuccess,
+  isAdjustBalancePending,
+  isAdjustBalanceSuccess
+}: CustomerOverviewProps) {
 
   // Mock customer reviews data
   const mockCustomerReviews = [
@@ -44,26 +67,6 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
     },
   ];
 
-  const handleAdjustPoints = () => {
-    console.log("Adjust customer points");
-  };
-
-  const handleAdjustBalance = () => {
-    console.log("Adjust customer balance");
-  };
-
-  const handleResetPassword = (data: { newPassword: string; confirmPassword: string }) => {
-    if (customerData?.userId) {
-      handleResetCustomerPassword({
-        id: customerData.userId,
-        newPassword: data.newPassword,
-      });
-    }
-  };
-
-  const handleDeleteAccount = () => {
-    console.log("Delete customer account");
-  };
 
   const handleHideReview = (id: string) => {
     console.log("Hide review:", id);
@@ -84,14 +87,18 @@ export default function CustomerOverview({ customerData }: { customerData: Custo
       onHideReview={handleHideReview}
       onDeleteReview={handleDeleteReview}
     />
-    {/* <CustomerAdminControls
-      onAdjustPoints={handleAdjustPoints}
-      onAdjustBalance={handleAdjustBalance}
-      onResetPassword={handleResetPassword}
-      onDeleteAccount={handleDeleteAccount}
+    <CustomerAdminControls
+      onAdjustPoints={onAdjustPoints}
+      onAdjustBalance={onAdjustBalance}
+      onResetPassword={onResetPassword}
+      onDeleteAccount={onDeleteAccount}
       userName={customerData?.name}
       userId={customerData?.userId}
-      isResetPending={isResetPending}
-    /> */}
+      walletId={customerData?.wallet?.userId || undefined}
+      isAdjustPointsPending={isAdjustPointsPending}
+      isAdjustPointsSuccess={isAdjustPointsSuccess}
+      isAdjustBalancePending={isAdjustBalancePending}
+      isAdjustBalanceSuccess={isAdjustBalanceSuccess}
+    />
   </main>;
 }
