@@ -380,10 +380,6 @@ This project uses conventional commits:
 4. Maintain component consistency
 5. Update documentation as needed
 
-## 📝 License
-
-[Add your license information here]
-
 ## 🆘 Support
 
 For support and questions:
