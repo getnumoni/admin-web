@@ -1,20 +1,13 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { AccountInformationProps, InfoItem } from "@/lib/types";
+import { InfoItem, MerchantDetailsResponse } from "@/lib/types";
 import { CheckCircle, User } from "lucide-react";
 
 
 export default function AccountInformation({
-  registrationDate,
-  lastLogin,
-  accountType,
-  accountStatus,
-  identityType,
-  identityNumber,
-  businessNumber,
-  maxPointsIssued,
-}: AccountInformationProps) {
+  merchantData
+}: { merchantData: MerchantDetailsResponse }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Verified":
@@ -29,17 +22,17 @@ export default function AccountInformation({
   };
 
   const leftColumnItems: InfoItem[] = [
-    { label: "Registration Date", value: registrationDate },
-    { label: "Account type", value: accountType, icon: User },
-    { label: "Identity type", value: identityType },
-    { label: "Business Number", value: businessNumber },
+    { label: "Registration Date", value: merchantData?.createdDt || "N/A" },
+    { label: "Account type", value: "Merchant", icon: User },
+    { label: "Identity type", value: merchantData?.identificationType || "N/A" },
+    { label: "Business Number", value: merchantData?.businessReqNo || "N/A" },
   ];
 
   const rightColumnItems: InfoItem[] = [
-    { label: "Last Login", value: lastLogin },
-    { label: "Account Status", value: accountStatus, isBadge: true },
-    { label: "Identity Number", value: identityNumber },
-    { label: "Max Point Issued", value: maxPointsIssued },
+    { label: "Last Login", value: "N/A" },
+    { label: "Account Status", value: merchantData?.status || "Active", isBadge: true },
+    { label: "Identity Number", value: merchantData?.identificationTypeNumber || "N/A" },
+    { label: "Max Point Issued", value: merchantData?.minimumThreshold || "N/A" },
   ];
 
   return (

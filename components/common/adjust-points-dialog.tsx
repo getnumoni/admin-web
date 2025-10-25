@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface AdjustPointsDialogProps {
   isOpen: boolean;
@@ -20,6 +20,8 @@ interface AdjustPointsDialogProps {
   onConfirm: (data: { wallet: string; points: number; reason: string }) => void;
   userName?: string;
   userId?: string;
+  isAdjustPointsSuccess?: boolean;
+  isAdjustPointsPending?: boolean;
 }
 
 const walletOptions = [
@@ -34,7 +36,9 @@ export default function AdjustPointsDialog({
   onClose,
   onConfirm,
   userName,
-  userId
+  userId,
+  isAdjustPointsPending,
+  isAdjustPointsSuccess
 }: AdjustPointsDialogProps) {
   const [selectedWallet, setSelectedWallet] = useState("");
   const [points, setPoints] = useState("");
@@ -47,7 +51,6 @@ export default function AdjustPointsDialog({
         points: parseFloat(points),
         reason: reason
       });
-      handleClose();
     }
   };
 
@@ -57,6 +60,12 @@ export default function AdjustPointsDialog({
     setReason("");
     onClose();
   };
+
+  React.useEffect(() => {
+    if (isAdjustPointsSuccess) {
+      handleClose();
+    }
+  }, [isAdjustPointsSuccess]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -126,8 +135,10 @@ export default function AdjustPointsDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!selectedWallet || !points || !reason}
+            disabled={!selectedWallet || !points || !reason || isAdjustPointsPending}
             className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white"
+            isLoading={isAdjustPointsPending}
+            loadingText="Adjusting points..."
           >
             Submit
           </Button>

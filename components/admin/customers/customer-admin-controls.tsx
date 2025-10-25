@@ -10,16 +10,22 @@ import {
   Key,
   Trash2
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface CustomerAdminControlsProps {
-  onAdjustPoints?: () => void;
-  onAdjustBalance?: () => void;
+  onAdjustPoints?: (customerId: string, walletId: string, walletType: string, points: number, reason: string) => void;
+  onAdjustBalance?: (customerId: string, walletId: string, walletType: string, balance: number, reason: string) => void;
   onResetPassword?: (data: { newPassword: string; confirmPassword: string }) => void;
   onDeleteAccount?: () => void;
   userName?: string;
   userId?: string;
+  walletId?: string;
   isResetPending?: boolean;
+  isAdjustPointsPending?: boolean;
+  isAdjustPointsSuccess?: boolean;
+  isAdjustBalancePending?: boolean;
+  isAdjustBalanceSuccess?: boolean;
 }
 
 export default function CustomerAdminControls({
@@ -29,20 +35,57 @@ export default function CustomerAdminControls({
   onDeleteAccount,
   userName,
   userId,
+  walletId,
   isResetPending = false,
+  isAdjustPointsPending = false,
+  isAdjustPointsSuccess = false,
+  isAdjustBalancePending = false,
+  isAdjustBalanceSuccess = false,
 }: CustomerAdminControlsProps) {
   const [isAdjustPointsOpen, setIsAdjustPointsOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
 
+  // Close adjust points modal when operation is successful
+  useEffect(() => {
+    if (isAdjustPointsSuccess && isAdjustPointsOpen) {
+      setIsAdjustPointsOpen(false);
+    }
+  }, [isAdjustPointsSuccess, isAdjustPointsOpen]);
+
+  // Close adjust balance modal when operation is successful
+  useEffect(() => {
+    if (isAdjustBalanceSuccess && isAdjustBalanceOpen) {
+      setIsAdjustBalanceOpen(false);
+    }
+  }, [isAdjustBalanceSuccess, isAdjustBalanceOpen]);
+
   const handleAdjustPointsConfirm = (data: { wallet: string; points: number; reason: string }) => {
-    console.log("Adjust Points:", data);
-    onAdjustPoints?.();
+    if (userId && walletId) {
+      onAdjustPoints?.(userId, walletId, data.wallet, data.points, data.reason);
+    }
   };
 
-  const handleAdjustBalanceConfirm = (data: { wallet: string; points: number; reason: string }) => {
-    console.log("Adjust Balance:", data);
-    onAdjustBalance?.();
+  const handleAdjustBalanceConfirm = (data: { wallet: string; balance: number; reason: string }) => {
+    if (userId && walletId) {
+      onAdjustBalance?.(userId, walletId, data.wallet, data.balance, data.reason);
+    }
+  };
+
+  const handleAdjustPointsClick = () => {
+    if (!walletId) {
+      toast.error(`This customer ${userName || 'Unknown'} doesn't have a configured wallet`);
+      return;
+    }
+    setIsAdjustPointsOpen(true);
+  };
+
+  const handleAdjustBalanceClick = () => {
+    if (!walletId) {
+      toast.error(`This customer ${userName || 'Unknown'} doesn't have a configured wallet`);
+      return;
+    }
+    setIsAdjustBalanceOpen(true);
   };
 
   const handleResetPasswordConfirm = (data: { newPassword: string; confirmPassword: string }) => {
@@ -53,14 +96,14 @@ export default function CustomerAdminControls({
     {
       label: "Adjust Points",
       icon: Coins,
-      onClick: () => setIsAdjustPointsOpen(true),
+      onClick: handleAdjustPointsClick,
       variant: "default" as const,
       className: "bg-green-600 hover:bg-green-700 text-white",
     },
     {
       label: "Adjust Balance",
       icon: DollarSign,
-      onClick: () => setIsAdjustBalanceOpen(true),
+      onClick: handleAdjustBalanceClick,
       variant: "outline" as const,
       className: "border-gray-300 text-gray-700 hover:bg-gray-50",
     },
@@ -107,6 +150,8 @@ export default function CustomerAdminControls({
         onConfirm={handleAdjustPointsConfirm}
         userName={userName}
         userId={userId}
+        isAdjustPointsPending={isAdjustPointsPending}
+        isAdjustPointsSuccess={isAdjustPointsSuccess}
       />
 
       <AdjustBalanceDialog
@@ -115,6 +160,8 @@ export default function CustomerAdminControls({
         onConfirm={handleAdjustBalanceConfirm}
         userName={userName}
         userId={userId}
+        isAdjustBalancePending={isAdjustBalancePending}
+        isAdjustBalanceSuccess={isAdjustBalanceSuccess}
       />
 
       <ResetPasswordDialog

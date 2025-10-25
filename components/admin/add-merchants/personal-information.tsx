@@ -49,6 +49,8 @@ interface PersonalInformationProps {
   bankInformation: BankInformation[];
   userId?: string;
   onEdit?: () => void;
+  sellOnline: boolean;
+  sellOffline: boolean;
 }
 
 export default function PersonalInformation({
@@ -61,12 +63,16 @@ export default function PersonalInformation({
   bankInformation,
   userId,
   onEdit,
+  sellOnline,
+  sellOffline,
 }: PersonalInformationProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const leftColumnItems = [
     { label: "Business Name", value: businessName },
     { label: "Email Address", value: businessEmail },
     { label: "Phone Number", value: businessPhoneNo },
+    { label: "Online Sales", value: sellOnline ? "Yes" : "No" },
+    { label: "Offline Sales", value: sellOffline ? "Yes" : "No" },
 
   ];
 

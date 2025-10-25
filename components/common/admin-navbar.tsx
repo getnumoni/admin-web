@@ -2,7 +2,7 @@
 
 import { getPageTitle } from '@/lib/helper';
 import { Menu, Search } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import AdminUserProfile from './admin-user-profile';
 
 interface NavbarProps {
@@ -11,6 +11,7 @@ interface NavbarProps {
 
 export default function AdminNavbar({ onMenuClick }: NavbarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
 
 
@@ -31,7 +32,7 @@ export default function AdminNavbar({ onMenuClick }: NavbarProps) {
 
             {/* Page title */}
             <h1 className="ml-2 lg:ml-0 text-xl lg:text-2xl font-bold text-gray-900 truncate">
-              {getPageTitle(pathname)}
+              {getPageTitle(pathname, Object.fromEntries(searchParams.entries()))}
             </h1>
           </div>
 
