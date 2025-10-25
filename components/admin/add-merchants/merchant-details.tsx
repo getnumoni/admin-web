@@ -2,10 +2,14 @@
 
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { mockMerchantData } from "@/data";
+import { useAdjustMerchantBalance } from "@/hooks/mutation/useAdjustMerchantBalance";
+import { useAdjustMerchantPoints } from "@/hooks/mutation/useAdjustMerchantPoints";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useResetMerchantPassword } from "@/hooks/mutation/useResetMerchantPassword";
 import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
+import { useUserAuthStore } from "@/stores/user-auth-store";
 import { useState } from "react";
+import { toast } from "sonner";
 import AccountInformation from "./account-information";
 import AdminControls from "./admin-controls";
 import EndorsedCharity from "./endorsed-charity";
@@ -28,6 +32,9 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
   const { handleDeleteMerchant, isPending: isDeletePending } = useDeleteMerchant();
   const { handleResetMerchantPassword, isPending: isResetPending } = useResetMerchantPassword();
+  const { handleAdjustMerchantPoints, isPending: isAdjustPointsPending, isSuccess } = useAdjustMerchantPoints();
+  const { handleAdjustMerchantBalance, isPending: isAdjustBalancePending, isSuccess: isAdjustBalanceSuccess } = useAdjustMerchantBalance();
+  const { user } = useUserAuthStore();
 
   // console.log('merchantDetails', merchantDetails?.data?.data);
   const merchantData = merchantDetails?.data?.data;
@@ -58,12 +65,40 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
     console.log("Delete review:", id);
   };
 
-  const handleAdjustPoints = () => {
-    console.log("Adjust points");
+  const handleAdjustPoints = (merchantId: string, walletId: string, walletType: string, points: number, reason: string) => {
+    // Check if admin user is available
+    if (!user?.id) {
+      toast.error("Admin user not found");
+      return;
+    }
+
+    if (merchantId) {
+      handleAdjustMerchantPoints({
+        walletId: walletId,
+        points: points,
+        reason: reason,
+        adminId: user.id,
+        walletType: walletType
+      });
+    }
   };
 
-  const handleAdjustBalance = () => {
-    console.log("Adjust balance");
+  const handleAdjustBalance = (merchantId: string, walletId: string, walletType: string, balance: number, reason: string) => {
+    // Check if admin user is available
+    if (!user?.id) {
+      toast.error("Admin user not found");
+      return;
+    }
+
+    if (merchantId) {
+      handleAdjustMerchantBalance({
+        walletId: walletId,
+        balance: balance,
+        reason: reason,
+        adminId: user.id,
+        walletType: walletType
+      });
+    }
   };
 
   const handleResetPassword = (data: { newPassword: string; confirmPassword: string }) => {
@@ -103,7 +138,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
                 merchantId={merchantId}
                 onEdit={handleEditPersonalInfo}
               />
-              <AccountInformation {...mockMerchantData.accountInfo} />
+              <AccountInformation merchantData={merchantData} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -138,8 +173,13 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               userName={merchantData?.businessName}
               userId={merchantId ? merchantId as string : undefined}
               businessName={merchantData?.businessName}
+              walletId={merchantData?.wallet?.userId}
               isDeletePending={isDeletePending}
               isResetPending={isResetPending}
+              isAdjustPointsPending={isAdjustPointsPending}
+              isAdjustPointsSuccess={isSuccess}
+              isAdjustBalancePending={isAdjustBalancePending}
+              isAdjustBalanceSuccess={isAdjustBalanceSuccess}
             />
           </div>
         )}
@@ -149,7 +189,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
         )}
 
         {activeTab === "transactions" && (
-          <SingleMerchantTransaction />
+          <SingleMerchantTransaction merchantId={merchantId as string} />
         )}
 
         {activeTab === "rewards" && (
