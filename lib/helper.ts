@@ -1206,3 +1206,91 @@ export const getDealStatusText = (status: string) => {
   }
 };
 
+/**
+ * Interface for metric loading and error states.
+ * Used to manage the state of dashboard metrics that fetch data from API endpoints.
+ */
+export interface MetricState {
+  isPending: boolean;
+  error: unknown;
+}
+
+/**
+ * Retrieves the loading state for a specific dashboard metric.
+ * 
+ * This function maps metric titles to their corresponding loading states from API hooks.
+ * It provides a centralized way to determine if a particular metric is currently being fetched.
+ * 
+ * @param title - The title of the metric (e.g., 'Total Points Issued', 'Total Donations')
+ * @param metricStates - An object mapping metric titles to their loading/error states
+ * 
+ * @returns `true` if the metric is currently loading, `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * const metricStates = {
+ *   'Total Points Issued': { isPending: true, error: null },
+ *   'Total Donations': { isPending: false, error: null },
+ *   'Total Points Redeemed': { isPending: false, error: null }
+ * };
+ * 
+ * getMetricLoadingState('Total Points Issued', metricStates); // true
+ * getMetricLoadingState('Total Donations', metricStates); // false
+ * ```
+ * 
+ * @remarks
+ * This function is designed to work with the dashboard metrics system where different metrics
+ * may have different loading states. It provides a clean abstraction for checking loading states
+ * without directly accessing individual hook states in components.
+ * 
+ * If a metric title is not found in the provided states object, the function returns `false`
+ * by default, assuming the metric does not require loading.
+ */
+export const getMetricLoadingState = (
+  title: string,
+  metricStates: Record<string, MetricState>
+): boolean => {
+  return metricStates[title]?.isPending ?? false;
+};
+
+/**
+ * Retrieves the error state for a specific dashboard metric.
+ * 
+ * This function maps metric titles to their corresponding error states from API hooks.
+ * It provides a centralized way to determine if a particular metric encountered an error during fetching.
+ * 
+ * @param title - The title of the metric (e.g., 'Total Points Issued', 'Total Donations')
+ * @param metricStates - An object mapping metric titles to their loading/error states
+ * 
+ * @returns The error object if the metric encountered an error, `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * const metricStates = {
+ *   'Total Points Issued': { isPending: false, error: null },
+ *   'Total Donations': { isPending: false, error: new Error('API Error') },
+ *   'Total Points Redeemed': { isPending: false, error: null }
+ * };
+ * 
+ * getMetricErrorState('Total Donations', metricStates); // Error('API Error')
+ * getMetricErrorState('Total Points Issued', metricStates); // false
+ * ```
+ * 
+ * @remarks
+ * This function is designed to work with the dashboard metrics system where different metrics
+ * may have different error states. It provides a clean abstraction for checking error states
+ * without directly accessing individual hook states in components.
+ * 
+ * If a metric title is not found in the provided states object, or if the metric has no error,
+ * the function returns `false`.
+ * 
+ * The error can be of any type (Error objects, API errors, etc.) and should be handled
+ * appropriately in the consuming component.
+ */
+export const getMetricErrorState = (
+  title: string,
+  metricStates: Record<string, MetricState>
+): unknown => {
+  return metricStates[title]?.error ?? false;
+};
+
