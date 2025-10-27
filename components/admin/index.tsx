@@ -1,5 +1,10 @@
 'use client';
 
+import { Skeleton } from '@/components/ui/skeleton';
+import useGetTotalDonation from '@/hooks/query/useGetTotalDonation';
+import useGetTotalIssuedPoints from '@/hooks/query/useGetTotalIssuedPoints';
+import useGetTotalRedeemedPoints from '@/hooks/query/useGetTotalRedeemedPoints';
+import { getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
 import { Gift, Star, Store, Ticket, Users } from 'lucide-react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
@@ -8,7 +13,21 @@ import TopPerformingMerchant from './top-performing-merchant';
 
 
 export default function Admin() {
+  const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
+  const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
+  const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
 
+
+  const totalIssuedPoints = totalPoints?.data?.totalIssuedPoints || '0';
+  const totalDonations = totalDonation?.data?.data?.totalDonations || '0';
+  const totalRedeemedPoint = totalRedeemedPoints?.data?.data?.totalPoints || '0';
+
+  // Create a map of metric states for the helper functions
+  const metricStates = {
+    'Total Points Issued': { isPending: totalPointsPending, error: totalPointsError },
+    'Total Donations': { isPending: totalDonationPending, error: totalDonationError },
+    'Total Points Redeemed': { isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError },
+  };
 
   const metrics = [
     {
@@ -31,21 +50,21 @@ export default function Admin() {
     },
     {
       title: 'Total Donations',
-      value: '90M',
+      value: totalDonations,
       icon: <Gift className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFFBDA]',
       iconBgColor: 'bg-black'
     },
     {
       title: 'Total Points Issued',
-      value: '900.3M',
+      value: totalIssuedPoints,
       icon: <Star className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFFBDA]',
       iconBgColor: 'bg-black'
     },
     {
       title: 'Total Points Redeemed',
-      value: '900.3K',
+      value: totalRedeemedPoint,
       icon: <Gift className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFFBDA]',
       iconBgColor: 'bg-black'
@@ -67,18 +86,32 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-        {metrics.map((metric, index) => (
-          <MetricCard
-            key={index}
-            title={metric.title}
-            value={metric.value}
-            change={metric.change}
-            changeType={metric.changeType}
-            icon={metric.icon}
-            bgColor={metric.bgColor}
-            iconBgColor={metric.iconBgColor}
-          />
-        ))}
+        {metrics.map((metric, index) => {
+          const isMetricPending = getMetricLoadingState(metric.title, metricStates);
+          const isMetricError = getMetricErrorState(metric.title, metricStates);
+
+          if (isMetricPending) {
+            return (
+              <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
+                <Skeleton className="h-4 w-24 mb-3" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+            );
+          }
+
+          return (
+            <MetricCard
+              key={index}
+              title={metric.title}
+              value={isMetricError ? 'Error' : metric.value}
+              change={metric.change}
+              changeType={metric.changeType}
+              icon={metric.icon}
+              bgColor={metric.bgColor}
+              iconBgColor={metric.iconBgColor}
+            />
+          );
+        })}
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 my-4'>
