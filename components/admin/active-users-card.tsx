@@ -2,42 +2,66 @@
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MousePointer, ShoppingCart, Users, Wrench } from 'lucide-react';
+import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
+import { ShoppingCart, Ticket, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import LoadingSpinner from '../ui/loading-spinner';
 
-// Mock data for different time periods
-const chartData = {
-  daily: [
-    { day: 'Mon', users: 120 },
-    { day: 'Tue', users: 190 },
-    { day: 'Wed', users: 300 },
-    { day: 'Thu', users: 500 },
-    { day: 'Fri', users: 350 },
-    { day: 'Sat', users: 280 },
-    { day: 'Sun', users: 200 }
-  ],
-  weekly: [
-    { week: 'Week 1', users: 1200 },
-    { week: 'Week 2', users: 1900 },
-    { week: 'Week 3', users: 3000 },
-    { week: 'Week 4', users: 2500 }
-  ],
-  monthly: [
-    { month: 'Jan', users: 4500 },
-    { month: 'Feb', users: 5200 },
-    { month: 'Mar', users: 4800 },
-    { month: 'Apr', users: 6100 },
-    { month: 'May', users: 5800 },
-    { month: 'Jun', users: 6700 }
-  ],
-  yearly: [
-    { year: '2021', users: 45000 },
-    { year: '2022', users: 52000 },
-    { year: '2023', users: 48000 },
-    { year: '2024', users: 61000 }
-  ]
-};
+interface DashboardMetrics {
+  merchants: {
+    serviceFee: number;
+    totalServiceFee: number;
+    payOnUsFee: number;
+    totalCredit: number;
+    newMerchants: number;
+    totalSales: number;
+    payOut: number;
+    totalPayOut: number;
+    totalMerchants: number;
+    credit: number;
+  };
+  customers: {
+    deactiveCustomers: number;
+    totalLoadMoney: number;
+    totalBonus: number;
+    totalCustomers: number;
+    shareMoneyDebit: number;
+    totalCredit: number;
+    shareMoneyCredit: number;
+    bonus: number;
+    activeCustomers: number;
+    purchase: number;
+    loadMoney: number;
+    totalDebit: number;
+    totalPurchase: number;
+    credit: number;
+    debit: number;
+    dateBetweenUsers: number;
+  };
+  tickets: {
+    pendingTickets: string;
+    processingTickets: string;
+    totalProcessingTickets: string | number;
+    totalPendingTickets: string | number;
+    totalCompletedTickets: string | number;
+    totalTickets: number;
+    completedTickets: string;
+  };
+}
+
+interface ChartDataPoint {
+  period: string;
+  value: number;
+}
+
+interface MetricItem {
+  label: string;
+  value: string;
+  icon: React.ComponentType<{ className?: string }>;
+  progress: number;
+}
+
 
 const chartConfig = {
   users: {
@@ -46,29 +70,107 @@ const chartConfig = {
   }
 };
 
-const metrics = [
-  { label: 'Users', value: '32,984', icon: Users, progress: 75 },
-  { label: 'Clicks', value: '2.42M', icon: MousePointer, progress: 75 },
-  { label: 'Sales', value: '₦ 2.3K', icon: ShoppingCart, progress: 35 },
-  { label: 'Donations', value: '₦ 8.3K', icon: Wrench, progress: 65 }
-];
+const getMetrics = (dashboardData: DashboardMetrics | null): MetricItem[] => {
+  if (!dashboardData) {
+    return [
+      { label: 'Customers', value: '0', icon: Users, progress: 0 },
+      { label: 'Merchants', value: '0', icon: ShoppingCart, progress: 0 },
+      { label: 'Tickets', value: '0', icon: Ticket, progress: 0 }
+    ];
+  }
+
+  return [
+    { label: 'Customers', value: String(dashboardData.customers?.totalCustomers || 0), icon: Users, progress: 75 },
+    { label: 'Merchants', value: String(dashboardData.merchants?.totalMerchants || 0), icon: ShoppingCart, progress: 35 },
+    { label: 'Tickets', value: String(dashboardData.tickets?.totalTickets || 0), icon: Ticket, progress: 65 }
+  ];
+};
+
+// Helper function to get date range for each period
+const getDateRange = (period: string): { fromDate: string; toDate: string } => {
+  const now = new Date();
+  const formatDate = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  switch (period) {
+    case 'daily': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 6); // Last 7 days
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'weekly': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 27); // Last 4 weeks
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'monthly': {
+      const startDate = new Date(now);
+      startDate.setMonth(startDate.getMonth() - 5); // Last 6 months
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'yearly': {
+      const startDate = new Date(now);
+      startDate.setFullYear(startDate.getFullYear() - 3); // Last 4 years
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    default:
+      return { fromDate: formatDate(now), toDate: formatDate(now) };
+  }
+};
 
 export default function ActiveUsersCard() {
   const [activeTab, setActiveTab] = useState('weekly');
+  const { fromDate, toDate } = getDateRange(activeTab);
+  const { data: dashboardInfo, isPending: dashboardInfoPending, error: dashboardInfoError } = useGetDashboardInfo({ fromDate, toDate });
 
-  const getCurrentData = () => {
-    return chartData[activeTab as keyof typeof chartData] || chartData.weekly;
+  // Transform API data into chart format
+  const transformDataForChart = (): ChartDataPoint[] => {
+    if (!dashboardInfo?.data?.data) return [];
+
+    const data = dashboardInfo.data.data as DashboardMetrics;
+
+    // Return key metrics from merchants, customers, and tickets
+    return [
+      // Merchants metrics
+      { period: 'Merchant Credit', value: data.merchants?.totalCredit || 0 },
+      { period: 'New Merchants', value: data.merchants?.newMerchants || 0 },
+      { period: 'Total Sales', value: data.merchants?.totalSales || 0 },
+      { period: 'Total PayOut', value: data.merchants?.totalPayOut || 0 },
+      { period: 'Total Merchants', value: data.merchants?.totalMerchants || 0 },
+
+      // Customers metrics
+      { period: 'Total Load Money', value: data.customers?.totalLoadMoney || 0 },
+      { period: 'Total Bonus', value: data.customers?.totalBonus || 0 },
+      { period: 'Total Customers', value: data.customers?.totalCustomers || 0 },
+      { period: 'Customer Credit', value: data.customers?.totalCredit || 0 },
+      { period: 'Active Customers', value: data.customers?.activeCustomers || 0 },
+      { period: 'Total Debit', value: data.customers?.totalDebit || 0 },
+      { period: 'Total Purchase', value: data.customers?.totalPurchase || 0 },
+
+      // Tickets metrics
+      { period: 'Processing Tickets', value: Number(data.tickets?.totalProcessingTickets) || 0 },
+      { period: 'Pending Tickets', value: Number(data.tickets?.totalPendingTickets) || 0 },
+      { period: 'Completed Tickets', value: Number(data.tickets?.totalCompletedTickets) || 0 },
+      { period: 'Total Tickets', value: data.tickets?.totalTickets || 0 },
+    ];
   };
 
-  const getXAxisKey = () => {
-    switch (activeTab) {
-      case 'daily': return 'day';
-      case 'weekly': return 'week';
-      case 'monthly': return 'month';
-      case 'yearly': return 'year';
-      default: return 'day';
-    }
+  const getCurrentData = (): ChartDataPoint[] => {
+    const transformedData = transformDataForChart();
+    return transformedData;
   };
+
+  const getXAxisKey = (): string => {
+    return 'period';
+  };
+
+  if (dashboardInfoPending) {
+    return <LoadingSpinner message={`Fetching ${activeTab} records...`} />;
+  }
 
   return (
     <div className="bg-white rounded-xl p-6  border border-gray-100">
@@ -108,7 +210,7 @@ export default function ActiveUsersCard() {
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar
-                    dataKey="users"
+                    dataKey="value"
                     fill="var(--color-users)"
                     radius={[4, 4, 0, 0]}
                   />
@@ -119,17 +221,17 @@ export default function ActiveUsersCard() {
         </Tabs>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        {metrics.map((metric, index) => (
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {getMetrics(dashboardInfo?.data?.data || null).map((metric, index) => (
           <div key={index} className="flex flex-col">
             <div className="flex items-center mb-3">
-              <div className="w-6 h-6 bg-theme-dark-green rounded-lg flex items-center justify-center mr-3">
+              <div className="w-6 h-6 bg-theme-dark-green rounded-lg flex items-center justify-center mr-2">
                 <metric.icon className="h-3 w-3 text-white" />
               </div>
               <p className="text-sm font-medium text-gray-900">{metric.label}</p>
             </div>
             <div className="w-full">
-              <p className="text-lg font-bold text-gray-900 mb-2">{metric.value}</p>
+              <p className="text-xl font-extrabold text-gray-900 mb-2">{metric.value}</p>
               <div className="w-full bg-gray-200 rounded-full h-1">
                 <div
                   className="bg-theme-dark-green h-1 rounded-full transition-all duration-300"
