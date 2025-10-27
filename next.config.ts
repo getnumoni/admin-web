@@ -30,6 +30,18 @@ const nextConfig: NextConfig = {
         hostname: 'cpip-dev-public.s3.eu-west-1.amazonaws.com',
         port: '',
         pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ncfnigeria.org',
+        port: '',
+        pathname: '**',
       }
     ],
   }
