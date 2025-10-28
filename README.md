@@ -116,7 +116,7 @@ numoni-admin-v2/
 
 ### Prerequisites
 
--  **Node.js** >= 18.14.0 < 23.0.0
+-  **Node.js** >= 19.0.0 < 23.0.0
 -  **pnpm** (recommended package manager)
 
 ### Installation
