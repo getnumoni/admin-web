@@ -1,4 +1,4 @@
-import ViewPointsReport from "@/components/admin/deals-and-promo/view-points-report";
+import ViewPointsReport from "@/components/admin/reports/view-points-report";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
