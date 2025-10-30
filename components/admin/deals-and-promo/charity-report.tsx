@@ -1,7 +1,14 @@
+'use client';
+
 import { MetricCard } from "@/components/common/metric-card";
+import useGetReportCharitySummary from "@/hooks/query/useGetReportCharitySummary";
 import { Gift, Heart, ShoppingBag, Users } from "lucide-react";
 
 export default function CharityReport() {
+
+  const { data, isPending, error, isError, refetch } = useGetReportCharitySummary();
+
+  console.log(data);
   // Mock data for charity report metrics
   const charityMetrics = [
     {

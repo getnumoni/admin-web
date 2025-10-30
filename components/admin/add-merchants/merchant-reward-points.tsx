@@ -1,5 +1,6 @@
 import { MetricCard } from "@/components/common/metric-card";
 import { Button } from "@/components/ui/button";
+import useGetMerchantRewardPointById from "@/hooks/query/useGetMerchantRewardPointById";
 import { Edit, Store } from "lucide-react";
 import MerchantRuleCard from "./merchant-rule-card";
 import MerchantRuleTable from "./merchant-rule-table";
@@ -32,7 +33,10 @@ const metrics = [
 ];
 
 
-export default function MerchantRewardPoints() {
+export default function MerchantRewardPoints({ merchantId }: { merchantId: string }) {
+  const { data: rewardPointData, isPending: isRewardPointPending } = useGetMerchantRewardPointById({ merchantId });
+  console.log(rewardPointData?.data?.data);
+  const rewardData = rewardPointData?.data?.data;
   return (
     <main>
 
