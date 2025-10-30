@@ -87,7 +87,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     header: "Discount",
     cell: ({ row }) => (
       <div className="flex items-center space-x-1 text-green-600 text-sm font-medium">
-        <span>{row.getValue("discount")}</span>
+        <span>{row.getValue("discount") ?? "0"}</span>
       </div>
     ),
   },
@@ -95,10 +95,10 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "initialPrice",
     header: "Initial Price",
     cell: ({ row }) => {
-      const price = parseFloat(row.getValue("initialPrice"));
+      const price = parseFloat(row.getValue("initialPrice") ?? "0");
       return (
         <div className="flex items-center space-x-1 text-gray-600 text-sm">
-          <span>{formatCurrency(price)}</span>
+          <span>{formatCurrency(price) ?? "-"}</span>
         </div>
       );
     },
