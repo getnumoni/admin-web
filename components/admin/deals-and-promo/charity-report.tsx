@@ -2,10 +2,12 @@
 
 import { MetricCard } from "@/components/common/metric-card";
 import useGetReportCharitySummary from "@/hooks/query/useGetReportCharitySummary";
+import useGetReportTopCharities from "@/hooks/query/useGetReportTopCharities";
 import { Gift, Heart, ShoppingBag, Users } from "lucide-react";
 
 export default function CharityReport() {
-
+  const { data: topCharities } = useGetReportTopCharities("weekly");
+  console.log(topCharities);
   const { data } = useGetReportCharitySummary();
 
   // console.log(data);
