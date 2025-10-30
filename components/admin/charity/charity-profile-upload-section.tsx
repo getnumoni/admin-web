@@ -67,6 +67,7 @@ export default function CharityProfileUploadSection({
                 width={128}
                 height={128}
                 className="w-full h-full object-cover rounded-full border border-gray-100"
+                unoptimized
               />
             </>
           ) : (

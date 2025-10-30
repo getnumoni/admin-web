@@ -89,6 +89,14 @@ export default function CharityPayoutInformation({
 
   // Handle verification success
   useEffect(() => {
+    // Keep a human-readable bankName in the form based on selected bankCode
+    if (selectedBank) {
+      const label = bankOptions.find(o => o.value === selectedBank)?.label || "";
+      setValue("bankName", label);
+    } else {
+      setValue("bankName", "");
+    }
+
     if (isVerifiedPayOnUsBank && accountNamePayOnUs) {
       setIsAccountValid(true);
       // Save the verified account name to the form
@@ -100,7 +108,7 @@ export default function CharityPayoutInformation({
       setValue("accountName", "");
       setValue("verifiedAccountName", "");
     }
-  }, [isVerifiedPayOnUsBank, accountNamePayOnUs, isVerifyingPayOnUsBank, accountNumber, setValue]);
+  }, [isVerifiedPayOnUsBank, accountNamePayOnUs, isVerifyingPayOnUsBank, accountNumber, setValue, selectedBank, bankOptions]);
   return (
     <>
       <div className="m-6 border border-gray-100 rounded-xl p-6">

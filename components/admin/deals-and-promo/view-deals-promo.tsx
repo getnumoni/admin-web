@@ -12,7 +12,7 @@ import AllDealsData from "./all-deals-data";
 export default function ViewDealsPromo() {
   const { data, isPending, error, isError, refetch } = useGetDealList();
   const { data: dealsStatisticsData, isPending: isDealsStatisticsPending, error: dealsStatisticsError, isError: isDealsStatisticsError, refetch: refetchDealsStatistics } = useGetDealsStatistics();
-  console.log(dealsStatisticsData?.data?.data);
+  // console.log(dealsStatisticsData?.data?.data);
 
   const deals = dealsStatisticsData?.data?.data;
 
