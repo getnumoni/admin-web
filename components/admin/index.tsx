@@ -1,10 +1,11 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
 import useGetTotalDonation from '@/hooks/query/useGetTotalDonation';
 import useGetTotalIssuedPoints from '@/hooks/query/useGetTotalIssuedPoints';
 import useGetTotalRedeemedPoints from '@/hooks/query/useGetTotalRedeemedPoints';
-import { getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
+import { getCurrentDate, getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
 import { Gift, Star, Store, Ticket, Users } from 'lucide-react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
@@ -13,9 +14,16 @@ import TopPerformingMerchant from './top-performing-merchant';
 
 
 export default function Admin() {
+  const fromDate = getCurrentDate('dd-mm-yyyy') as string;
+  const toDate = getCurrentDate('dd-mm-yyyy') as string;
   const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
   const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
   const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
+  const { data: dashboardInfo, isPending: dashboardInfoPending, error: dashboardInfoError } = useGetDashboardInfo({ fromDate, toDate });
+
+  console.log(dashboardInfo?.data?.data);
+  const dashboardData = dashboardInfo?.data?.data;
+
 
 
   const totalIssuedPoints = totalPoints?.data?.totalIssuedPoints || '0';
@@ -32,8 +40,8 @@ export default function Admin() {
   const metrics = [
     {
       title: 'Total Customers',
-      value: '200',
-      change: '+55%',
+      value: dashboardData?.customers?.totalCustomers || '0',
+      // change: '+55%',
       changeType: 'positive' as const,
       icon: <Users className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#E3EAFD]',
@@ -41,8 +49,8 @@ export default function Admin() {
     },
     {
       title: 'Total Merchants',
-      value: '234',
-      change: '-14%',
+      value: dashboardData?.merchants?.totalMerchants || '0',
+      // change: '-14%',
       changeType: 'negative' as const,
       icon: <Store className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#DFFDDB]',
@@ -71,7 +79,7 @@ export default function Admin() {
     },
     {
       title: 'Total Open Tickets',
-      value: '200',
+      value: dashboardData?.tickets?.totalTickets || '0',
       icon: <Ticket className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFDADC]',
       iconBgColor: 'bg-black'
@@ -104,7 +112,7 @@ export default function Admin() {
               key={index}
               title={metric.title}
               value={isMetricError ? 'Error' : metric.value}
-              change={metric.change}
+              // change={metric.change}
               changeType={metric.changeType}
               icon={metric.icon}
               bgColor={metric.bgColor}

@@ -31,11 +31,18 @@ export default function ReviewCard({
   onHide,
   onDelete,
 }: ReviewCardProps) {
-  const initials = customerName
-    .split(" ")
-    .map((name) => name[0])
-    .join("")
-    .toUpperCase();
+  // Generate initials from customer name, or use default "CU" for Customer
+  const initials = customerName && customerName.trim()
+    ? customerName
+      .split(" ")
+      .map((name) => name[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) // Limit to 2 characters
+    : "CU"; // Default to "CU" for Customer
+
+  // Use customerName or fallback
+  const displayName = customerName || "Customer";
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 relative">
@@ -48,7 +55,7 @@ export default function ReviewCard({
             </AvatarFallback>
           </Avatar>
           <div>
-            <h4 className="font-medium text-gray-900">{customerName}</h4>
+            <h4 className="font-medium text-gray-900">{displayName}</h4>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 text-yellow-400 fill-current" />
               <span className="text-sm text-gray-600">{rating}/5</span>

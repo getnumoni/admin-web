@@ -1294,3 +1294,57 @@ export const getMetricErrorState = (
   return metricStates[title]?.error ?? false;
 };
 
+// --------------------
+// Activity Logs Helpers
+// --------------------
+import type { ActivityLog } from "@/lib/types/activity-log";
+
+// Type representing the raw API activity log item
+export interface ApiActivityLog {
+  id: string;
+  userId?: string | null;
+  userName?: string;
+  userType?: string;
+  changeLog?: string;
+  createdBy?: string;
+  typeId?: string | null;
+  type?: string;
+  action?: string;
+  accessDate?: string;
+  systemIp?: string;
+  createdTime?: string;
+}
+
+
+
+// Extract a clean username from the API userName value
+export const extractActivityUsername = (userName: string): string => {
+  return userName.replace(/_(MERCHANT|CUSTOMER|NUMONI)$/i, '').trim();
+};
+
+// Formats the activity timestamp using existing date helper and time
+export const formatActivityTimestamp = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const datePart = formatDateReadable(date.toISOString());
+  const timePart = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart}, ${timePart}`;
+};
+
+// Maps API activity logs to the ActivityLog table shape
+export const mapApiActivityToActivityLog = (apiData: ApiActivityLog[]): ActivityLog[] => {
+  return apiData.map((item, index) => ({
+    id: index + 1,
+    timestamp: formatActivityTimestamp(item.accessDate || item.createdTime || ''),
+    user: extractActivityUsername(item.userName || item.createdBy || 'Unknown'),
+    role: item.userType || item.type || 'Unknown',
+    action: item.action || 'Unknown',
+    details: item.changeLog || 'No details available',
+    ipAddress: item.systemIp || 'N/A',
+  }));
+};
+

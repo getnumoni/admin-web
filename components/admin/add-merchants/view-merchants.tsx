@@ -9,64 +9,56 @@ import { ADMIN_MERCHANTS_ADD_URL } from '@/constant/routes';
 import useGetAllMerchants from '@/hooks/query/useGetAllMerchants';
 import { ChevronLeft, ChevronRight, Download, Info, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Merchant, merchantColumns } from './merchant-columns';
 
 export default function ViewMerchants() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  // const [filterBy, setFilterBy] = useState('');
-  // const [dateFilter, setDateFilter] = useState('');
-  // const [orderStatus, setOrderStatus] = useState('');
-  // const [showFilters, setShowFilters] = useState(false);
-  const { data, isPending, error, isError, refetch } = useGetAllMerchants();
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
+  const itemsPerPage = 20;
+
+  // Use searchTerm as businessName filter, pass page (0-based) and size
+  const { data, isPending, error, isError, refetch } = useGetAllMerchants({
+    page: currentPage,
+    size: itemsPerPage,
+    businessName: searchTerm.trim() || undefined, // Send search term as businessName filter
+  });
 
   // Extract merchants data from API response
   const apiData = data?.data?.data;
-  // const totalRows = apiData?.totalRows || 0;
-  // const totalPages = apiData?.totalPages || 1;
-  // const currentApiPage = apiData?.currentPage || 0;
+  const merchants: Merchant[] = apiData?.pageData || [];
+  const totalRows = apiData?.totalRows || 0;
+  const totalPages = apiData?.totalPages || 0;
 
-  // Filter merchants based on search term
-  const filteredMerchants = useMemo(() => {
-    const merchantsData: Merchant[] = apiData?.pageData || [];
-    if (!searchTerm.trim()) return merchantsData;
-
-    const searchLower = searchTerm.toLowerCase().trim();
-    return merchantsData.filter(merchant =>
-      merchant.businessName.toLowerCase().includes(searchLower) ||
-      merchant.email.toLowerCase().includes(searchLower) ||
-      merchant.category.some(cat => cat.toLowerCase().includes(searchLower))
-    );
-  }, [searchTerm, apiData?.pageData]);
-
-  const itemsPerPage = 20;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentMerchants = filteredMerchants.slice(startIndex, endIndex);
+  // Calculate pagination display values
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalRows);
 
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage(prev => Math.max(prev - 1, 0));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredMerchants.length / itemsPerPage)));
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
   const handleResetFilter = () => {
-    // setFilterBy('');
-    // setDateFilter('');
-    // setOrderStatus('');
     setSearchTerm('');
+    setCurrentPage(0); // Reset to first page when clearing filters
   };
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
 
   // Render function for data table content
   const renderDataTableContent = () => {
-    if (currentMerchants.length === 0) {
+    if (merchants.length === 0) {
       return (
         <EmptyState
           title="No Merchants Found"
-          description="No merchants match your current search or filter criteria. Try adjusting your search terms or filters."
+          description="No merchants match your current search criteria. Try adjusting your search terms."
           actionButton={
             <Link href={ADMIN_MERCHANTS_ADD_URL}>
               <Button className="flex items-center gap-2 bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer">
@@ -79,7 +71,7 @@ export default function ViewMerchants() {
       );
     }
 
-    return <DataTable columns={merchantColumns} data={currentMerchants} />;
+    return <DataTable columns={merchantColumns} data={merchants} />;
   };
 
   // Show loading state
@@ -161,12 +153,12 @@ export default function ViewMerchants() {
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentMerchants.length > 0 && (
+      {merchants.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             {/* Row Count */}
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredMerchants.length)} of {filteredMerchants.length} merchants
+              Showing {startIndex + 1}-{endIndex} of {totalRows} merchants
             </div>
 
             {/* Row Action Icons */}
@@ -195,17 +187,17 @@ export default function ViewMerchants() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span className="text-sm text-gray-600 px-3">
-                Page {currentPage} of {Math.ceil(filteredMerchants.length / itemsPerPage)}
+                Page {currentPage + 1} of {totalPages || 1}
               </span>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage === Math.ceil(filteredMerchants.length / itemsPerPage)}
+                disabled={currentPage >= totalPages - 1 || totalPages === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />

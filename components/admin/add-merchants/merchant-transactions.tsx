@@ -2,55 +2,54 @@
 
 import { DataTable } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
-import { Button } from '@/components/ui/button';
 import useGetMerchantTransactions from '@/hooks/query/useGetMerchantTransactions';
 import { MerchantTransaction } from '@/lib/types';
 import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { transactionColumns } from './transaction-columns';
 
 export default function MerchantTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const { data, isPending, error, isError } = useGetMerchantTransactions();
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
+  const itemsPerPage = 20; // Changed to match standard page size
+
+  // Use searchTerm as merchantName filter, pass page (0-based) and size
+  const { data, isPending, error, isError, refetch } = useGetMerchantTransactions({
+    page: currentPage,
+    size: itemsPerPage,
+    merchantName: searchTerm.trim() || undefined, // Send search term as merchantName filter
+  });
+
+  // Extract transactions data from API response
   const apiData = data?.data?.data;
-  // const totalRows = apiData?.totalRows || 0;
-  // const totalPages = apiData?.totalPages || 1;
-  // const currentApiPage = apiData?.currentPage || 0;
+  const transactions: MerchantTransaction[] = apiData?.pageData || [];
+  const totalRows = apiData?.totalRows || 0;
+  const totalPages = apiData?.totalPages || 0;
 
-  const itemsPerPage = 12; // Based on the design showing 12 items
-
-  // Filter transactions based on search term only
-  const filteredTransactions = useMemo(() => {
-    const transactionsData: MerchantTransaction[] = apiData?.pageData || [];
-    if (!searchTerm.trim()) return transactionsData;
-
-    const searchLower = searchTerm.toLowerCase().trim();
-    return transactionsData.filter(transaction =>
-      transaction.merchantName.toLowerCase().includes(searchLower) ||
-      transaction.transactionId.toLowerCase().includes(searchLower) ||
-      transaction.type.toLowerCase().includes(searchLower)
-    );
-  }, [searchTerm, apiData?.pageData]);
-
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTransactions = filteredTransactions.slice(startIndex, endIndex);
+  // Calculate pagination display values
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalRows);
 
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage(prev => Math.max(prev - 1, 0));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
   const handleResetFilter = () => {
     setSearchTerm('');
+    setCurrentPage(0); // Reset to first page when clearing filters
   };
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
 
   // Show loading state after all hooks
   if (isPending) {
@@ -60,36 +59,27 @@ export default function MerchantTransactions() {
   // Show error state
   if (isError) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-8">
-        <div className="text-center">
-          <div className="text-red-500 text-lg font-semibold mb-2">Error Loading Transactions</div>
-          <div className="text-gray-600 mb-4">
-            {error?.message || "Failed to load transactions. Please try again."}
-          </div>
-          <Button
-            onClick={() => window.location.reload()}
-            variant="outline"
-            className="px-4 py-2  text-white rounded-lg  transition-colors"
-          >
-            Retry
-          </Button>
-        </div>
-      </div>
+      <ErrorState
+        title="Error Loading Transactions"
+        message={error?.message || "Failed to load transactions. Please try again."}
+        onRetry={refetch}
+        retryText="Retry"
+      />
     );
   }
 
   // Render function for data table content
   const renderDataTableContent = () => {
-    if (currentTransactions.length === 0) {
+    if (transactions.length === 0) {
       return (
         <EmptyState
           title="No Transactions Found"
-          description="No transactions match your current search or filter criteria. Try adjusting your search terms or filters."
+          description="No transactions match your current search criteria. Try adjusting your search terms."
         />
       );
     }
 
-    return <DataTable columns={transactionColumns} data={currentTransactions} />;
+    return <DataTable columns={transactionColumns} data={transactions} />;
   };
 
   return (
@@ -136,12 +126,12 @@ export default function MerchantTransactions() {
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentTransactions.length > 0 && (
+      {transactions.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             {/* Row Count */}
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length}
+              Showing {startIndex + 1}-{endIndex} of {totalRows}
             </div>
 
             {/* Row Action Icons */}
@@ -170,14 +160,17 @@ export default function MerchantTransactions() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
+              <span className="px-3 py-1 text-sm text-gray-600">
+                Page {currentPage + 1} of {totalPages || 1}
+              </span>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage === totalPages}
+                disabled={currentPage >= totalPages - 1 || totalPages === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />
