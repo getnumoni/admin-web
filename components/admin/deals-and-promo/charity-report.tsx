@@ -6,9 +6,9 @@ import { Gift, Heart, ShoppingBag, Users } from "lucide-react";
 
 export default function CharityReport() {
 
-  const { data, isPending, error, isError, refetch } = useGetReportCharitySummary();
+  const { data } = useGetReportCharitySummary();
 
-  console.log(data);
+  // console.log(data);
   // Mock data for charity report metrics
   const charityMetrics = [
     {

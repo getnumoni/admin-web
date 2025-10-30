@@ -30,7 +30,8 @@ export default function CharityHeaderSection({
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleFilters}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            aria-pressed={showFilters}
+            className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${showFilters ? 'bg-gray-100 border-gray-400' : 'border-gray-300 hover:bg-gray-50'}`}
           >
             <Filter className="h-4 w-4" />
             Filter By
