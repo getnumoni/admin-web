@@ -13,9 +13,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import CharityBasicInformation from "./charity-basic-information";
 import CharityContactInformation from "./charity-contact-information";
-import CharityMediaSection from "./charity-media-section";
 import CharityPayoutInformation from "./charity-payout-information";
-import CharityProfileUploadSection from "./charity-profile-upload-section";
 
 export default function AddCharity() {
 
@@ -151,7 +149,7 @@ export default function AddCharity() {
       contactAddress: data.contactAddress || "",
       contactCountry: data.contactCountry || "",
       contactState: data.contactState || "",
-      contactCity: data.contactCity || "",
+      contactCity: data.lga || "",
       bankName: data.bankName || "",
       bankAccountNumber: data.bankAccountNumber || "",
       accountName: data.accountName || "",
@@ -181,10 +179,10 @@ export default function AddCharity() {
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border border-gray-100">
             {/* Profile Picture Section */}
-            <CharityProfileUploadSection
+            {/* <CharityProfileUploadSection
               onImageChange={handleImageChange}
               imageUrl={watch('logoUrl') || ''}
-            />
+            /> */}
 
             {/* Basic Information Section */}
             <CharityBasicInformation
@@ -202,11 +200,11 @@ export default function AddCharity() {
             />
 
             {/* Media Section */}
-            <CharityMediaSection
+            {/* <CharityMediaSection
               mediaImages={mediaImages}
               onRemoveImage={handleRemoveImage}
               onAddImage={handleAddImage}
-            />
+            /> */}
 
             {/* Contact Information Section */}
             <CharityContactInformation
