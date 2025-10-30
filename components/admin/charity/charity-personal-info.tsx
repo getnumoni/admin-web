@@ -80,6 +80,20 @@ export default function CharityPersonalInfo({
         </div>
       </div>
 
+      {/* Contact Person and Description */}
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-gray-500 font-medium mb-1">Contact Person:</span>
+            <span className="text-sm text-gray-900 font-semibold">{contactPersonName}</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-gray-500 font-medium mb-1">Description:</span>
+            <span className="text-sm text-gray-900">{description}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Registration Number */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <div className="flex flex-col items-start">

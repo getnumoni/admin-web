@@ -65,7 +65,7 @@ export default function AdjustPointsDialog({
     if (isAdjustPointsSuccess) {
       handleClose();
     }
-  }, [isAdjustPointsSuccess]);
+  }, [isAdjustPointsSuccess, handleClose]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

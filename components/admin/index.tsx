@@ -19,9 +19,9 @@ export default function Admin() {
   const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
   const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
   const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
-  const { data: dashboardInfo, isPending: dashboardInfoPending, error: dashboardInfoError } = useGetDashboardInfo({ fromDate, toDate });
+  const { data: dashboardInfo } = useGetDashboardInfo({ fromDate, toDate });
 
-  console.log(dashboardInfo?.data?.data);
+
   const dashboardData = dashboardInfo?.data?.data;
 
 

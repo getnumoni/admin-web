@@ -55,15 +55,54 @@ export default function DealsInformation({ control, setValue, trigger }: DealsIn
     }
   }, [watchedQualifyingPurchase, watchedRewardItemQuantity, watchedPricePerItem, watchedDealType, trigger]);
 
-  const { data: brandsMerchants } = useGetAllMerchants();
+  const [merchantPage, setMerchantPage] = React.useState(0);
+  const [merchantOptions, setMerchantOptions] = React.useState<{ value: string; label: string }[]>([]);
+  const { data: brandsMerchants, isPending: isMerchantsPending } = useGetAllMerchants({ page: merchantPage, size: 20 });
 
-  const brandsMerchantsData = brandsMerchants?.data?.data?.pageData;
+  const brandsMerchantsData = brandsMerchants?.data?.data?.pageData as Merchant[] | undefined;
+  const totalMerchantPages = brandsMerchants?.data?.data?.totalPages ?? 0;
 
-  // Transform merchants data for combobox
-  const merchantOptions = brandsMerchantsData?.map((merchant: Merchant) => ({
-    value: merchant.userId,
-    label: merchant.businessName,
-  })) || [];
+  React.useEffect(() => {
+    const nextOptions = (brandsMerchantsData || []).map((merchant: Merchant) => ({
+      value: merchant.userId,
+      label: merchant.businessName,
+    }));
+    // Append unique options
+    setMerchantOptions(prev => {
+      const existing = new Set(prev.map(o => o.value));
+      const merged = [...prev];
+      nextOptions.forEach(o => { if (!existing.has(o.value)) merged.push(o); });
+      return merged;
+    });
+  }, [brandsMerchantsData]);
+
+  const canGoPrev = merchantPage > 0;
+  const canGoNext = merchantPage + 1 < totalMerchantPages;
+  const merchantFooter = (
+    <div className="p-2 sticky bottom-0 bg-white">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          disabled={!canGoPrev || isMerchantsPending}
+          onClick={() => setMerchantPage(p => Math.max(p - 1, 0))}
+          className="text-xs px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Prev
+        </button>
+        <div className="text-[10px] text-gray-500 whitespace-nowrap">
+          Page {totalMerchantPages === 0 ? 0 : merchantPage + 1} of {totalMerchantPages}
+        </div>
+        <button
+          type="button"
+          disabled={!canGoNext || isMerchantsPending}
+          onClick={() => setMerchantPage(p => p + 1)}
+          className="text-xs px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isMerchantsPending ? 'Loading...' : 'Next'}
+        </button>
+      </div>
+    </div>
+  );
 
   // Update new price when old price or discount changes
   React.useEffect(() => {
@@ -105,6 +144,7 @@ export default function DealsInformation({ control, setValue, trigger }: DealsIn
             required
             searchPlaceholder="Search merchants..."
             emptyMessage="No merchants found."
+            footerSlot={merchantFooter}
           />
 
           {/* Deal Type */}

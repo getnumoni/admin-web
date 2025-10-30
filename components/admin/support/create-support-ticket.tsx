@@ -39,12 +39,12 @@ const priorityOptions = [
   { value: "urgent", label: "Urgent" },
 ];
 
-const departmentOptions = [
-  { value: "support", label: "Support" },
-  { value: "technical", label: "Technical" },
-  { value: "billing", label: "Billing" },
-  { value: "sales", label: "Sales" },
-];
+// const departmentOptions = [
+//   { value: "support", label: "Support" },
+//   { value: "technical", label: "Technical" },
+//   { value: "billing", label: "Billing" },
+//   { value: "sales", label: "Sales" },
+// ];
 
 export default function CreateSupportTicket({ onBack }: CreateSupportTicketProps) {
   const form = useForm<SupportTicketFormData>({
