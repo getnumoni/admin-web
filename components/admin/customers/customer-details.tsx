@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import CustomerHeader from "./customer-header";
 import CustomerOverview from "./customer-overview";
+import CustomerTransactionById from "./customer-transaction-by-id";
 import CustomersTabs from "./customers-tab";
 
 export default function CustomerDetails({ customerId }: { customerId: string }) {
@@ -117,7 +118,7 @@ export default function CustomerDetails({ customerId }: { customerId: string }) 
       )}
 
       {activeTab === "transactions" && (
-        <h2>Transactions</h2>
+        <CustomerTransactionById customerId={customerId} />
       )}
 
       {/* {activeTab === "reward-points" && (

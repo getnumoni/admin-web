@@ -34,6 +34,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
   const { handleResetMerchantPassword, isPending: isResetPending } = useResetMerchantPassword();
   const { handleAdjustMerchantPoints, isPending: isAdjustPointsPending, isSuccess } = useAdjustMerchantPoints();
   const { handleAdjustMerchantBalance, isPending: isAdjustBalancePending, isSuccess: isAdjustBalanceSuccess } = useAdjustMerchantBalance();
+
   const { user } = useUserAuthStore();
 
   // console.log('merchantDetails', merchantDetails?.data?.data);
@@ -157,12 +158,14 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               reportsCompleted={merchantData?.reportsCompleted}
               totalReports={merchantData?.totalReports}
               onNotifyMerchant={handleNotifyMerchant}
+              merchantId={merchantId as string}
             />
 
             <ReviewsSection
               reviews={mockMerchantData.reviews}
               onHideReview={handleHideReview}
               onDeleteReview={handleDeleteReview}
+              merchantId={merchantId as string}
             />
 
             <AdminControls
@@ -193,7 +196,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
         )}
 
         {activeTab === "rewards" && (
-          <MerchantRewardPoints />
+          <MerchantRewardPoints merchantId={merchantId as string} />
         )}
       </div>
     </div>

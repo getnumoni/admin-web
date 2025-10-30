@@ -2,54 +2,65 @@
 
 import SearchInput from '@/components/common/search-input';
 import { DataTable } from '@/components/ui/data-table';
-import { activityLogData } from '@/data/activity-log-data';
-import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, RefreshCw, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ErrorState } from '@/components/ui/error-state';
+import LoadingSpinner from '@/components/ui/loading-spinner';
+import useGetActivityList from '@/hooks/query/useGetActivityList';
+import { mapApiActivityToActivityLog } from '@/lib/helper';
+import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { activityLogColumns } from './activity-log-columns';
 
 export default function ActivityLogs() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [showFilters, setShowFilters] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const itemsPerPage = 10;
 
-  // Filter activity logs based on search term
-  const filteredActivityLogs = useMemo(() => {
-    if (!searchTerm.trim()) return activityLogData;
+  // Use searchTerm as userName filter, pass page (0-based) and size
+  const { data, isPending, error, isError, refetch } = useGetActivityList({
+    page: currentPage,
+    size: itemsPerPage,
+    userName: searchTerm.trim() || undefined, // Send search term as userName filter
+  });
 
-    const searchLower = searchTerm.toLowerCase().trim();
-    return activityLogData.filter(log =>
-      log.user.toLowerCase().includes(searchLower) ||
-      log.role.toLowerCase().includes(searchLower) ||
-      log.action.toLowerCase().includes(searchLower) ||
-      log.details.toLowerCase().includes(searchLower) ||
-      log.ipAddress.toLowerCase().includes(searchLower)
-    );
-  }, [searchTerm]);
+  const rawActivityLogs = data?.data?.data?.pageData || [];
+  const activityLogs = useMemo(() => {
+    return mapApiActivityToActivityLog(Array.isArray(rawActivityLogs) ? rawActivityLogs : []);
+  }, [rawActivityLogs]);
 
-  const totalPages = Math.ceil(filteredActivityLogs.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentActivityLogs = filteredActivityLogs.slice(startIndex, endIndex);
+  // Get pagination metadata from API response
+  const totalElements = data?.data?.data?.totalElements || 0;
+  const totalPages = data?.data?.data?.totalPages || 0;
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalElements);
 
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage(prev => Math.max(prev - 1, 0));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
   const handleResetFilter = () => {
-
     setSearchTerm('');
+    setCurrentPage(0); // Reset to first page when clearing filters
   };
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
+
+  if (isPending) {
+    return <LoadingSpinner message="Loading activity logs..." />;
+  }
+  if (isError) {
+    return <ErrorState title="Error Loading Activity Logs" message={error?.message || "Failed to load activity logs. Please try again."} onRetry={refetch} retryText="Retry" />;
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-      {/* Header with Search and Filters */}
+      {/* Header with Search and Reset Filter */}
       <div className="p-6 border-gray-200">
         <div className="flex items-center justify-between mb-4">
           {/* Search Input */}
@@ -59,21 +70,8 @@ export default function ActivityLogs() {
             onChange={setSearchTerm}
           />
 
-          {/* Filter Buttons */}
+          {/* Reset Filter Button */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <Filter className="h-4 w-4" />
-              Filter By
-            </button>
-
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              Role
-              <ChevronDown className="h-4 w-4" />
-            </button>
-
             <button
               onClick={handleResetFilter}
               className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
@@ -87,7 +85,7 @@ export default function ActivityLogs() {
 
       {/* Data Table */}
       <div className="p-0">
-        {currentActivityLogs.length === 0 ? (
+        {activityLogs.length === 0 ? (
           // Empty State
           <div className="flex flex-col items-center justify-center py-16 px-8">
             {/* Illustration */}
@@ -110,7 +108,7 @@ export default function ActivityLogs() {
             {/* Text Content */}
             <h3 className="text-2xl font-bold text-gray-900 mb-3">No Activity Logs Found</h3>
             <p className="text-gray-600 text-center max-w-md mb-8 leading-relaxed">
-              No activity logs match your current search or filter criteria. Try adjusting your search terms or filters.
+              No activity logs match your current search criteria. Try adjusting your search terms.
             </p>
           </div>
         ) : (
@@ -118,19 +116,19 @@ export default function ActivityLogs() {
           <div className="overflow-x-auto">
             <DataTable
               columns={activityLogColumns}
-              data={currentActivityLogs}
+              data={activityLogs}
             />
           </div>
         )}
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentActivityLogs.length > 0 && (
+      {activityLogs.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             {/* Row Count */}
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredActivityLogs.length)} of {filteredActivityLogs.length}
+              Showing {startIndex + 1}-{endIndex} of {totalElements}
             </div>
 
             {/* Row Action Icons */}
@@ -159,17 +157,17 @@ export default function ActivityLogs() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <span className="px-3 py-1 text-sm text-gray-600">
-                Page {currentPage} of {totalPages}
+                Page {currentPage + 1} of {totalPages || 1}
               </span>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage === totalPages}
+                disabled={currentPage >= totalPages - 1 || totalPages === 0}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />
