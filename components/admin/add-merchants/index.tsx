@@ -3,14 +3,12 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useCreateMerchants } from '@/hooks/mutation/useCreateMerchants';
-import { useGeneratePayOnUsToken } from '@/hooks/mutation/useGeneratePayOnUsToken';
 import useGeneratePayOnUsBankList from '@/hooks/query/useGeneratePayOnUsBankList';
 import { formatPhoneWithPlus234 } from '@/lib/phone-utils';
 import { merchantSchema, type MerchantFormData } from '@/lib/schemas/merchant-schema';
 import { CreateMerchantsPayload } from '@/lib/types';
 import { useUserAuthStore } from '@/stores/user-auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import BusinessInformation from "./business-information";
 import ContactInformation from "./contact-information";
@@ -19,9 +17,6 @@ import ProfileUploadSection from "./profile-upload-section";
 
 export default function AddMerchants() {
   const { user } = useUserAuthStore();
-
-  const { handleGeneratePayOnUsToken } = useGeneratePayOnUsToken();
-  const hasGeneratedPayOnUsToken = useRef(false);
 
   const { handleCreateMerchants, isPending } = useCreateMerchants();
   const { data: payOnUsBankList } = useGeneratePayOnUsBankList();
@@ -74,12 +69,7 @@ export default function AddMerchants() {
   //   }
   // }, [handleGenerateBankToken]);
 
-  useEffect(() => {
-    if (!hasGeneratedPayOnUsToken.current) {
-      handleGeneratePayOnUsToken();
-      hasGeneratedPayOnUsToken.current = true;
-    }
-  }, [handleGeneratePayOnUsToken]);
+  // Token generation moved to Admin Dashboard
 
   const handleImageChange = (imageUrl: string | null) => {
     setValue('profileImage', imageUrl || '');

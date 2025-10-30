@@ -8,7 +8,7 @@ export const charitySchema = z.object({
   region: z.string().min(1, "Region is required"),
   state: z.string().min(1, "State is required"),
   lga: z.string().min(1, "LGA is required"),
-  city: z.string().min(1, "City is required"),
+  city: z.string().optional(),
   associatedBrands: z.array(z.string()).optional(),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Confirm password is required"),
@@ -26,12 +26,13 @@ export const charitySchema = z.object({
   contactCountry: z.string().min(1, "Contact country is required"),
   contactState: z.string().min(1, "Contact state is required"),
   contactLga: z.string().min(1, "Contact LGA is required"),
-  contactCity: z.string().min(1, "Contact city is required"),
+  contactCity: z.string().optional(),
 
   // Payout Information
   bankCode: z.string().min(1, "Bank code is required"),
   bankAccountNumber: z.string().min(1, "Account number is required"),
   accountName: z.string().min(1, "Account name is required"),
+  bankName: z.string().optional(),
   verifiedAccountName: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

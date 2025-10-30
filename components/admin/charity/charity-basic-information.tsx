@@ -48,6 +48,7 @@ export default function CharityBasicInformation<
   const [merchantPage, setMerchantPage] = React.useState(0);
   const [merchantOptions, setMerchantOptions] = React.useState<{ value: string; label: string }[]>([]);
   const { data: merchantsResp, isPending: isMerchantsPending } = useGetAllMerchants({ page: merchantPage, size: 20 });
+  // console.log(merchantsResp?.data?.data?.pageData);
   const pageMerchants: Merchant[] = (merchantsResp?.data?.data?.pageData as Merchant[]) || [];
   const totalMerchantPages = merchantsResp?.data?.data?.totalPages ?? 0;
   const canGoPrev = merchantPage > 0;

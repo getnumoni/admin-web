@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const useGetDealsStatistics = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["deals-statistics"],
+    queryKey: ["deals-statistics", "deals"],
     queryFn: () => api.get("/admin/dealstatistics"),
   });
 
