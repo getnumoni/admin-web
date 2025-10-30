@@ -1,12 +1,14 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { useGeneratePayOnUsToken } from '@/hooks/mutation/useGeneratePayOnUsToken';
 import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
 import useGetTotalDonation from '@/hooks/query/useGetTotalDonation';
 import useGetTotalIssuedPoints from '@/hooks/query/useGetTotalIssuedPoints';
 import useGetTotalRedeemedPoints from '@/hooks/query/useGetTotalRedeemedPoints';
 import { getCurrentDate, getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
 import { Gift, Star, Store, Ticket, Users } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
 import MostSupportedCharity from './most-supported-charity';
@@ -14,12 +16,21 @@ import TopPerformingMerchant from './top-performing-merchant';
 
 
 export default function Admin() {
+  const { handleGeneratePayOnUsToken } = useGeneratePayOnUsToken();
+  const hasGeneratedPayOnUsToken = useRef(false);
+
   const fromDate = getCurrentDate('dd-mm-yyyy') as string;
   const toDate = getCurrentDate('dd-mm-yyyy') as string;
   const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
   const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
   const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
   const { data: dashboardInfo } = useGetDashboardInfo({ fromDate, toDate });
+  useEffect(() => {
+    if (!hasGeneratedPayOnUsToken.current) {
+      handleGeneratePayOnUsToken();
+      hasGeneratedPayOnUsToken.current = true;
+    }
+  }, [handleGeneratePayOnUsToken]);
 
 
   const dashboardData = dashboardInfo?.data?.data;
