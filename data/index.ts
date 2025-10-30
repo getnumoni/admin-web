@@ -187,6 +187,7 @@ const adminNavigationItem: AdminNavigationItem[] = [
     children: [
       { name: 'All Charities', path: ADMIN_CHARITY_URL, icon: Heart },
       { name: 'Add New Charities', path: ADMIN_CHARITY_ADD_URL, icon: Plus },
+      // { name: ' Transactions', path: ADMIN_CHARITY_TRANSACTION_URL, icon: FileText }
     ]
   },
   {
