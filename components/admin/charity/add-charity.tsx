@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useCreateCharity } from "@/hooks/mutation/useCreateCharity";
 import useGetAllRegions from "@/hooks/query/useGetAllRegions";
 import useGetLga from "@/hooks/query/useGetLga";
 import useGetStates from "@/hooks/query/useGetStates";
 import { charitySchema, type CharityFormData } from "@/lib/schemas/charity-schema";
+import { CreateCharityPayload } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -29,9 +31,12 @@ export default function AddCharity() {
   const { data: lgaData, isPending: isLgaPending } = useGetLga({ state: selectedState });
   const { data: contactStatesData, isPending: isContactStatesPending } = useGetStates({ region: selectedContactRegion });
   const { data: contactLgaData, isPending: isContactLgaPending } = useGetLga({ state: selectedContactState });
+  const { handleCreateCharity, isPending: isCreateCharityPending } = useCreateCharity();
 
   const form = useForm<CharityFormData>({
     resolver: zodResolver(charitySchema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       charityName: "",
       charityRegNumber: "",
@@ -127,8 +132,31 @@ export default function AddCharity() {
   }, [watchedContactState, selectedContactState, setValue]);
 
   const onSubmit = async (data: CharityFormData) => {
-    console.log("Charity data:", data);
-    // Handle form submission here
+    // console.log("Charity data:", data);
+    const payload: CreateCharityPayload = {
+      charityName: data.charityName,
+      charityRegNumber: data.charityRegNumber,
+      charityAddress: data.charityAddress,
+      country: data.region,
+      state: data.state,
+      city: data.lga,
+      associatedBrandsIds: associatedBrands,
+      description: data.description || "",
+      contactPersonName: data.contactPersonName || "",
+      contactEmail: data.contactEmail || "",
+      contactPhoneNumber: data.contactPhoneNumber || "",
+      password: data.password || "",
+      contactAddress: data.contactAddress || "",
+      contactCountry: data.contactCountry || "",
+      contactState: data.contactState || "",
+      contactCity: data.contactCity || "",
+      bankName: data.bankCode || "",
+      bankAccountNumber: data.bankAccountNumber || "",
+      accountName: data.accountName || "",
+      verifiedAccountName: data.verifiedAccountName || "",
+    };
+
+    handleCreateCharity(payload);
   };
 
   return (
@@ -200,6 +228,9 @@ export default function AddCharity() {
               <Button
                 type="submit"
                 className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors"
+                disabled={isCreateCharityPending}
+                loadingText="Creating Charity"
+                isLoading={isCreateCharityPending}
               >
                 Create Charity
               </Button>
