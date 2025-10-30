@@ -5,14 +5,27 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import useGetReportPointFlow from "@/hooks/query/useGetReportPointFlow";
+import { Info } from "lucide-react";
 import { useMemo, useState, type ReactElement } from "react";
 import { Label, Pie, PieChart } from "recharts";
 
 function PointsFlowHeader({ period, onChange }: { period: string; onChange: (v: string) => void }) {
   return (
     <CardHeader className="flex flex-row items-center justify-between pb-0">
-      <CardTitle className="text-base font-semibold">Points Flow Distribution</CardTitle>
+      <CardTitle className="text-base font-semibold flex items-center gap-2">
+        <span>Points Flow Distribution</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="w-4 h-4 text-theme-dark-green" />
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm bg-white shadow-xs border border-gray-50 text-black flex items-center gap-5">
+            <Info className="w-8 h-8 text-theme-dark-green" />
+            <p className="text-xs">Shows how reward points are earned, redeemed, or expired across different activities and time period </p>
+          </TooltipContent>
+        </Tooltip>
+      </CardTitle>
       <Select value={period} onValueChange={onChange}>
         <SelectTrigger className="h-8 w-28">
           <SelectValue placeholder="Period" />

@@ -7,6 +7,7 @@ import useGetReportPointSummary from "@/hooks/query/useGetReportPointSummary";
 import { Gift, ShoppingBag, Star, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import PointsFlow from "./points-flow";
+import ViewMerchantBudgetUsage from "./view-merchant-budget-usage";
 
 function PointsSkeletonItem() {
   return (
@@ -104,6 +105,8 @@ export default function ViewPointsReport() {
         ) : (
           <PointsMetricsGrid pointsMetrics={pointsMetrics} />
         )}
+
+        <ViewMerchantBudgetUsage />
 
         <PointsFlow />
 
