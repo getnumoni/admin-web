@@ -52,6 +52,7 @@ export default function AddCharity() {
       contactLga: "",
       contactCity: "",
       bankCode: "",
+      bankName: "",
       bankAccountNumber: "",
       accountName: "",
       verifiedAccountName: "",
@@ -85,9 +86,10 @@ export default function AddCharity() {
     setAssociatedBrands(associatedBrands.filter(b => b !== brand));
   };
 
-  const handleAddImage = () => {
-    // Handle image upload logic here
-    console.log("Add image clicked");
+  const handleAddImage = (imageBase64: string) => {
+    const next = [...mediaImages, imageBase64].slice(0, 6);
+    setMediaImages(next);
+    setValue('mediaUrls', next);
   };
 
   const handleRemoveImage = (index: number) => {
@@ -150,7 +152,7 @@ export default function AddCharity() {
       contactCountry: data.contactCountry || "",
       contactState: data.contactState || "",
       contactCity: data.contactCity || "",
-      bankName: data.bankCode || "",
+      bankName: data.bankName || "",
       bankAccountNumber: data.bankAccountNumber || "",
       accountName: data.accountName || "",
       verifiedAccountName: data.verifiedAccountName || "",
