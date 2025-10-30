@@ -1,13 +1,13 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-const useGetAllCharity = () => {
+const useGetDealsStatistics = () => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["charity"],
-    queryFn: () => api.get("/admin/charity/getCharityList"),
+    queryKey: ["deals-statistics"],
+    queryFn: () => api.get("/admin/dealstatistics"),
   });
 
   return { data, isPending, error, isError, refetch };
 };
 
-export default useGetAllCharity;
+export default useGetDealsStatistics;

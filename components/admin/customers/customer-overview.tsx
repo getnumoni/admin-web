@@ -81,6 +81,7 @@ export default function CustomerOverview({
       <CustomerPersonalInfo customerData={customerData} />
       <CustomerAccountInfo customerData={customerData} />
     </div>
+    <div className="hidden" data-customer-id={customerId} />
     <CustomerFinancialOverview />
     <CustomerReviewsSection
       reviews={mockCustomerReviews}

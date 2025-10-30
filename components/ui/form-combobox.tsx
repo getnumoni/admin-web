@@ -39,6 +39,7 @@ interface FormComboboxProps<
   className?: string
   searchPlaceholder?: string
   emptyMessage?: string
+  footerSlot?: React.ReactNode
 }
 
 export function FormCombobox<
@@ -55,6 +56,7 @@ export function FormCombobox<
   className = "",
   searchPlaceholder = "Search...",
   emptyMessage = "No option found.",
+  footerSlot,
 }: FormComboboxProps<TFieldValues, TName>) {
   const [open, setOpen] = React.useState(false)
   const [searchValue, setSearchValue] = React.useState("")
@@ -176,6 +178,11 @@ export function FormCombobox<
                       </div>
                     )}
                   </CommandGroup>
+                  {footerSlot && (
+                    <div className="border-t border-gray-100">
+                      {footerSlot}
+                    </div>
+                  )}
                 </>
               )}
             </CommandList>

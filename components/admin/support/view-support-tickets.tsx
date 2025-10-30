@@ -19,7 +19,9 @@ export default function ViewSupportTickets() {
 
   // Extract tickets data from API response
   const apiData = supportTicketList?.data?.data;
-  const allTickets: SupportTicket[] = apiData?.pageData || [];
+  const allTickets: SupportTicket[] = useMemo(() => {
+    return (apiData?.pageData as SupportTicket[]) || [];
+  }, [apiData]);
 
   // Filter tickets based on search term
   const filteredTickets = useMemo(() => {

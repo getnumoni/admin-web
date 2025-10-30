@@ -65,7 +65,7 @@ export default function AdjustBalanceDialog({
     if (isAdjustBalanceSuccess) {
       handleClose();
     }
-  }, [isAdjustBalanceSuccess]);
+  }, [isAdjustBalanceSuccess, handleClose]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
