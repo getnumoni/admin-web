@@ -7,17 +7,13 @@ import AddTicketTypeModal from "./add-ticket-type";
 import CreateSupportTicket from "./create-support-ticket";
 import SupportTabs from "./support-tabs";
 import ViewSupportTickets from "./view-support-tickets";
+import ViewTicketTypes from "./view-ticket-types";
 
 export default function Support() {
 
   const [activeTab, setActiveTab] = useState<string>('ticket-type');
   const [isTicketTypeModalOpen, setIsTicketTypeModalOpen] = useState<boolean>(false);
   const [showCreateTicket, setShowCreateTicket] = useState<boolean>(false);
-  // const { data: ticketTypeList, isPending: isPendingTicketTypeList, error: errorTicketTypeList, isError: isErrorTicketTypeList, refetch: refetchTicketTypeList } = useGetTicketTypeList();
-
-
-
-  // console.log(ticketTypeList);
 
 
   const handleOpenTicketTypeModal = () => {
@@ -57,8 +53,8 @@ export default function Support() {
 
               {activeTab === "ticket-type" && (
                 <div className="mt-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">View Ticket Types</h1>
+                  <div className="flex justify-end items-center mb-6">
+                    {/* <h1 className="text-2xl font-bold">View Ticket Types</h1> */}
                     <Button
                       className="bg-theme-dark-green text-white"
                       onClick={handleOpenTicketTypeModal}
@@ -74,9 +70,7 @@ export default function Support() {
               )}
 
               {activeTab === "ticket-type" && (
-                <div>
-                  all ticket types will be displayed here
-                </div>
+                <ViewTicketTypes />
               )}
 
               {activeTab === "support-ticket" && (
