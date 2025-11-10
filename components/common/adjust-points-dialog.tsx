@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 interface AdjustPointsDialogProps {
   isOpen: boolean;
@@ -54,12 +54,12 @@ export default function AdjustPointsDialog({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setSelectedWallet("");
     setPoints("");
     setReason("");
     onClose();
-  };
+  }, [onClose]);
 
   React.useEffect(() => {
     if (isAdjustPointsSuccess) {
