@@ -158,7 +158,7 @@ export const supportTicketColumns: ColumnDef<SupportTicket>[] = [
         <div className="flex items-center">
           {hasImages ? (
             <div className="flex items-center gap-1">
-              <Image className="w-4 h-4 text-blue-600" />
+              <Image className="w-4 h-4 text-blue-600" aria-hidden="true" />
               <span className="text-xs text-blue-600">
                 {imagepath.filter(img => img.imagePath).length} file(s)
               </span>

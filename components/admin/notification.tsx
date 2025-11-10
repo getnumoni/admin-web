@@ -4,6 +4,7 @@ import useGetNotificationList from '@/hooks/query/useGetNotificationList';
 import { useMarkNotificationAsRead } from '@/hooks/mutation/useMarkNotificationAsRead';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { EmptyState } from '../ui/empty-state';
 import { ErrorState } from '../ui/error-state';
 import { LoadingModal } from '../ui/loading-modal';
 import LoadingSpinner from '../ui/loading-spinner';
@@ -125,7 +126,7 @@ export default function Notification() {
 
   // Mark a single notification as read (pass id to API)
   const handleMarkAsRead = (id: number | string) => {
-    console.log('mark-as-read id:', id);
+    // console.log('mark-as-read id:', id);
     handleMarkNotificationAsRead(id.toString());
   };
 
@@ -135,6 +136,14 @@ export default function Notification() {
 
   if (isError) {
     return <ErrorState title="Error Loading Notifications" message={error?.message || "Failed to load notifications. Please try again."} onRetry={refetch} retryText="Try Again" />;
+  }
+
+  //empty state
+  if (serverNotifications.length === 0) {
+    return <EmptyState
+      title="No Notifications Found"
+      description="No notifications found. Please try again later."
+    />
   }
 
   return (
