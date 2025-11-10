@@ -1,18 +1,22 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
-const useGetDealsPerformance = (period: string) => {
-  const normalized = (period || "").trim();
-
+const useGetDealsPerformance = (startDate: Date | null, endDate: Date | null) => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["report-point-flow", normalized],
+    queryKey: ["report-deal-performance", startDate, endDate],
     queryFn: () => {
       const params = new URLSearchParams();
-      params.append("period", normalized);
+      if (startDate) {
+        params.append("startDate", format(startDate, "dd-MM-yyyy"));
+      }
+      if (endDate) {
+        params.append("endDate", format(endDate, "dd-MM-yyyy"));
+      }
       const qs = params.toString();
       return api.get(`/admin/Report/deal-performance?${qs}`);
     },
-    enabled: normalized.length > 0,
+    enabled: false, // Never auto-fetch, only manual refetch
   });
 
   return { data, isPending, error, isError, refetch };
