@@ -2,9 +2,9 @@ import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-const useGetDealsPerformance = (startDate: Date | null, endDate: Date | null) => {
+const useGetChurnRateTrend = (startDate: Date | null, endDate: Date | null) => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["report-deal-performance", startDate, endDate],
+    queryKey: ["report-church-rate-trend", startDate, endDate],
     queryFn: () => {
       const params = new URLSearchParams();
       if (startDate) {
@@ -14,7 +14,7 @@ const useGetDealsPerformance = (startDate: Date | null, endDate: Date | null) =>
         params.append("endDate", format(endDate, "dd-MM-yyyy"));
       }
       const qs = params.toString();
-      return api.get(`/admin/Report/deal-performance?${qs}`);
+      return api.get(`/admin/Report/churn-trends?${qs}`);
     },
     enabled: false, // Never auto-fetch, only manual refetch
   });
@@ -22,4 +22,4 @@ const useGetDealsPerformance = (startDate: Date | null, endDate: Date | null) =>
   return { data, isPending, error, isError, refetch };
 };
 
-export default useGetDealsPerformance;
+export default useGetChurnRateTrend;
