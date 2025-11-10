@@ -109,7 +109,7 @@ export default function SupportTicketDetails({ ticketId }: { ticketId: string })
               <Card className="shadow-none border-none">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Image className="w-5 h-5" />
+                    <Image className="w-5 h-5" aria-hidden="true" />
                     Attachments
                   </CardTitle>
                 </CardHeader>
@@ -118,7 +118,7 @@ export default function SupportTicketDetails({ ticketId }: { ticketId: string })
                     {supportTicket?.imagepath?.map((attachment: Attachment, index: number) => (
                       attachment.imagePath && (
                         <div key={attachment.id} className="border border-gray-200 rounded-lg p-4 text-center">
-                          <Image className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                          <Image className="w-8 h-8 mx-auto mb-2 text-gray-400" aria-hidden="true" />
                           <p className="text-sm text-gray-600">Attachment {index + 1}</p>
                           <a
                             href={attachment.imagePath}

@@ -6,6 +6,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
+  // console.log("request", request);
   try {
     //get bank credentials from environment variables
     const payOnUsSecret = process.env.PAY_ON_US_SECRET_KEY;
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
         apiClientSecret: payOnUsSecret
       })
     });
+    // console.log("response", response);
 
     if (!response.ok) {
       return NextResponse.json({ error: "Failed to generate pay on us token" }, { status: response.status });
