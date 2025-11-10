@@ -1,27 +1,25 @@
 'use client';
 
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import useGetReportMerchantUsage from "@/hooks/query/useGetReportMerchantUsage";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import useGetDealsPerformance from "@/hooks/query/useGetDealsPerformance";
 import { useState } from "react";
-import { MerchantUsageContent } from "./merchant-usage-content";
-import { MerchantUsageLegend } from "./merchant-usage-legend";
+import { DealPerformanceContent } from "./deal-performance-content";
 import { ReportHeader } from "./report-header";
 
-type MerchantUsageItem = {
-  purchaseCount: number;
-  merchantId: string;
-  budgetCap: number;
-  purchaseRate: number; // 0..1
+type DealPerformanceItem = {
+  purchases: number;
+  week: number;
+  totalDeals: number;
 };
 
-export default function ViewMerchantBudgetUsage() {
+export default function DealPerformance() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
-  const { data: merchantUsage, isPending, isError, error, refetch } = useGetReportMerchantUsage(startDate, endDate);
+  const { data: dealsPerformance, refetch, isPending, isError, error } = useGetDealsPerformance(startDate, endDate);
 
-  const rawData: MerchantUsageItem[] | undefined = merchantUsage?.data?.data as MerchantUsageItem[] | undefined;
+  const rawData: DealPerformanceItem[] | undefined = dealsPerformance?.data?.data as DealPerformanceItem[] | undefined;
 
   const handleSearch = () => {
     if (startDate && endDate) {
@@ -34,17 +32,17 @@ export default function ViewMerchantBudgetUsage() {
     <Card className="flex flex-col shadow-none border-none w-full my-8">
       <CardHeader className="pb-0">
         <ReportHeader
-          title="Merchant Budget Usage"
+          title="Deal Performance"
           startDate={startDate}
           endDate={endDate}
           onStartDateChange={setStartDate}
           onEndDateChange={setEndDate}
           onSearch={handleSearch}
-          description="Shows how much of a merchant&apos;s allocated budget has been spent compared to the total available."
+          description="Measures how well a deal attracts customers and the percentage of those who complete a purchase."
         />
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <MerchantUsageContent
+        <DealPerformanceContent
           hasAttemptedFetch={hasAttemptedFetch}
           isPending={isPending}
           isError={isError}
@@ -53,9 +51,6 @@ export default function ViewMerchantBudgetUsage() {
           onRetry={refetch}
         />
       </CardContent>
-      <CardFooter>
-        <MerchantUsageLegend />
-      </CardFooter>
     </Card>
   );
 }

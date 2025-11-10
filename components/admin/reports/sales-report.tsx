@@ -1,12 +1,12 @@
 'use client';
 
 import { MetricCard } from "@/components/common/metric-card";
-import useGetDealsPerformance from "@/hooks/query/useGetDealsPerformance";
 import { BarChart3, DollarSign, ShoppingCart, TrendingUp } from "lucide-react";
+import ChurnTrend from "./churn-trend";
+import DealPerformance from "./deal-performance";
 
 export default function SalesReport() {
-  const { data: dealsPerformance } = useGetDealsPerformance("weekly");
-  console.log(dealsPerformance);
+
   // Mock data for sales report metrics
   const salesMetrics = [
     {
@@ -67,6 +67,8 @@ export default function SalesReport() {
           ))}
         </div>
 
+        <ChurnTrend />
+        <DealPerformance />
 
       </div>
     </div>
