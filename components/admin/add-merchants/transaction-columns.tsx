@@ -1,11 +1,13 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 import { formatCurrency, formatDateReadable, getTransactionTypeColor } from '@/lib/helper';
 import { MerchantTransaction } from '@/lib/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreVertical } from 'lucide-react';
+import Link from 'next/link';
 
 export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
   {
@@ -121,11 +123,23 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
   {
     id: 'actions',
     header: '',
-    cell: () => {
+    cell: ({ row }) => {
+      const transactionId = row.original.transactionId;
+      const merchantName = row.original.merchantName;
       return (
-        <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-          <MoreVertical className="h-4 w-4" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem className="cursor-pointer">
+              <Link href={`/dashboard/merchants/transactions/${transactionId}?merchantName=${`Transaction Details for ${merchantName}`}`}>
+                View More Details</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },
