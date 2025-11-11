@@ -1,52 +1,51 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Transaction } from "@/data/transactions-data";
 import { formatCurrency } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
 
 export const singleMerchantTransactionColumns: ColumnDef<Transaction>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={table.getIsAllPageRowsSelected()}
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "txnId",
+    accessorKey: "transactionId",
     header: "Transaction ID",
-    cell: ({ row }) => (
-      <div className="font-medium text-gray-900">
-        {row.getValue("txnId")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const transactionId = row.getValue("transactionId") as string;
+      return (
+        <div className="font-medium text-gray-900 truncate" title={transactionId}>
+          {transactionId?.length > 12 ? `${transactionId.slice(0, 8)}...` : transactionId}
+        </div>
+      );
+    },
   },
-  {
-    accessorKey: "customer",
-    header: "Customer",
-    cell: ({ row }) => (
-      <div className="text-gray-900">
-        {row.getValue("customer")}
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: "customer",
+  //   header: "Customer",
+  //   cell: ({ row }) => (
+  //     <div className="text-gray-900">
+  //       {row.getValue("customer")}
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: "type",
     header: "Type",
@@ -77,13 +76,13 @@ export const singleMerchantTransactionColumns: ColumnDef<Transaction>[] = [
     },
   },
   {
-    accessorKey: "points",
-    header: "Points",
+    accessorKey: "balance",
+    header: "Balance",
     cell: ({ row }) => {
-      const points = row.getValue("points") as number;
+      const balance = row.getValue("balance") as number;
       return (
         <div className="text-gray-900">
-          {points ? points.toLocaleString() : '0'}
+          {formatCurrency(balance)}
         </div>
       );
     },
@@ -118,34 +117,34 @@ export const singleMerchantTransactionColumns: ColumnDef<Transaction>[] = [
       );
     },
   },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const transaction = row.original;
+  // {
+  //   id: "actions",
+  //   enableHiding: false,
+  //   cell: ({ row }) => {
+  //     const transaction = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(transaction.txnId)}
-            >
-              Copy transaction ID
-            </DropdownMenuItem>
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit transaction</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              Delete transaction
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuItem
+  //             onClick={() => navigator.clipboard.writeText(transaction.txnId)}
+  //           >
+  //             Copy transaction ID
+  //           </DropdownMenuItem>
+  //           <DropdownMenuItem>View details</DropdownMenuItem>
+  //           <DropdownMenuItem>Edit transaction</DropdownMenuItem>
+  //           <DropdownMenuItem className="text-red-600">
+  //             Delete transaction
+  //           </DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     );
+  //   },
+  // },
 ];
