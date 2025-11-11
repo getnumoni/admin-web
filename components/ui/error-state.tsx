@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import { Button } from "./button";
 
 interface ErrorStateProps {
   title?: string;
@@ -23,13 +24,13 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-600 text-center mb-4">{message}</p>
       {onRetry && (
-        <button
+        <Button
           onClick={onRetry}
           className="flex items-center gap-2 bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
           {retryText}
-        </button>
+        </Button>
       )}
     </div>
   );
