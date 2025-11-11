@@ -14,6 +14,10 @@ export default function CharityDetails({ charityId }: { charityId: string }) {
 
   const { data, isPending, error, isError, refetch } = useGetCharityDetailsById({ charityId });
 
+  // const { data: brandsData, isPending: brandsPending, error: brandsError, isError: brandsIsError, refetch: brandsRefetch } = useGetBrandByCharity({ charityId });
+
+  // console.log('brandsData', brandsData);
+
   const charityData = data?.data?.data;
 
   if (isPending) {
