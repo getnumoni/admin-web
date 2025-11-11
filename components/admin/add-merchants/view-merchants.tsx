@@ -14,14 +14,26 @@ import { Merchant, merchantColumns } from './merchant-columns';
 
 export default function ViewMerchants() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const itemsPerPage = 20;
 
-  // Use searchTerm as businessName filter, pass page (0-based) and size
+  // Debounce search term - wait 3 seconds after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
+
+  // Use debouncedSearchTerm as businessName filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetAllMerchants({
     page: currentPage,
     size: itemsPerPage,
-    businessName: searchTerm.trim() || undefined, // Send search term as businessName filter
+    businessName: debouncedSearchTerm.trim() || undefined, // Send debounced search term as businessName filter
   });
 
   // Extract merchants data from API response
@@ -44,13 +56,14 @@ export default function ViewMerchants() {
 
   const handleResetFilter = () => {
     setSearchTerm('');
+    setDebouncedSearchTerm('');
     setCurrentPage(0); // Reset to first page when clearing filters
   };
 
-  // Reset to first page when search term changes
+  // Reset to first page when debounced search term changes
   useEffect(() => {
     setCurrentPage(0);
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   // Render function for data table content
   const renderDataTableContent = () => {

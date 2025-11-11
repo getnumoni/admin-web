@@ -8,8 +8,8 @@ interface SupportTabsProps {
 }
 
 const tabs: Tab[] = [
-  { id: "ticket-type", label: "Ticket Type" },
   { id: "support-ticket", label: "Support Ticket" },
+  { id: "ticket-type", label: "Ticket Type" },
 ];
 
 export default function SupportTabs({ activeTab, onTabChange }: SupportTabsProps) {

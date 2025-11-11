@@ -5,49 +5,42 @@ import { EmptyState } from '@/components/ui/empty-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import useGetTransactionByMerchantId from '@/hooks/query/useGetTransactionByMerchantId';
 import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { singleMerchantTransactionColumns } from './single-merchant-transaction-columns';
 
 export default function SingleMerchantTransaction({ merchantId }: { merchantId: string }) {
-  const { data, isPending, error, isError, refetch } = useGetTransactionByMerchantId({ merchantId });
-
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for API
+  const itemsPerPage = 30;
+
+  const { data, isPending, error, isError, refetch } = useGetTransactionByMerchantId({
+    merchantId,
+    page: currentPage,
+    size: itemsPerPage,
+    searchTerm: searchTerm.trim() || undefined,
+  });
 
   // Get transactions from API data
-  const apiTransactions = data?.data?.data?.pageData || [];
-  const totalRows = data?.data?.data?.totalRows || 0;
+  const apiTransactions = data?.data?.data?.content || data?.data?.data || [];
+  const totalRows = data?.data?.data?.totalElements || data?.data?.data?.totalRows || 0;
   const totalPages = data?.data?.data?.totalPages || 0;
 
-  // Filter transactions based on search term
-  const filteredTransactions = useMemo(() => {
-    if (!searchTerm.trim()) return apiTransactions;
-
-    const searchLower = searchTerm.toLowerCase().trim();
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return apiTransactions.filter((transaction: any) =>
-      transaction.txnId?.toLowerCase().includes(searchLower) ||
-      transaction.customer?.toLowerCase().includes(searchLower) ||
-      transaction.type?.toLowerCase().includes(searchLower) ||
-      transaction.status?.toLowerCase().includes(searchLower)
-    );
-  }, [searchTerm, apiTransactions]);
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTransactions = filteredTransactions.slice(startIndex, endIndex);
-
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage(prev => Math.max(prev - 1, 0));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
   const handleResetFilter = () => {
     setSearchTerm('');
+    setCurrentPage(0);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0); // Reset to first page when searching
+    refetch();
   };
 
   // Render function for data table content
@@ -60,7 +53,7 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
       return (
         <EmptyState
           title="Error Loading Transactions"
-          description="There was an error loading the transaction data. Please try again."
+          description={`${error?.message || 'There was an error loading the transaction data. Please try again.'}`}
           actionButton={
             <button
               onClick={() => refetch()}
@@ -77,22 +70,17 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
     if (apiTransactions.length === 0) {
       return (
         <EmptyState
-          title="No Transactions Found"
-          description="This merchant has no transactions yet. Transactions will appear here once the merchant starts processing orders."
+          title={searchTerm ? "No Matching Transactions" : "No Transactions Found"}
+          description={
+            searchTerm
+              ? "No transactions match your current search criteria. Try adjusting your search terms."
+              : "This merchant has no transactions yet. Transactions will appear here once the merchant starts processing orders."
+          }
         />
       );
     }
 
-    if (filteredTransactions.length === 0) {
-      return (
-        <EmptyState
-          title="No Matching Transactions"
-          description="No transactions match your current search criteria. Try adjusting your search terms."
-        />
-      );
-    }
-
-    return <DataTable columns={singleMerchantTransactionColumns} data={currentTransactions} />;
+    return <DataTable columns={singleMerchantTransactionColumns} data={apiTransactions} />;
   };
 
   return (
@@ -108,6 +96,11 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
               className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
             {searchTerm && (
@@ -120,14 +113,22 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
             )}
           </div>
 
-          {/* Reset Button */}
+          {/* Search and Reset Buttons */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleSearch}
+              disabled={isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:bg-theme-dark-green/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Search className="h-4 w-4" />
+              Search
+            </button>
             <button
               onClick={handleResetFilter}
               className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               <RefreshCw className="h-4 w-4" />
-              Reset Search
+              Reset
             </button>
           </div>
         </div>
@@ -139,13 +140,12 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentTransactions.length > 0 && (
+      {apiTransactions.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             {/* Row Count */}
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length}
-              {searchTerm && ` (${totalRows} total)`}
+              Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage, totalRows)} of {totalRows}
             </div>
 
             {/* Row Action Icons */}
@@ -172,16 +172,19 @@ export default function SingleMerchantTransaction({ merchantId }: { merchantId: 
 
             {/* Pagination Controls */}
             <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Page {currentPage + 1} of {totalPages || 1}
+              </span>
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0 || isPending}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage === totalPages}
+                disabled={currentPage >= totalPages - 1 || isPending}
                 className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />

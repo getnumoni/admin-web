@@ -15,15 +15,27 @@ import { customerColumns } from './customer-columns';
 
 export default function Customers() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
 
   const itemsPerPage = 20;
 
-  // Use searchTerm as name filter, pass page (0-based) and size
+  // Debounce search term - wait 1 second after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
+
+  // Use debouncedSearchTerm as name filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetCustomers({
     page: currentPage,
     size: itemsPerPage,
-    name: searchTerm.trim() || undefined, // Send search term as name filter
+    name: debouncedSearchTerm.trim() || undefined, // Send debounced search term as name filter
   });
 
   // Extract customers data from API response
@@ -44,14 +56,14 @@ export default function Customers() {
     setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
   };
 
-  // Reset to first page when search term changes
+  // Reset to first page when debounced search term changes
   useEffect(() => {
     setCurrentPage(0);
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   const handleResetFilter = () => {
-
     setSearchTerm('');
+    setDebouncedSearchTerm('');
     setCurrentPage(0); // Reset to first page when clearing filters
   };
 

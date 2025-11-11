@@ -67,13 +67,13 @@ export default function Admin() {
       bgColor: 'bg-[#DFFDDB]',
       iconBgColor: 'bg-black'
     },
-    {
-      title: 'Total Donations',
-      value: totalDonations,
-      icon: <Gift className="h-6 w-6 text-gray-200" />,
-      bgColor: 'bg-[#FFFBDA]',
-      iconBgColor: 'bg-black'
-    },
+    // {
+    //   title: 'Total Donations',
+    //   value: totalDonations,
+    //   icon: <Gift className="h-6 w-6 text-gray-200" />,
+    //   bgColor: 'bg-[#FFFBDA]',
+    //   iconBgColor: 'bg-black'
+    // },
     {
       title: 'Total Points Issued',
       value: totalIssuedPoints,
@@ -104,7 +104,7 @@ export default function Admin() {
         <p className="text-gray-600">Overview of your platform metrics and performance</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {metrics.map((metric, index) => {
           const isMetricPending = getMetricLoadingState(metric.title, metricStates);
           const isMetricError = getMetricErrorState(metric.title, metricStates);
