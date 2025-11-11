@@ -57,9 +57,12 @@ export default function CharityPagination({
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
+          <span className="text-sm text-gray-600 px-3">
+            Page {currentPage} of {totalPages || 1}
+          </span>
           <button
             onClick={onNextPage}
-            disabled={currentPage === totalPages}
+            disabled={currentPage >= totalPages || totalPages === 0}
             className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight className="h-4 w-4" />
