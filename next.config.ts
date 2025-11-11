@@ -42,7 +42,19 @@ const nextConfig: NextConfig = {
         hostname: 'ncfnigeria.org',
         port: '',
         pathname: '**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.amazonaws.com',
+        port: '',
+        pathname: '**',
+      },
     ],
   }
 };

@@ -2,6 +2,7 @@
 
 import { numoniLogoDark } from '@/constant/icons';
 import { adminNavigationItem } from '@/data';
+import { isPathMatch } from '@/lib/helper';
 import { AdminNavigationItem, SidebarProps } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
@@ -11,13 +12,37 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 
 export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Customers']);
+
+  // Auto-expand items that have active children
+  const getExpandedItemsForPath = (currentPathname: string) => {
+    const expanded: string[] = [];
+    adminNavigationItem.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => {
+          if (!child.path) return false;
+          return isPathMatch(currentPathname, child.path);
+        });
+        if (hasActiveChild) {
+          expanded.push(item.name);
+        }
+      }
+    });
+    // Default to 'Customers' if nothing is active
+    return expanded.length > 0 ? expanded : ['Customers'];
+  };
+
+  const [expandedItems, setExpandedItems] = useState<string[]>(getExpandedItemsForPath(pathname));
+
+  // Update expanded items when pathname changes
+  useEffect(() => {
+    setExpandedItems(getExpandedItemsForPath(pathname));
+  }, [pathname]);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => {
@@ -31,12 +56,19 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   const isItemActive = (item: AdminNavigationItem): boolean => {
+    // For items with direct paths (no children)
     if (item.path) {
-      return pathname === item.path;
+      return isPathMatch(pathname, item.path);
     }
+
+    // For items with children, check if any child is active
     if (item.children) {
-      return item.children.some(child => child.path === pathname);
+      return item.children.some(child => {
+        if (!child.path) return false;
+        return isPathMatch(pathname, child.path);
+      });
     }
+
     return false;
   };
 
@@ -78,7 +110,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
           {isExpanded && (
             <div className="ml-2 mt-2 space-y-1">
               {item.children!.map((child) => {
-                const isChildActive = child.path === pathname;
+                const isChildActive = child.path ? isPathMatch(pathname, child.path) : false;
                 const ChildIconComponent = child.icon;
 
                 return (

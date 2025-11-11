@@ -49,7 +49,7 @@ export default function AdminUserProfile() {
         </MenubarTrigger>
         <MenubarContent className="w-48">
           <MenubarItem>
-            <div className="flex items-center w-full px-2 py-1">
+            <div className="flex items-center w-full px-2 py-1 cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </div>
@@ -57,7 +57,7 @@ export default function AdminUserProfile() {
           <MenubarItem>
             <button
               onClick={handleSignOut}
-              className="flex items-center w-full px-2 py-1 text-left hover:bg-gray-100 rounded"
+              className="flex items-center w-full px-2 py-1 text-left hover:bg-gray-100 rounded cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
