@@ -26,10 +26,10 @@ export default function Tabs({
     switch (variant) {
       case "charity":
         return cn(
-          "px-6 py-4 text-sm font-medium transition-colors",
+          "flex-1 py-3 px-4 rounded-md font-medium text-sm transition-all duration-200 cursor-pointer",
           isActive
-            ? "text-theme-dark-green border-b-2 border-theme-dark-green bg-white shadow-sm"
-            : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            ? "bg-white text-gray-900 border border-gray-200"
+            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
         );
 
       case "merchant":
@@ -53,7 +53,7 @@ export default function Tabs({
   const getContainerStyles = () => {
     switch (variant) {
       case "charity":
-        return "bg-white rounded-lg border border-gray-200 mb-6";
+        return "bg-gray-100 rounded-lg p-1 mb-6";
 
       case "merchant":
       default:
