@@ -1348,3 +1348,65 @@ export const mapApiActivityToActivityLog = (apiData: ApiActivityLog[]): Activity
   }));
 };
 
+/**
+ * Checks if a pathname matches a route path, handling dynamic routes and nested paths.
+ * 
+ * This function is designed to handle Next.js dynamic routes (e.g., `/dashboard/merchants/[id]`)
+ * by checking if the current pathname matches a base route path exactly or is a child of that route.
+ * 
+ * @param pathname - Current pathname from the URL (e.g., '/dashboard/merchants/123')
+ * @param routePath - Route path to match against (e.g., '/dashboard/merchants')
+ * @returns `true` if pathname matches the route (exact match or is a child route), `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * // Exact match
+ * isPathMatch('/dashboard/merchants', '/dashboard/merchants'); // true
+ * 
+ * // Dynamic route match
+ * isPathMatch('/dashboard/merchants/123', '/dashboard/merchants'); // true
+ * isPathMatch('/dashboard/customers/456', '/dashboard/customers'); // true
+ * isPathMatch('/dashboard/charity/789', '/dashboard/charity'); // true
+ * 
+ * // Special case: '/dashboard' only matches exactly
+ * isPathMatch('/dashboard', '/dashboard'); // true
+ * isPathMatch('/dashboard/merchants/123', '/dashboard'); // false
+ * 
+ * // No match
+ * isPathMatch('/dashboard/merchants', '/dashboard/customers'); // false
+ * isPathMatch('/profile', '/dashboard'); // false
+ * ```
+ * 
+ * @remarks
+ * - Exact matches always return `true`
+ * - The base route `/dashboard` has special handling to prevent it from matching child routes
+ *   (e.g., `/dashboard/merchants/123` will not match `/dashboard`)
+ * - For other routes, the function checks if the pathname starts with the route path followed by '/'
+ *   to determine if it's a child route (handles dynamic segments like `[id]`)
+ * 
+ * This is particularly useful for navigation sidebars where you want to highlight parent navigation
+ * items when viewing their child pages (e.g., highlight "Merchants" when viewing a specific merchant detail page).
+ */
+export const isPathMatch = (pathname: string, routePath: string): boolean => {
+  // Exact match
+  if (pathname === routePath) return true;
+
+  // Special case: '/dashboard' should only match exactly, not child routes
+  // This prevents '/dashboard' from matching '/dashboard/merchants/123'
+  if (routePath === '/dashboard') {
+    return false;
+  }
+
+  // Check if pathname is a child of routePath (handles dynamic routes like /merchants/[id])
+  // Only match if pathname starts with routePath + '/' to avoid matching siblings
+  // e.g., '/dashboard/merchants/123' matches '/dashboard/merchants' but not '/dashboard'
+  if (pathname.startsWith(routePath + '/')) {
+    // Get the segment after the route path
+    const remainingPath = pathname.slice(routePath.length + 1);
+    // Match if there's a path segment after (handles dynamic IDs and child routes)
+    return remainingPath.length > 0;
+  }
+
+  return false;
+};
+
