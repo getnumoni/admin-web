@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAdjustCustomerBalance } from "@/hooks/mutation/useAdjustCustomerBalance";
 import { useAdjustCustomerPoint } from "@/hooks/mutation/useAdjustCustomerPoint";
@@ -75,20 +76,7 @@ export default function CustomerDetails({ customerId }: { customerId: string }) 
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 p-3">
-        <div className="max-w-7xl mx-auto">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Customers</h3>
-          <p className="text-gray-600 mb-4">
-            {error?.message || "There was an error loading the customer data. Please try again."}
-          </p>
-          <button
-            onClick={() => refetch()}
-            className="px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:bg-theme-dark-green/90 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorState title="Error Loading Customer Details" message={error?.message || "Failed to load customer details. Please try again."} onRetry={refetch} retryText="Retry" />
     );
   }
   return <div className="min-h-screen bg-gray-50 p-3">
