@@ -176,9 +176,9 @@ const adminNavigationItem: AdminNavigationItem[] = [
     name: 'Customers',
     icon: User,
     children: [
-      { name: 'Add new customers', path: ADMIN_CUSTOMERS_ADD_URL, icon: Plus },
-      { name: 'All customers', path: ADMIN_CUSTOMERS_URL, icon: User },
-      { name: 'Customers transactions', path: ADMIN_CUSTOMERS_TRANSACTION_URL, icon: FileText }
+      { name: 'All Customers', path: ADMIN_CUSTOMERS_URL, icon: User },
+      { name: 'Add New Customers', path: ADMIN_CUSTOMERS_ADD_URL, icon: Plus },
+      { name: 'Customers Transactions', path: ADMIN_CUSTOMERS_TRANSACTION_URL, icon: FileText }
     ]
   },
   {
