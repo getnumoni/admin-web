@@ -93,12 +93,15 @@ export const charityColumns: ColumnDef<CharityData>[] = [
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
+      const charity = row.original;
       return (
         <div className="flex items-center space-x-2">
-          <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-            <Eye className="h-4 w-4" />
-            View Profile
-          </button>
+          <Link href={`/dashboard/charity/${charity.id}/?charityName=${encodeURIComponent(charity.charityName)}`}>
+            <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+              <Eye className="h-4 w-4" />
+              View Profile
+            </button>
+          </Link>
           <button className="p-1 hover:bg-gray-100 rounded">
             <MoreVertical className="h-4 w-4 text-gray-400" />
           </button>
