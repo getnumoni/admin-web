@@ -31,6 +31,7 @@ export default function CustomerOverview({
   isAdjustBalanceSuccess
 }: CustomerOverviewProps) {
 
+
   // Mock customer reviews data
   const mockCustomerReviews = [
     {
@@ -82,7 +83,7 @@ export default function CustomerOverview({
       <CustomerAccountInfo customerData={customerData} />
     </div>
     <div className="hidden" data-customer-id={customerId} />
-    <CustomerFinancialOverview />
+    <CustomerFinancialOverview customerData={customerData} />
     <CustomerReviewsSection
       reviews={mockCustomerReviews}
       onHideReview={handleHideReview}

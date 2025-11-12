@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { formatDateReadable } from "@/lib/helper";
+import { formatActivityTimestamp, formatDateReadable } from "@/lib/helper";
 import { CustomerDetailsResponse } from "@/lib/types";
 import { Users } from "lucide-react";
 
@@ -42,7 +42,7 @@ export default function CustomerAccountInfo({ customerData }: { customerData: Cu
             <div>
               <label className="text-sm text-muted-foreground">Last Login</label>
               <p className="text-base font-semibold text-foreground mt-1">
-                {customerData?.lastPurchaseDate ? formatDateReadable(customerData.lastPurchaseDate) : "N/A"}
+                {customerData?.lastLogin ? formatActivityTimestamp(customerData.lastLogin) : "N/A"}
               </p>
             </div>
 
