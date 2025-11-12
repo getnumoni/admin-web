@@ -11,6 +11,21 @@ import Link from 'next/link';
 
 export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
   {
+    id: "serialNumber",
+    header: "S/N",
+    cell: ({ row }) => {
+      // Serial number starts from 1 for the current page
+      // For pagination-aware serial numbers, you would need to pass currentPage and itemsPerPage
+      const serialNumber = row.index + 1;
+      return (
+        <div className="text-gray-600 text-sm text-center">
+          {serialNumber}
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: 'merchantName',
     header: 'Merchant',
     cell: ({ row }) => {
