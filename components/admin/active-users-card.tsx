@@ -2,65 +2,10 @@
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
+import { ChartDataPoint, DashboardMetrics, MetricItem } from '@/lib/types';
 import { ShoppingCart, Ticket, Users } from 'lucide-react';
-import { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import LoadingSpinner from '../ui/loading-spinner';
-
-interface DashboardMetrics {
-  merchants: {
-    serviceFee: number;
-    totalServiceFee: number;
-    payOnUsFee: number;
-    totalCredit: number;
-    newMerchants: number;
-    totalSales: number;
-    payOut: number;
-    totalPayOut: number;
-    totalMerchants: number;
-    credit: number;
-  };
-  customers: {
-    deactiveCustomers: number;
-    totalLoadMoney: number;
-    totalBonus: number;
-    totalCustomers: number;
-    shareMoneyDebit: number;
-    totalCredit: number;
-    shareMoneyCredit: number;
-    bonus: number;
-    activeCustomers: number;
-    purchase: number;
-    loadMoney: number;
-    totalDebit: number;
-    totalPurchase: number;
-    credit: number;
-    debit: number;
-    dateBetweenUsers: number;
-  };
-  tickets: {
-    pendingTickets: string;
-    processingTickets: string;
-    totalProcessingTickets: string | number;
-    totalPendingTickets: string | number;
-    totalCompletedTickets: string | number;
-    totalTickets: number;
-    completedTickets: string;
-  };
-}
-
-interface ChartDataPoint {
-  period: string;
-  value: number;
-}
-
-interface MetricItem {
-  label: string;
-  value: string;
-  icon: React.ComponentType<{ className?: string }>;
-  progress: number;
-}
 
 
 const chartConfig = {
@@ -86,46 +31,14 @@ const getMetrics = (dashboardData: DashboardMetrics | null): MetricItem[] => {
   ];
 };
 
-// Helper function to get date range for each period
-const getDateRange = (period: string): { fromDate: string; toDate: string } => {
-  const now = new Date();
-  const formatDate = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
+interface ActiveUsersCardProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  dashboardInfo?: any;
+  dashboardInfoPending?: boolean;
+}
 
-  switch (period) {
-    case 'daily': {
-      const startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 6); // Last 7 days
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'weekly': {
-      const startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 27); // Last 4 weeks
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'monthly': {
-      const startDate = new Date(now);
-      startDate.setMonth(startDate.getMonth() - 5); // Last 6 months
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'yearly': {
-      const startDate = new Date(now);
-      startDate.setFullYear(startDate.getFullYear() - 3); // Last 4 years
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    default:
-      return { fromDate: formatDate(now), toDate: formatDate(now) };
-  }
-};
-
-export default function ActiveUsersCard() {
-  const [activeTab, setActiveTab] = useState('weekly');
-  const { fromDate, toDate } = getDateRange(activeTab);
-  const { data: dashboardInfo, isPending: dashboardInfoPending, } = useGetDashboardInfo({ fromDate, toDate });
+export default function ActiveUsersCard({ activeTab, onTabChange, dashboardInfo, dashboardInfoPending }: ActiveUsersCardProps) {
 
   // Transform API data into chart format
   const transformDataForChart = (): ChartDataPoint[] => {
@@ -181,7 +94,7 @@ export default function ActiveUsersCard() {
             <span className="text-sm text-green-600 font-medium">(+23) than last week</span>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={onTabChange}>
             <TabsList className="grid grid-cols-4 w-72 border border-gray-200 rounded-lg">
               <TabsTrigger value="daily">Daily</TabsTrigger>
               <TabsTrigger value="weekly">Weekly</TabsTrigger>
@@ -191,7 +104,7 @@ export default function ActiveUsersCard() {
           </Tabs>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={onTabChange}>
           <TabsContent value={activeTab} className="mt-0">
             <div className="h-64">
               <ChartContainer config={chartConfig} className="h-full">

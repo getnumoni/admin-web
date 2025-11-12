@@ -6,9 +6,9 @@ import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
 import useGetTotalDonation from '@/hooks/query/useGetTotalDonation';
 import useGetTotalIssuedPoints from '@/hooks/query/useGetTotalIssuedPoints';
 import useGetTotalRedeemedPoints from '@/hooks/query/useGetTotalRedeemedPoints';
-import { getCurrentDate, getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
+import { getDateRange, getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
 import { Gift, Star, Store, Ticket, Users } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
 import MostSupportedCharity from './most-supported-charity';
@@ -19,12 +19,16 @@ export default function Admin() {
   const { handleGeneratePayOnUsToken } = useGeneratePayOnUsToken();
   const hasGeneratedPayOnUsToken = useRef(false);
 
-  const fromDate = getCurrentDate('dd-mm-yyyy') as string;
-  const toDate = getCurrentDate('dd-mm-yyyy') as string;
+  // Manage the active tab state here so it can be shared between components
+  const [activeTab, setActiveTab] = useState('weekly');
+
+  // Get date range based on active tab - this will sync with ActiveUsersCard
+  const { fromDate, toDate } = getDateRange(activeTab);
+
   const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
   const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
   const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
-  const { data: dashboardInfo } = useGetDashboardInfo({ fromDate, toDate });
+  const { data: dashboardInfo, isPending: dashboardInfoPending } = useGetDashboardInfo({ fromDate, toDate });
   useEffect(() => {
     if (!hasGeneratedPayOnUsToken.current) {
       handleGeneratePayOnUsToken();
@@ -38,7 +42,7 @@ export default function Admin() {
 
 
   const totalIssuedPoints = totalPoints?.data?.totalIssuedPoints || '0';
-  const totalDonations = totalDonation?.data?.data?.totalDonations || '0';
+  // const totalDonations = totalDonation?.data?.data?.totalDonations || '0';
   const totalRedeemedPoint = totalRedeemedPoints?.data?.data?.totalPoints || '0';
 
   // Create a map of metric states for the helper functions
@@ -134,7 +138,12 @@ export default function Admin() {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 my-4'>
-        <ActiveUsersCard />
+        <ActiveUsersCard
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          dashboardInfo={dashboardInfo}
+          dashboardInfoPending={dashboardInfoPending}
+        />
         <div className="flex flex-col gap-6">
           <TopPerformingMerchant />
           <MostSupportedCharity />

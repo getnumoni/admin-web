@@ -870,6 +870,82 @@ export const getTimelineDates = (
   }
 };
 
+/**
+ * Gets the date range for dashboard period filters (daily, weekly, monthly, yearly).
+ * 
+ * This function calculates the start and end dates based on the selected period filter.
+ * The dates are formatted in DD-MM-YYYY format suitable for API requests.
+ * 
+ * @param period - The period filter type ('daily', 'weekly', 'monthly', 'yearly')
+ * @returns An object containing `fromDate` and `toDate` in DD-MM-YYYY format
+ * 
+ * @example
+ * ```typescript
+ * // Daily: Last 7 days
+ * getDateRange('daily') 
+ * // Returns: { fromDate: '08-01-2024', toDate: '15-01-2024' }
+ * 
+ * // Weekly: Last 4 weeks (28 days)
+ * getDateRange('weekly')
+ * // Returns: { fromDate: '19-12-2023', toDate: '15-01-2024' }
+ * 
+ * // Monthly: Last 6 months
+ * getDateRange('monthly')
+ * // Returns: { fromDate: '15-07-2023', toDate: '15-01-2024' }
+ * 
+ * // Yearly: Last 4 years
+ * getDateRange('yearly')
+ * // Returns: { fromDate: '15-01-2020', toDate: '15-01-2024' }
+ * 
+ * // Default: Today only
+ * getDateRange('unknown')
+ * // Returns: { fromDate: '15-01-2024', toDate: '15-01-2024' }
+ * ```
+ * 
+ * @remarks
+ * - All periods use the current date as the end date
+ * - Daily period includes the last 7 days (including today)
+ * - Weekly period includes the last 4 weeks (28 days)
+ * - Monthly period includes the last 6 months
+ * - Yearly period includes the last 4 years
+ * - Dates are formatted as DD-MM-YYYY (e.g., "15-01-2024")
+ * - Invalid period values default to today's date for both fromDate and toDate
+ */
+export const getDateRange = (period: string): { fromDate: string; toDate: string } => {
+  const now = new Date();
+  const formatDate = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  switch (period) {
+    case 'daily': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 6); // Last 7 days
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'weekly': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 27); // Last 4 weeks
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'monthly': {
+      const startDate = new Date(now);
+      startDate.setMonth(startDate.getMonth() - 5); // Last 6 months
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'yearly': {
+      const startDate = new Date(now);
+      startDate.setFullYear(startDate.getFullYear() - 3); // Last 4 years
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    default:
+      return { fromDate: formatDate(now), toDate: formatDate(now) };
+  }
+};
+
 // File size validation utilities
 export const parseFileSize = (sizeString: string): number => {
   const units: { [key: string]: number } = {
