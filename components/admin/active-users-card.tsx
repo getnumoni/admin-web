@@ -3,9 +3,18 @@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChartDataPoint, DashboardMetrics, MetricItem } from '@/lib/types';
+import { AxiosResponse } from 'axios';
 import { ShoppingCart, Ticket, Users } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import LoadingSpinner from '../ui/loading-spinner';
+
+interface DashboardInfoResponse {
+  data: DashboardMetrics;
+  success: boolean;
+  message: string;
+}
+
+type DashboardInfo = AxiosResponse<DashboardInfoResponse> | undefined;
 
 
 const chartConfig = {
@@ -34,7 +43,7 @@ const getMetrics = (dashboardData: DashboardMetrics | null): MetricItem[] => {
 interface ActiveUsersCardProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  dashboardInfo?: any;
+  dashboardInfo?: DashboardInfo;
   dashboardInfoPending?: boolean;
 }
 
