@@ -125,7 +125,7 @@ const getDateRange = (period: string): { fromDate: string; toDate: string } => {
 export default function ActiveUsersCard() {
   const [activeTab, setActiveTab] = useState('weekly');
   const { fromDate, toDate } = getDateRange(activeTab);
-  const { data: dashboardInfo, isPending: dashboardInfoPending, error: dashboardInfoError } = useGetDashboardInfo({ fromDate, toDate });
+  const { data: dashboardInfo, isPending: dashboardInfoPending, } = useGetDashboardInfo({ fromDate, toDate });
 
   // Transform API data into chart format
   const transformDataForChart = (): ChartDataPoint[] => {
