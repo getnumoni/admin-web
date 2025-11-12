@@ -47,7 +47,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
             {initials}
           </div>
           <div>
-            <Link href={`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customerName)}`}>
+            <Link href={`/dashboard/customers/${customer.userId}/?customerName=${encodeURIComponent(customerName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
                 {customerName}
               </div>
@@ -118,7 +118,7 @@ function ActionCell({ customer }: { customer: Customer }) {
   const handleViewProfile = () => {
     // Navigate to profile page
     const customerName = customer.customer || 'Unknown Customer';
-    router.push(`/dashboard/customers/${customer.customerId}/?customerName=${encodeURIComponent(customerName)}`);
+    router.push(`/dashboard/customers/${customer.userId}/?customerName=${encodeURIComponent(customerName)}`);
   };
 
   const handleDeleteCustomerClick = () => {
