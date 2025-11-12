@@ -22,10 +22,10 @@ export default function ActivityLogs() {
     userName: searchTerm.trim() || undefined, // Send search term as userName filter
   });
 
-  const rawActivityLogs = data?.data?.data?.pageData || [];
   const activityLogs = useMemo(() => {
+    const rawActivityLogs = data?.data?.data?.pageData || [];
     return mapApiActivityToActivityLog(Array.isArray(rawActivityLogs) ? rawActivityLogs : []);
-  }, [rawActivityLogs]);
+  }, [data?.data?.data?.pageData]);
 
   // Get pagination metadata from API response
   const totalElements = data?.data?.data?.totalElements || 0;
