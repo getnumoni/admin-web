@@ -32,7 +32,7 @@ export default function AccountInformation({
     { label: "Last Login", value: "N/A" },
     { label: "Account Status", value: merchantData?.status || "Active", isBadge: true },
     { label: "Identity Number", value: merchantData?.identificationTypeNumber || "N/A" },
-    { label: "Max Point Issued", value: merchantData?.minimumThreshold || "N/A" },
+    { label: "Minimum Threshold", value: merchantData?.minimumThreshold || "N/A" },
   ];
 
   return (

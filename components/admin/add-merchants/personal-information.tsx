@@ -77,7 +77,7 @@ export default function PersonalInformation({
   ];
 
   // Get the primary bank or first bank if no primary is set
-  const primaryBank = bankInformation.find(bank => bank.primary) || bankInformation[0];
+  const primaryBank = bankInformation.find(bank => bank.primary === true) || bankInformation[0];
 
   // Get address from locations array
   const address = locations?.[0]?.contactAddress || locations?.[0]?.address || "No address provided";

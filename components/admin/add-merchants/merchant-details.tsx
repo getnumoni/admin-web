@@ -21,6 +21,7 @@ import MerchantTabs from "./merchant-tabs";
 import PersonalInformation from "./personal-information";
 import ReportsSection from "./reports-section";
 import ReviewsSection from "./reviews-section";
+import RewardsInformation from "./rewards-information";
 import SingleMerchantTransaction from "./single-merchant-transaction";
 
 interface MerchantDetailsProps {
@@ -141,6 +142,11 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               />
               <AccountInformation merchantData={merchantData} />
             </div>
+
+            <RewardsInformation
+              wallet={merchantData?.wallet}
+              pointType={merchantData?.pointType}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MerchantDescription
