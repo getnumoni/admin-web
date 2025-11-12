@@ -664,6 +664,7 @@ type CustomerDetailsResponse = {
   membershipTier: string | null;
   totalSpent: string | null;
   lastPurchaseDate: string | null;
+  lastLogin: string;
   globalWalletBalance: string | null;
   level2WalletBalance: string | null;
   savedCharities: string | null;
@@ -697,6 +698,18 @@ type CustomerDetailsResponse = {
       default: boolean;
     }
   ],
+  financialOverview: {
+    brandPointBalance: {
+      totalBrandPoint: number;
+      allBrandPointsEarned: number;
+      allBrandPointsRedeemed: number;
+      allBrandPointsDonated: number;
+    },
+    walletPointBalance: {
+      totalPoint: number;
+      allTimeSpent: number;
+    },
+  },
   emailVerified: boolean;
   phoneVerified: boolean;
 }
