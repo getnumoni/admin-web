@@ -6,8 +6,7 @@ import { getExpandedItemsForPath, isChildItemActive, isItemActive, toggleExpande
 import { AdminNavigationItem, SidebarProps } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
-  ChevronDown,
-  HelpCircle
+  ChevronDown
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -206,7 +205,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
           </nav>
 
           {/* Help Section */}
-          <div className="p-4 border-t border-gray-200">
+          {/* <div className="p-4 border-t border-gray-200">
             <div className="bg-green-600 rounded-lg p-4 text-center">
               <div className="flex items-center justify-center mb-2">
                 <HelpCircle size={20} className="text-white" />
@@ -218,7 +217,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 DOCUMENTATION
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
