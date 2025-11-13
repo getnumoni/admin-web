@@ -16,8 +16,8 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
     merchantDetails?.reqCertificatePath ||
     merchantDetails?.businessReqNo;
 
-  console.log('merchantDetails', merchantDetails);
-  console.log('hasKycData', hasKycData);
+  // console.log('merchantDetails', merchantDetails);
+  // console.log('hasKycData', hasKycData);
 
   const handleApprove = (documentType: string) => {
     setDocumentStatus(prev => ({ ...prev, [documentType]: 'approved' }));
@@ -55,7 +55,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
   };
 
   const handleDelete = (documentType: string) => {
-    console.log('Delete document:', documentType);
+    // console.log('Delete document:', documentType);
     // Implement delete functionality
   };
 

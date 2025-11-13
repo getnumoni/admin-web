@@ -52,7 +52,7 @@ export const useCreateCharity = () => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to create charity", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to create charity");
     },
     onSettled: () => {

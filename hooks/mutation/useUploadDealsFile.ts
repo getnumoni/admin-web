@@ -17,7 +17,7 @@ export const useUploadDealsFile = () => {
       if (data) {
 
         const imagePath = data?.data?.data?.imageUrl;
-        console.log('imagePath', imagePath);
+        // console.log('imagePath', imagePath);
         if (imagePath) {
           addImagePath(imagePath);
         }
@@ -25,7 +25,7 @@ export const useUploadDealsFile = () => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to upload deals file", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to upload deals file");
     },
     onSettled: () => {
