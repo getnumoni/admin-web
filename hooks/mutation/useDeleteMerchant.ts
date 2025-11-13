@@ -21,7 +21,7 @@ export const useDeleteMerchant = () => {
       queryClient.invalidateQueries({ queryKey: ["merchants"] });
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to delete merchant", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to delete merchant");
     },
   });

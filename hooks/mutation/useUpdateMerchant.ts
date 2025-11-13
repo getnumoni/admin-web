@@ -21,7 +21,7 @@ export const useUpdateMerchant = () => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to update merchant", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to update merchant");
     },
     onSettled: () => {
