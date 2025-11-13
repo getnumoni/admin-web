@@ -125,10 +125,10 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
 
         <Form {...form}>
           <form onSubmit={(e) => {
-            console.log('Form submit event triggered');
-            console.log('Current form values:', form.getValues());
-            console.log('Form is valid:', form.formState.isValid);
-            console.log('Form errors before submit:', form.formState.errors);
+            // console.log('Form submit event triggered');
+            // console.log('Current form values:', form.getValues());
+            // console.log('Form is valid:', form.formState.isValid);
+            // console.log('Form errors before submit:', form.formState.errors);
             form.handleSubmit(onSubmit)(e);
           }} className="space-y-6">
             <div className="space-y-4">

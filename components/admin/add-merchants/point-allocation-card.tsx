@@ -227,7 +227,7 @@ export default function PointAllocationCard() {
   const [allocations, setAllocations] = useState<PointAllocation[]>(mockPointAllocations);
 
   const handleFreeze = (id: string, reason: string) => {
-    console.log(`Freezing wallet ${id} for reason: ${reason}`);
+    // console.log(`Freezing wallet ${id} for reason: ${reason}`);
     setAllocations(prev =>
       prev.map(allocation =>
         allocation.id === id

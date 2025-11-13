@@ -12,14 +12,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import AccountInformation from "./account-information";
 import AdminControls from "./admin-controls";
-import EndorsedCharity from "./endorsed-charity";
 import MerchantDescription from "./merchant-description";
 import MerchantHeader from "./merchant-header";
 import MerchantKyc from "./merchant-kyc";
 import MerchantRewardPoints from "./merchant-reward-points";
 import MerchantTabs from "./merchant-tabs";
 import PersonalInformation from "./personal-information";
-import ReportsSection from "./reports-section";
 import ReviewsSection from "./reviews-section";
 import RewardsInformation from "./rewards-information";
 import SingleMerchantTransaction from "./single-merchant-transaction";
@@ -143,32 +141,31 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               <AccountInformation merchantData={merchantData} />
             </div>
 
-            <RewardsInformation
-              wallet={merchantData?.wallet}
-              pointType={merchantData?.pointType}
-            />
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MerchantDescription
                 description={merchantData?.description}
                 onEdit={handleEditDescription}
                 userId={merchantId ? merchantId as string : undefined}
               />
-              <EndorsedCharity
+
+              <RewardsInformation
+                wallet={merchantData?.wallet}
+                pointType={merchantData?.pointType}
+              />
+              {/* <EndorsedCharity
                 charityCount={merchantData?.charityCount}
                 onManage={handleManageCharity}
-              />
+              /> */}
             </div>
 
-            <ReportsSection
+            {/* <ReportsSection
               reportsCompleted={merchantData?.reportsCompleted}
               totalReports={merchantData?.totalReports}
               onNotifyMerchant={handleNotifyMerchant}
               merchantId={merchantId as string}
-            />
+            /> */}
 
             <ReviewsSection
-              reviews={mockMerchantData.reviews}
               onHideReview={handleHideReview}
               onDeleteReview={handleDeleteReview}
               merchantId={merchantId as string}

@@ -85,7 +85,7 @@ export default function CustomerOverview({
     <div className="hidden" data-customer-id={customerId} />
     <CustomerFinancialOverview customerData={customerData} />
     <CustomerReviewsSection
-      reviews={mockCustomerReviews}
+      customerId={customerId}
       onHideReview={handleHideReview}
       onDeleteReview={handleDeleteReview}
     />

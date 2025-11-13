@@ -27,7 +27,7 @@ export default function CustomerFinancialOverview({ customerData }: { customerDa
           <div className="bg-blue-50 rounded-lg p-6">
             <h3 className="text-sm font-medium text-gray-700 mb-4">Available Wallet Balance</h3>
             <div className="text-3xl font-bold text-gray-900 mb-4">
-              {formatCurrency(walletBalance)}
+              {formatCurrency(walletPointBalance?.totalPoint || 0)}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
