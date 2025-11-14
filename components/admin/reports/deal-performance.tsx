@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useGetDealsPerformance from "@/hooks/query/useGetDealsPerformance";
+import { getDefaultReportDates } from "@/lib/helper";
 import { useState } from "react";
 import { DealPerformanceContent } from "./deal-performance-content";
 import { ReportHeader } from "./report-header";
@@ -13,8 +14,10 @@ type DealPerformanceItem = {
 };
 
 export default function DealPerformance() {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const defaultDates = getDefaultReportDates();
+
+  const [startDate, setStartDate] = useState<Date | null>(defaultDates.start);
+  const [endDate, setEndDate] = useState<Date | null>(defaultDates.end);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
   const { data: dealsPerformance, refetch, isPending, isError, error } = useGetDealsPerformance(startDate, endDate);

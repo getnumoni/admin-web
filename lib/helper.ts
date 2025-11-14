@@ -1486,3 +1486,21 @@ export const isPathMatch = (pathname: string, routePath: string): boolean => {
   return false;
 };
 
+/**
+ * Gets default date range for reports (last 30 days)
+ * @returns Object with start and end dates for the last month
+ * 
+ * @example
+ * const { start, end } = getDefaultReportDates();
+ * // Returns: { start: Date (30 days ago), end: Date (today) }
+ */
+export const getDefaultReportDates = (): { start: Date; end: Date } => {
+  const today = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+  return {
+    start: thirtyDaysAgo,
+    end: today,
+  };
+};
+

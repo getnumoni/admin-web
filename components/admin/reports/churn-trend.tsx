@@ -2,14 +2,15 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useGetChurnRateTrend from "@/hooks/query/useGetChurnRateTrend";
+import { getDefaultReportDates } from "@/lib/helper";
 import { useState } from "react";
 import { ChurnTrendContent } from "./churn-trend-content";
 import { ReportHeader } from "./report-header";
 
 export default function ChurnTrend() {
-
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const defaultDates = getDefaultReportDates();
+  const [startDate, setStartDate] = useState<Date | null>(defaultDates.start);
+  const [endDate, setEndDate] = useState<Date | null>(defaultDates.end);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
   const { data: churnRateTrend, refetch, isPending, isError, error } = useGetChurnRateTrend(startDate, endDate);
