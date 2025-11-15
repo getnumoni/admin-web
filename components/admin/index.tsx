@@ -2,13 +2,10 @@
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGeneratePayOnUsToken } from '@/hooks/mutation/useGeneratePayOnUsToken';
-import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
-import useGetTotalDonation from '@/hooks/query/useGetTotalDonation';
-import useGetTotalIssuedPoints from '@/hooks/query/useGetTotalIssuedPoints';
-import useGetTotalRedeemedPoints from '@/hooks/query/useGetTotalRedeemedPoints';
-import { getDateRange, getMetricErrorState, getMetricLoadingState } from '@/lib/helper';
-import { Gift, Star, Store, Ticket, Users } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import useGetAllDashboardDetails from '@/hooks/query/useGetAllDashboardDetails';
+import { formatValue } from '@/lib/helper';
+import { Clock, Gift, Star, Store, Ticket, TrendingUp, Users, Wallet } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
 import MostSupportedCharity from './most-supported-charity';
@@ -19,16 +16,9 @@ export default function Admin() {
   const { handleGeneratePayOnUsToken } = useGeneratePayOnUsToken();
   const hasGeneratedPayOnUsToken = useRef(false);
 
-  // Manage the active tab state here so it can be shared between components
-  const [activeTab, setActiveTab] = useState('weekly');
+  const { data: dashboardDetails, isPending: dashboardDetailsPending, error: dashboardDetailsError } = useGetAllDashboardDetails();
+  const dashboardDetailsData = dashboardDetails?.data?.data;
 
-  // Get date range based on active tab - this will sync with ActiveUsersCard
-  const { fromDate, toDate } = getDateRange(activeTab);
-
-  const { data: totalPoints, isPending: totalPointsPending, error: totalPointsError } = useGetTotalIssuedPoints();
-  const { data: totalDonation, isPending: totalDonationPending, error: totalDonationError } = useGetTotalDonation();
-  const { data: totalRedeemedPoints, isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError } = useGetTotalRedeemedPoints();
-  const { data: dashboardInfo, isPending: dashboardInfoPending } = useGetDashboardInfo({ fromDate, toDate });
   useEffect(() => {
     if (!hasGeneratedPayOnUsToken.current) {
       handleGeneratePayOnUsToken();
@@ -36,27 +26,10 @@ export default function Admin() {
     }
   }, [handleGeneratePayOnUsToken]);
 
-
-  const dashboardData = dashboardInfo?.data?.data;
-
-
-
-  const totalIssuedPoints = totalPoints?.data?.totalIssuedPoints || '0';
-  // const totalDonations = totalDonation?.data?.data?.totalDonations || '0';
-  const totalRedeemedPoint = totalRedeemedPoints?.data?.data?.totalPoints || '0';
-
-  // Create a map of metric states for the helper functions
-  const metricStates = {
-    'Total Points Issued': { isPending: totalPointsPending, error: totalPointsError },
-    'Total Donations': { isPending: totalDonationPending, error: totalDonationError },
-    'Total Points Redeemed': { isPending: totalRedeemedPointsPending, error: totalRedeemedPointsError },
-  };
-
   const metrics = [
     {
       title: 'Total Customers',
-      value: dashboardData?.customers?.totalCustomers || '0',
-      // change: '+55%',
+      value: formatValue(dashboardDetailsData?.totalCustomers),
       changeType: 'positive' as const,
       icon: <Users className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#E3EAFD]',
@@ -64,37 +37,72 @@ export default function Admin() {
     },
     {
       title: 'Total Merchants',
-      value: dashboardData?.merchants?.totalMerchants || '0',
-      // change: '-14%',
-      changeType: 'negative' as const,
+      value: formatValue(dashboardDetailsData?.totalMerchants),
+      changeType: 'positive' as const,
       icon: <Store className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#DFFDDB]',
       iconBgColor: 'bg-black'
     },
-    // {
-    //   title: 'Total Donations',
-    //   value: totalDonations,
-    //   icon: <Gift className="h-6 w-6 text-gray-200" />,
-    //   bgColor: 'bg-[#FFFBDA]',
-    //   iconBgColor: 'bg-black'
-    // },
     {
-      title: 'Total Points Issued',
-      value: totalIssuedPoints,
+      title: 'Total NuMoni Points Top Up',
+      value: formatValue(dashboardDetailsData?.TotalnuMoniPointTopup, true),
+      changeType: 'positive' as const,
+      icon: <Wallet className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#E3EAFD]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total Brand Points Issued',
+      value: formatValue(dashboardDetailsData?.totalBrandPointIssued, true),
+      changeType: 'positive' as const,
       icon: <Star className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFFBDA]',
       iconBgColor: 'bg-black'
     },
     {
-      title: 'Total Points Redeemed',
-      value: totalRedeemedPoint,
+      title: 'Total Brand Points Redeemed',
+      value: formatValue(dashboardDetailsData?.totalBrandPointRedeemed, true),
+      changeType: 'positive' as const,
       icon: <Gift className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFFBDA]',
       iconBgColor: 'bg-black'
     },
     {
-      title: 'Total Open Tickets',
-      value: dashboardData?.tickets?.totalTickets || '0',
+      title: 'Total NuMoni Points Spent',
+      value: formatValue(dashboardDetailsData?.totalnuMoniPointsSpent, true),
+      changeType: 'positive' as const,
+      icon: <TrendingUp className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#DFFDDB]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total NuMoni Bonus Given',
+      value: formatValue(dashboardDetailsData?.TotalnuMoniBonusGiven, true),
+      changeType: 'positive' as const,
+      icon: <Gift className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#E3EAFD]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total NuMoni Pending Points',
+      value: formatValue(dashboardDetailsData?.totalnumoniPendingPoints, true),
+      changeType: 'positive' as const,
+      icon: <Clock className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#FFDADC]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total Brand Points Pending',
+      value: formatValue(dashboardDetailsData?.totalBrandPointPending, true),
+      changeType: 'positive' as const,
+      icon: <Clock className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#FFDADC]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total Tickets',
+      value: formatValue(dashboardDetailsData?.totalTickets),
+      changeType: 'positive' as const,
       icon: <Ticket className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFDADC]',
       iconBgColor: 'bg-black'
@@ -108,12 +116,9 @@ export default function Admin() {
         <p className="text-gray-600">Overview of your platform metrics and performance</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {metrics.map((metric, index) => {
-          const isMetricPending = getMetricLoadingState(metric.title, metricStates);
-          const isMetricError = getMetricErrorState(metric.title, metricStates);
-
-          if (isMetricPending) {
+          if (dashboardDetailsPending) {
             return (
               <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
                 <Skeleton className="h-4 w-24 mb-3" />
@@ -126,7 +131,7 @@ export default function Admin() {
             <MetricCard
               key={index}
               title={metric.title}
-              value={isMetricError ? 'Error' : metric.value}
+              value={dashboardDetailsError ? 'Error' : metric.value}
               // change={metric.change}
               changeType={metric.changeType}
               icon={metric.icon}
@@ -138,12 +143,7 @@ export default function Admin() {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 my-4'>
-        <ActiveUsersCard
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          dashboardInfo={dashboardInfo}
-          dashboardInfoPending={dashboardInfoPending}
-        />
+        <ActiveUsersCard />
         <div className="flex flex-col gap-6">
           <TopPerformingMerchant />
           <MostSupportedCharity />

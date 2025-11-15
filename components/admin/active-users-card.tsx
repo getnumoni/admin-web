@@ -2,9 +2,12 @@
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
+import { getDateRange } from '@/lib/helper';
 import { ChartDataPoint, DashboardMetrics, MetricItem } from '@/lib/types';
 import { AxiosResponse } from 'axios';
 import { ShoppingCart, Ticket, Users } from 'lucide-react';
+import { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import LoadingSpinner from '../ui/loading-spinner';
 
@@ -40,14 +43,15 @@ const getMetrics = (dashboardData: DashboardMetrics | null): MetricItem[] => {
   ];
 };
 
-interface ActiveUsersCardProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  dashboardInfo?: DashboardInfo;
-  dashboardInfoPending?: boolean;
-}
+export default function ActiveUsersCard() {
+  // Manage the active tab state internally
+  const [activeTab, setActiveTab] = useState('weekly');
 
-export default function ActiveUsersCard({ activeTab, onTabChange, dashboardInfo, dashboardInfoPending }: ActiveUsersCardProps) {
+  // Get date range based on active tab
+  const { fromDate, toDate } = getDateRange(activeTab);
+
+  // Fetch dashboard info based on the active tab
+  const { data: dashboardInfo, isPending: dashboardInfoPending } = useGetDashboardInfo({ fromDate, toDate });
 
   // Transform API data into chart format
   const transformDataForChart = (): ChartDataPoint[] => {
@@ -103,7 +107,7 @@ export default function ActiveUsersCard({ activeTab, onTabChange, dashboardInfo,
             <span className="text-sm text-green-600 font-medium">(+23) than last week</span>
           </div>
 
-          <Tabs value={activeTab} onValueChange={onTabChange}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-4 w-72 border border-gray-200 rounded-lg">
               <TabsTrigger value="daily">Daily</TabsTrigger>
               <TabsTrigger value="weekly">Weekly</TabsTrigger>
@@ -113,7 +117,7 @@ export default function ActiveUsersCard({ activeTab, onTabChange, dashboardInfo,
           </Tabs>
         </div>
 
-        <Tabs value={activeTab} onValueChange={onTabChange}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value={activeTab} className="mt-0">
             <div className="h-64">
               <ChartContainer config={chartConfig} className="h-full">
