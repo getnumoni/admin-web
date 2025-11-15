@@ -176,7 +176,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 User Management
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(2, 6).map(renderNavigationItem)}
+                {adminNavigationItem.slice(2, 7).map(renderNavigationItem)}
               </div>
               <hr className="mt-4 border-gray-200" />
             </div>
@@ -187,7 +187,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 System Management
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(6, 8).map(renderNavigationItem)}
+                {adminNavigationItem.slice(7, 9).map(renderNavigationItem)}
               </div>
               <hr className="mt-4 border-gray-200" />
             </div>
@@ -198,7 +198,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 Analytics & Reports
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(8).map(renderNavigationItem)}
+                {adminNavigationItem.slice(10).map(renderNavigationItem)}
               </div>
               {/* <hr className="mt-4 border-gray-200" /> */}
             </div>

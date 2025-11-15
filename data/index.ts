@@ -1,8 +1,8 @@
 import { DealIcon } from "@/components/common/icon-svg";
 import { calenderIcon, dealIcon, emailIcon, giftIcon, graphDirectionIcon, grayPointIcon, instagramIcon, musicPauseIcon, phoneNotificationIcon, twitterIcon, whatsappIcon } from "@/constant/icons";
-import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_ROLES_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_REPORTS_CHARITY_URL, ADMIN_REPORTS_POINTS_URL, ADMIN_REPORTS_SUPPORT_URL, ADMIN_REPORTS_URL, ADMIN_URL } from "@/constant/routes";
+import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_ROLES_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_REPORTS_CHARITY_URL, ADMIN_REPORTS_POINTS_URL, ADMIN_REPORTS_SUPPORT_URL, ADMIN_REPORTS_URL, ADMIN_TRANSACTIONS_PAYOUTS_URL, ADMIN_TRANSACTIONS_PURCHASES_URL, ADMIN_TRANSACTIONS_URL, ADMIN_URL } from "@/constant/routes";
 import { AdminNavigationItem } from "@/lib/types";
-import { BarChart3, Bell, Building, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, Ticket, User, Users } from "lucide-react";
+import { BarChart3, Bell, Building, ChartArea, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, Ticket, User, Users } from "lucide-react";
 
 
 
@@ -196,6 +196,15 @@ const adminNavigationItem: AdminNavigationItem[] = [
     children: [
       { name: 'All Deals & Promo', path: ADMIN_DEALS_PROMO_URL, icon: Heart },
       { name: 'Add New Deals & Promo', path: ADMIN_DEALS_PROMO_ADD_URL, icon: Plus },
+    ]
+  },
+  {
+    name: 'Transactions',
+    icon: ChartArea,
+    children: [
+      { name: 'Funding', path: ADMIN_TRANSACTIONS_URL, icon: ChartArea },
+      { name: 'Purchases', path: ADMIN_TRANSACTIONS_PURCHASES_URL, icon: BarChart3 },
+      { name: 'Payouts', path: ADMIN_TRANSACTIONS_PAYOUTS_URL, icon: FileText },
     ]
   },
   {
