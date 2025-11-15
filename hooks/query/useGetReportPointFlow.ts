@@ -14,7 +14,7 @@ const useGetReportPointFlow = (startDate: Date | null, endDate: Date | null) => 
         params.append("endDate", format(endDate, "dd-MM-yyyy"));
       }
       const qs = params.toString();
-      return api.get(`/admin/Report/points-flow?${qs}`);
+      return api.get(`/admin/Report/points-flow-distribution?${qs}`);
     },
     enabled: false, // Never auto-fetch, only manual refetch
   });
