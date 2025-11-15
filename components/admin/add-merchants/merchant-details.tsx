@@ -21,6 +21,7 @@ import PersonalInformation from "./personal-information";
 import ReviewsSection from "./reviews-section";
 import RewardsInformation from "./rewards-information";
 import SingleMerchantTransaction from "./single-merchant-transaction";
+import SocialMediaLinks from "./social-media-links";
 
 interface MerchantDetailsProps {
   merchantId: string | string[] | undefined;
@@ -169,6 +170,16 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
               onHideReview={handleHideReview}
               onDeleteReview={handleDeleteReview}
               merchantId={merchantId as string}
+            />
+
+            <SocialMediaLinks
+              facebook={merchantData?.facebook}
+              instagram={merchantData?.instagram}
+              twitter={merchantData?.twitter}
+              linkedin={merchantData?.linkedin}
+              snapchat={merchantData?.snapchat}
+              website={merchantData?.website}
+              tiktok={merchantData?.tiktok}
             />
 
             <AdminControls
