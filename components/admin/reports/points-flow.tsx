@@ -3,16 +3,12 @@
 import { Card } from "@/components/ui/card";
 import useGetReportPointFlow from "@/hooks/query/useGetReportPointFlow";
 import { getDefaultReportDates } from "@/lib/helper";
+import { PointFlowData } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
 import { PointsFlowContent } from "./points-flow-content";
 import { PointsFlowHeader } from "./points-flow-header";
 import { PointsFlowLegend } from "./points-flow-legend";
 
-type PointFlowData = {
-  percentage: { redeemed: number; earned: number };
-  totalPoints: number;
-  distribution: { redeemed: number; earned: number; expired: number; donated: number };
-};
 
 export default function PointsFlow() {
   const defaultDates = getDefaultReportDates();
@@ -46,6 +42,8 @@ export default function PointsFlow() {
       { key: "redeemed", label: "Redeemed Points" },
       { key: "donated", label: "Donated Points" },
       { key: "expired", label: "Expired Points" },
+      { key: 'redeemedPercentage', label: 'Redeemed Percentage' },
+      { key: 'earnedPercentage', label: 'Earned Percentage' },
     ],
     []
   );
@@ -55,6 +53,8 @@ export default function PointsFlow() {
     redeemed: "#3b82f6",
     donated: "#f97316",
     expired: "#f59e0b",
+    redeemedPercentage: "#8b5cf6",
+    earnedPercentage: "#ec4899",
   };
 
   return (
