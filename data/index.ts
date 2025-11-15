@@ -161,7 +161,7 @@ const adminNavigationItem: AdminNavigationItem[] = [
     name: 'Notifications',
     path: ADMIN_NOTIFICATIONS_URL,
     icon: Bell,
-    badge: '12'
+    // badge: '12'
   },
   {
     name: 'Merchants',
