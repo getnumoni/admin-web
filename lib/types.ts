@@ -643,6 +643,8 @@ type MerchantDetailsResponse = {
   website: string | null,
   tiktok: string | null,
   wallet: string | null
+  lastLogin: string;
+  kycStatus: string;
 }
 
 type CustomerDetailsResponse = {
