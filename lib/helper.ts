@@ -200,25 +200,46 @@ export const getIndicatorColor = (indicatorColor: string): string => {
   }
 };
 
-/**
- * Formats a number value with proper locale formatting and decimal places
- * @param value - The numeric value to format
- * @returns A formatted string with commas and 2 decimal places (e.g., "12,345.67")
- */
-export const formatValue = (value: number): string => {
-  return value?.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-};
-
-
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: 'NGN',
     minimumFractionDigits: 2,
   }).format(amount).replace('NGN', '₦');
+};
+
+/**
+ * Formats a numeric value for display, supporting both currency and number formatting.
+ * 
+ * This function provides a unified way to format values from API responses, handling
+ * null/undefined values gracefully and supporting two formatting modes:
+ * - Currency formatting: Uses `formatCurrency` to display values with ₦ symbol (e.g., "₦38,800.00")
+ * - Number formatting: Uses `formatNumberWithCommas` to display values with thousand separators (e.g., "1,234" or "47")
+ * 
+ * @param value - The numeric value to format. Can be a number, null, or undefined.
+ * @param isCurrency - Optional. If `true`, formats as currency (₦). If `false` or omitted, formats as a number with commas.
+ * @returns A formatted string representation of the value. Returns "0" if value is null or undefined.
+ * 
+ * @example
+ * ```typescript
+ * formatValue(38800, true);  // Returns: "₦38,800.00"
+ * formatValue(47, false);    // Returns: "47"
+ * formatValue(1234.56);      // Returns: "1,234.56"
+ * formatValue(null);         // Returns: "0"
+ * formatValue(undefined);    // Returns: "0"
+ * ```
+ * 
+ * @remarks
+ * This function is commonly used in dashboard components to format metric values
+ * consistently across different metric cards. Currency values (points, amounts) use
+ * currency formatting, while counts (customers, merchants, tickets) use number formatting.
+ */
+export const formatValue = (value: number | null | undefined, isCurrency: boolean = false): string => {
+  if (value === null || value === undefined) return '0';
+  if (isCurrency) {
+    return formatCurrency(value);
+  }
+  return formatNumberWithCommas(value);
 };
 
 export const getStatusColor = (status: string) => {
@@ -236,6 +257,39 @@ export const getStatusColor = (status: string) => {
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+/**
+ * Gets the badge color class for account status values (KYC Status, Account Status, etc.).
+ * 
+ * This function is specifically designed for merchant account information badges,
+ * handling statuses like "approved", "active", "verified", "pending", and "suspended".
+ * 
+ * @param status - The status string to get the color for (case-insensitive)
+ * @returns Tailwind CSS classes for badge styling
+ * 
+ * @example
+ * ```typescript
+ * getAccountStatusColor("approved");  // Returns: "bg-green-100 text-green-800"
+ * getAccountStatusColor("active");   // Returns: "bg-green-100 text-green-800"
+ * getAccountStatusColor("pending");   // Returns: "bg-yellow-100 text-yellow-800"
+ * getAccountStatusColor("suspended"); // Returns: "bg-red-100 text-red-800"
+ * ```
+ */
+export const getAccountStatusColor = (status: string): string => {
+  const normalizedStatus = status?.toLowerCase();
+  switch (normalizedStatus) {
+    case "verified":
+    case "approved":
+    case "active":
+      return "bg-green-100 text-green-800";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "suspended":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
   }
 };
 
