@@ -1011,5 +1011,27 @@ interface MetricItem {
   progress: number;
 }
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+type PointFlowData = {
+  // percentage: { redeemed: number; earned: number };
+  totalPoints: number;
+  earnedPoints: number;
+  expiredPoints: number;
+  redeemedPercentage: string;
+  redeemedPoints: number;
+  donatedPoints: number;
+  earnedPercentage: string;
+  // distribution: { redeemed: number; earned: number; expired: number; donated: number };
+};
+
+type Funding = {
+  id: string;
+  amount: number;
+  transactionId: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, Funding, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PointAnalyticsProps, PointFlowData, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
