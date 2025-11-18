@@ -15,7 +15,7 @@ export function PurchaseOverview() {
   const purchaseMetrics = [
     {
       title: 'Merchant Patronised',
-      value: formatValue(purchaseOverview?.merchantPatronised, true) ?? 0,
+      value: purchaseOverview?.merchantPatronised ?? 0,
       icon: <StoreIcon className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#E3EAFD]',
       iconBgColor: 'bg-black'
