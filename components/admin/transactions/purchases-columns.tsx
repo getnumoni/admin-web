@@ -2,7 +2,6 @@
 
 import { formatDateReadable, formatValue } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
 
 export interface PurchaseData {
   source: string | null;
@@ -174,20 +173,20 @@ export const purchasesColumns: ColumnDef<PurchaseData>[] = [
       </div>
     ),
   },
-  {
-    id: "actions",
-    header: "Action",
-    cell: ({ row }) => {
-      const purchase = row.original;
-      return (
-        <div className="flex items-center space-x-2">
-          <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-            <Eye className="h-4 w-4" />
-            View
-          </button>
-        </div>
-      );
-    },
-  },
+  // {
+  //   id: "actions",
+  //   header: "Action",
+  //   cell: ({ row }) => {
+  //     const purchase = row.original;
+  //     return (
+  //       <div className="flex items-center space-x-2">
+  //         <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+  //           <Eye className="h-4 w-4" />
+  //           View
+  //         </button>
+  //       </div>
+  //     );
+  //   },
+  // },
 ];
 
