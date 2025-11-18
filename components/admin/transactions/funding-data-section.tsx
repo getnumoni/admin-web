@@ -2,12 +2,13 @@
 
 import { DataTable } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { FundingData } from './funding-column';
+import { FundingReconciliation } from '@/lib/types';
+
 import { ColumnDef } from '@tanstack/react-table';
 
 interface FundingDataSectionProps {
-  data: FundingData[];
-  columns: ColumnDef<FundingData>[];
+  data: FundingReconciliation[];
+  columns: ColumnDef<FundingReconciliation>[];
 }
 
 export default function FundingDataSection({ data, columns }: FundingDataSectionProps) {
