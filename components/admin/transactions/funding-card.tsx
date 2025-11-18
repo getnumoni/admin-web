@@ -1,56 +1,86 @@
-import { MetricCard } from "@/components/common/metric-card";
-import { DollarSign, Gift, ShoppingCart, TrendingUp } from "lucide-react";
-import { ReactNode } from "react";
+'use client'
 
-function FundingMetricCard({ fundingMetrics }: { fundingMetrics: Array<{ title: string; value: number | string; icon: ReactNode; bgColor: string; iconBgColor: string; }> }) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {fundingMetrics.map((metric, index) => (
-        <MetricCard
-          key={index}
-          title={metric.title}
-          value={String(metric.value)}
-          icon={metric.icon}
-          bgColor={metric.bgColor}
-          iconBgColor={metric.iconBgColor}
-        />
-      ))}
-    </div>
-  );
-}
+import { MetricCard } from "@/components/common/metric-card";
+import { ErrorState } from "@/components/ui/error-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import useGetFundingOverview from "@/hooks/query/useGetFundingOverview";
+import { formatValue } from "@/lib/helper";
+import { DollarSign, Gift, ShoppingCart, TrendingUp } from "lucide-react";
 
 export default function FundingCard() {
-  // Dummy data for funding metrics
+  const { data, isPending, error, isError, refetch } = useGetFundingOverview();
+  const fundingOverview = data?.data?.data;
+
   const fundingMetrics = [
     {
       title: "Total Funding",
-      value: "₦2,000",
+      value: formatValue(fundingOverview?.TotalAmountPaid, true) ?? 0,
       icon: <DollarSign className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     },
     {
       title: "Number of Funding",
-      value: "1",
+      value: fundingOverview?.NumberOfFunding ?? 0,
       icon: <ShoppingCart className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     },
     {
       title: "Number of Points Issued",
-      value: "100",
+      value: formatValue(fundingOverview?.TotalFees, false) ?? 0,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     },
     {
       title: "Bonus Issued",
-      value: "5%",
+      value: formatValue(fundingOverview?.TotalBonusIssued, true) ?? 0,
       icon: <Gift className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     }
   ];
 
-  return <FundingMetricCard fundingMetrics={fundingMetrics} />;
+  // Show error state if there's an error
+  if (isError) {
+    return (
+      <div className="mb-8">
+        <ErrorState
+          title="Error Loading Funding Overview"
+          message={error?.message || "Failed to load funding overview. Please try again."}
+          onRetry={refetch}
+          retryText="Retry"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
+      {fundingMetrics.map((metric, index) => {
+        // Show skeleton loading state
+        if (isPending) {
+          return (
+            <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
+              <Skeleton className="h-4 w-24 mb-3" />
+              <Skeleton className="h-8 w-32" />
+            </div>
+          );
+        }
+
+        // Show metric card with data
+        return (
+          <MetricCard
+            key={index}
+            title={metric.title}
+            value={String(metric.value)}
+            icon={metric.icon}
+            bgColor={metric.bgColor}
+            iconBgColor={metric.iconBgColor ?? 'bg-black'}
+          />
+        );
+      })}
+    </div>
+  );
 }
