@@ -11,7 +11,7 @@ import ViewTicketTypes from "./view-ticket-types";
 
 export default function Support() {
 
-  const [activeTab, setActiveTab] = useState<string>('ticket-type');
+  const [activeTab, setActiveTab] = useState<string>('support-ticket');
   const [isTicketTypeModalOpen, setIsTicketTypeModalOpen] = useState<boolean>(false);
   const [showCreateTicket, setShowCreateTicket] = useState<boolean>(false);
 
