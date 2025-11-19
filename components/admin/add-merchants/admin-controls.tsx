@@ -6,8 +6,8 @@ import ResetPasswordDialog from "@/components/common/reset-password-dialog";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import {
+  Banknote,
   Coins,
-  DollarSign,
   Key,
   Trash2
 } from "lucide-react";
@@ -115,7 +115,7 @@ export default function AdminControls({
     },
     {
       label: "Adjust Balance",
-      icon: DollarSign,
+      icon: Banknote,
       onClick: handleAdjustBalanceClick,
       variant: "outline" as const,
       className: "border-gray-300 text-gray-700 hover:bg-gray-50",

@@ -5,7 +5,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetFundingOverview from "@/hooks/query/useGetFundingOverview";
 import { formatValue } from "@/lib/helper";
-import { DollarSign, Gift, ShoppingCart, TrendingUp } from "lucide-react";
+import { Banknote, Gift, ShoppingCart, TrendingUp } from "lucide-react";
 
 export default function FundingCard() {
   const { data, isPending, error, isError, refetch } = useGetFundingOverview();
@@ -15,7 +15,7 @@ export default function FundingCard() {
     {
       title: "Total Funding",
       value: formatValue(fundingOverview?.TotalAmountPaid, true) ?? 0,
-      icon: <DollarSign className="h-6 w-6 text-white" />,
+      icon: <Banknote className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     },

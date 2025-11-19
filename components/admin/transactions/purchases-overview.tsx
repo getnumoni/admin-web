@@ -3,7 +3,7 @@ import { MetricCard } from "@/components/common/metric-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetPurchaseOverview from "@/hooks/query/useGetPurchaseOverview";
 import { formatValue } from "@/lib/helper";
-import { CheckCircle, Clock, DollarSign, Gift, ShoppingCart, StoreIcon, TrendingUp } from "lucide-react";
+import { Banknote, CheckCircle, Clock, Gift, ShoppingCart, StoreIcon, TrendingUp } from "lucide-react";
 import { PurchasesTable } from "./purchases-table";
 
 export function PurchaseOverview() {
@@ -37,7 +37,7 @@ export function PurchaseOverview() {
     {
       title: 'Total Purchase',
       value: formatValue(purchaseOverview?.totalPurchase, true) ?? 0,
-      icon: <DollarSign className="h-6 w-6 text-gray-200" />,
+      icon: <Banknote className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#DFFDDB]',
       iconBgColor: 'bg-black'
     },
