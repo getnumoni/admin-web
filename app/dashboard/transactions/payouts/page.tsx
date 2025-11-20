@@ -1,3 +1,4 @@
+import PayoutList from "@/components/admin/transactions/payout-list";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
   description: "Payouts",
 }
 export default function Payouts() {
-  return <div>PayoutsPage</div>;
+  return <PayoutList />;
 }
