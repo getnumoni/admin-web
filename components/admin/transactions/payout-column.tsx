@@ -20,6 +20,15 @@ export const payoutColumns: ColumnDef<Payout>[] = [
     enableSorting: false,
   },
   {
+    accessorKey: "merchantName",
+    header: "Merchant Name",
+    cell: ({ row }) => (
+      <div className="text-gray-900 text-sm font-medium">
+        {row.getValue("merchantName")}
+      </div>
+    ),
+  },
+  {
     accessorKey: "merchantId",
     header: "Merchant ID",
     cell: ({ row }) => (
@@ -29,25 +38,85 @@ export const payoutColumns: ColumnDef<Payout>[] = [
     ),
   },
   {
-    accessorKey: "transactionId",
-    header: "Transaction ID",
+    accessorKey: "branchName",
+    header: "Branch Name",
     cell: ({ row }) => {
-      const transactionId = row.getValue("transactionId") as string | null;
+      const branchName = row.getValue("branchName") as string | null;
       return (
-        <div className="text-gray-600 text-sm font-mono">
-          {transactionId || "N/A"}
+        <div className="text-gray-600 text-sm">
+          {branchName || "N/A"}
         </div>
       );
     },
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "payoutAmount",
+    header: "Payout Amount",
     cell: ({ row }) => (
       <div className="text-gray-900 text-sm font-medium">
-        {formatValue(row.getValue("amount"), true)}
+        {formatValue(row.getValue("payoutAmount"), true)}
       </div>
     ),
+  },
+  {
+    accessorKey: "providerFee",
+    header: "Provider Fee",
+    cell: ({ row }) => {
+      const fee = row.getValue("providerFee") as number | null;
+      return (
+        <div className="text-gray-600 text-sm">
+          {fee !== null ? formatValue(fee, true) : "N/A"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "settlementReference",
+    header: "Settlement Reference",
+    cell: ({ row }) => {
+      const settlementRef = row.getValue("settlementReference") as string | null;
+      return (
+        <div className="text-gray-600 text-sm font-mono">
+          {settlementRef || "N/A"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "payonusReference",
+    header: "Payonus Reference",
+    cell: ({ row }) => {
+      const payonusRef = row.getValue("payonusReference") as string | null;
+      return (
+        <div className="text-gray-600 text-sm font-mono">
+          {payonusRef || "N/A"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "merchantBankName",
+    header: "Bank Name",
+    cell: ({ row }) => {
+      const bankName = row.getValue("merchantBankName") as string | null;
+      return (
+        <div className="text-gray-600 text-sm">
+          {bankName || "N/A"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "accountNumber",
+    header: "Account Number",
+    cell: ({ row }) => {
+      const accountNumber = row.getValue("accountNumber") as string | null;
+      return (
+        <div className="text-gray-600 text-sm font-mono">
+          {accountNumber || "N/A"}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -61,7 +130,7 @@ export const payoutColumns: ColumnDef<Payout>[] = [
           </div>
         );
       }
-      
+
       const normalizedStatus = status.toUpperCase();
       const statusColor = normalizedStatus === "SUCCESSFUL"
         ? "bg-green-100 text-green-800 border-green-200"
@@ -77,13 +146,16 @@ export const payoutColumns: ColumnDef<Payout>[] = [
     },
   },
   {
-    accessorKey: "date",
-    header: "Date",
-    cell: ({ row }) => (
-      <div className="text-gray-600 text-sm">
-        {formatDateReadable(row.getValue("date"))}
-      </div>
-    ),
+    accessorKey: "payoutDate",
+    header: "Payout Date",
+    cell: ({ row }) => {
+      const date = row.getValue("payoutDate") as string;
+      return (
+        <div className="text-gray-600 text-sm">
+          {formatDateReadable(date)}
+        </div>
+      );
+    },
   },
 ];
 

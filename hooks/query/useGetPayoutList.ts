@@ -7,9 +7,8 @@ interface GetPayoutListParams {
   page?: number;
   size?: number;
   merchantId?: string;
-  transactionId?: string;
-  startDate?: string;
-  endDate?: string;
+  settlementRefId?: string;
+  payonusRefId?: string;
   status?: string;
 }
 
@@ -18,14 +17,13 @@ const useGetPayoutList = (params: GetPayoutListParams = {}) => {
     page = 0,
     size = 20,
     merchantId,
-    transactionId,
-    startDate,
-    endDate,
+    settlementRefId,
+    payonusRefId,
     status,
   } = params;
 
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["payout-list", page, size, merchantId, transactionId, startDate, endDate, status],
+    queryKey: ["payout-list", "payout", page, size, merchantId, settlementRefId, payonusRefId, status],
     queryFn: () => {
       const queryParams = new URLSearchParams();
 
@@ -35,9 +33,8 @@ const useGetPayoutList = (params: GetPayoutListParams = {}) => {
 
       // Optional filter parameters
       if (merchantId) queryParams.append("merchantId", merchantId);
-      if (transactionId) queryParams.append("transactionId", transactionId);
-      if (startDate) queryParams.append("startDate", startDate);
-      if (endDate) queryParams.append("endDate", endDate);
+      if (settlementRefId) queryParams.append("settlementRefId", settlementRefId);
+      if (payonusRefId) queryParams.append("payonusRefId", payonusRefId);
       if (status) queryParams.append("status", status);
 
       const queryString = queryParams.toString();
