@@ -1,3 +1,4 @@
+import { PayoutCard } from "@/components/admin/transactions/payout-card";
 import PayoutList from "@/components/admin/transactions/payout-list";
 import { Metadata } from "next";
 
@@ -7,5 +8,8 @@ export const metadata: Metadata = {
   description: "Payouts",
 }
 export default function Payouts() {
-  return <PayoutList />;
+  return <main>
+    <PayoutCard />
+    <PayoutList />
+  </main>;
 }
