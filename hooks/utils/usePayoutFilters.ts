@@ -3,9 +3,8 @@ import { useDebounce } from './useDebounce';
 
 interface PayoutFilters {
   merchantId: string;
-  transactionId: string;
-  startDate: string;
-  endDate: string;
+  settlementRefId: string;
+  payonusRefId: string;
   status: string;
 }
 
@@ -22,9 +21,8 @@ interface UsePayoutFiltersReturn {
 
 const initialFilters: PayoutFilters = {
   merchantId: '',
-  transactionId: '',
-  startDate: '',
-  endDate: '',
+  settlementRefId: '',
+  payonusRefId: '',
   status: '',
 };
 
@@ -35,16 +33,14 @@ export function usePayoutFilters(): UsePayoutFiltersReturn {
 
   // Debounce all filters
   const debouncedMerchantId = useDebounce(filters.merchantId);
-  const debouncedTransactionId = useDebounce(filters.transactionId);
-  const debouncedStartDate = useDebounce(filters.startDate);
-  const debouncedEndDate = useDebounce(filters.endDate);
+  const debouncedSettlementRefId = useDebounce(filters.settlementRefId);
+  const debouncedPayonusRefId = useDebounce(filters.payonusRefId);
   const debouncedStatus = useDebounce(filters.status);
 
   const debouncedFilters: PayoutFilters = {
     merchantId: debouncedMerchantId,
-    transactionId: debouncedTransactionId,
-    startDate: debouncedStartDate,
-    endDate: debouncedEndDate,
+    settlementRefId: debouncedSettlementRefId,
+    payonusRefId: debouncedPayonusRefId,
     status: debouncedStatus,
   };
 
@@ -53,9 +49,8 @@ export function usePayoutFilters(): UsePayoutFiltersReturn {
     setCurrentPage(0);
   }, [
     debouncedMerchantId,
-    debouncedTransactionId,
-    debouncedStartDate,
-    debouncedEndDate,
+    debouncedSettlementRefId,
+    debouncedPayonusRefId,
     debouncedStatus,
   ]);
 

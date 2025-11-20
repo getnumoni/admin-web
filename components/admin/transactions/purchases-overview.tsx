@@ -1,5 +1,6 @@
 'use client'
 import { MetricCard } from "@/components/common/metric-card";
+import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetPurchaseOverview from "@/hooks/query/useGetPurchaseOverview";
 import { formatValue } from "@/lib/helper";
@@ -7,7 +8,7 @@ import { Banknote, CheckCircle, Clock, Gift, ShoppingCart, StoreIcon, TrendingUp
 import { PurchasesTable } from "./purchases-table";
 
 export function PurchaseOverview() {
-  const { isPending, data, error, isError } = useGetPurchaseOverview();
+  const { isPending, data, error, isError, refetch } = useGetPurchaseOverview();
 
   const purchaseOverview = data?.data?.data;
 
@@ -70,31 +71,39 @@ export function PurchaseOverview() {
       </div>
 
       {/* Purchase Metrics */}
+      {isError ? (
+        <ErrorState
+          title="Error Loading Purchase Overview"
+          message={error?.message || "Failed to load purchase overview. Please try again."}
+          onRetry={refetch}
+          retryText="Retry"
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+          {purchaseMetrics.map((metric, index) => {
+            if (isPending) {
+              return (
+                <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
+                  <Skeleton className="h-4 w-24 mb-3" />
+                  <Skeleton className="h-8 w-32" />
+                </div>
+              );
+            }
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-        {purchaseMetrics.map((metric, index) => {
-          if (isPending) {
             return (
-              <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
-                <Skeleton className="h-4 w-24 mb-3" />
-                <Skeleton className="h-8 w-32" />
-              </div>
+              <MetricCard
+                key={index}
+                title={metric.title}
+                value={metric.value}
+                // change={metric.change}
+                icon={metric.icon}
+                bgColor={metric.bgColor}
+                iconBgColor={metric.iconBgColor ?? 'bg-black'}
+              />
             );
-          }
-
-          return (
-            <MetricCard
-              key={index}
-              title={metric.title}
-              value={isError ? 'Error' : metric.value}
-              // change={metric.change}
-              icon={metric.icon}
-              bgColor={metric.bgColor}
-              iconBgColor={metric.iconBgColor ?? 'bg-black'}
-            />
-          );
-        })}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Purchases Table */}
       <PurchasesTable />

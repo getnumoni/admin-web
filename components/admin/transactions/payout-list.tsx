@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetPayoutList from "@/hooks/query/useGetPayoutList";
 import { usePayoutFilters } from "@/hooks/utils/usePayoutFilters";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
-import { PaginatedPayoutData, Payout } from "@/lib/types";
+import { Payout } from "@/lib/types";
 import { payoutColumns } from './payout-column';
 import PayoutDataSection from './payout-data-section';
 import PayoutHeaderSection from './payout-header-section';
@@ -29,46 +29,25 @@ export default function PayoutList() {
     page: currentPage,
     size: ITEMS_PER_PAGE,
     merchantId: debouncedFilters.merchantId.trim() || undefined,
-    transactionId: debouncedFilters.transactionId.trim() || undefined,
-    startDate: debouncedFilters.startDate.trim() || undefined,
-    endDate: debouncedFilters.endDate.trim() || undefined,
+    settlementRefId: debouncedFilters.settlementRefId.trim() || undefined,
+    payonusRefId: debouncedFilters.payonusRefId.trim() || undefined,
     status: debouncedFilters.status.trim() || undefined,
   });
 
   // Extract payout data from API response
-  // API response structure can be:
-  // 1. Paginated: { data: { data: [], totalRows: number, totalPages: number }, success: boolean }
-  // 2. Non-paginated: { data: [], success: boolean }
+  // API response structure: { pagination: {...}, data: [...], success: boolean, message: string }
   const apiData = data?.data;
-
-  // Check if response is paginated (has nested data structure)
-  // isPaginated is true if apiData exists, is NOT an array, and has a 'data' property
-  const isPaginated = apiData && !Array.isArray(apiData) && 'data' in apiData;
-
-  // Type guard to check if apiData is paginated
-  const paginatedData = isPaginated ? apiData as PaginatedPayoutData : null;
+  const pagination = data?.data?.pagination;
 
   // Get all payout records
-  // If paginated, extract from paginatedData.data
-  // Otherwise, apiData is the array directly (since isPaginated already checked !Array.isArray)
-  const allPayouts: Payout[] = isPaginated
-    ? paginatedData?.data || []
-    : (apiData as Payout[]) || [];
+  const allPayouts: Payout[] = apiData?.data || [];
 
-  // Get totalRows from API if paginated, otherwise use array length
-  const totalRows = isPaginated
-    ? paginatedData?.totalRows || paginatedData?.total || allPayouts.length
-    : allPayouts.length;
+  // Get pagination info from API response
+  const totalRows = pagination?.totalElements || allPayouts.length;
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
 
-  // Get totalPages from API if paginated, otherwise calculate
-  const totalPages = isPaginated
-    ? paginatedData?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE)
-    : Math.ceil(totalRows / ITEMS_PER_PAGE);
-
-  // If API doesn't paginate, do client-side pagination
-  const payouts: Payout[] = isPaginated
-    ? allPayouts // API already paginated
-    : allPayouts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE); // Client-side pagination
+  // API already paginates the data, so use it directly
+  const payouts: Payout[] = allPayouts;
 
   const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
     currentPage,
@@ -91,12 +70,10 @@ export default function PayoutList() {
       <PayoutHeaderSection
         merchantId={filters.merchantId}
         onMerchantIdChange={(value) => setFilter('merchantId', value)}
-        transactionId={filters.transactionId}
-        onTransactionIdChange={(value) => setFilter('transactionId', value)}
-        startDate={filters.startDate}
-        onStartDateChange={(value) => setFilter('startDate', value)}
-        endDate={filters.endDate}
-        onEndDateChange={(value) => setFilter('endDate', value)}
+        settlementRefId={filters.settlementRefId}
+        onSettlementRefIdChange={(value) => setFilter('settlementRefId', value)}
+        payonusRefId={filters.payonusRefId}
+        onPayonusRefIdChange={(value) => setFilter('payonusRefId', value)}
         status={filters.status}
         onStatusChange={(value) => setFilter('status', value)}
         onResetFilter={resetFilters}
