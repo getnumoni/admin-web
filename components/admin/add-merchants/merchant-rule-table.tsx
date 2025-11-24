@@ -1,7 +1,10 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { ErrorState } from "@/components/ui/error-state";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import useGetMerchantRewardById from "@/hooks/query/useGetMerchantRewardById";
 
 export interface RewardRule {
   id: string;
@@ -21,7 +24,9 @@ export const merchantRewardRules: RewardRule[] = [
   { id: '8', minSpend: 1000000, maxSpend: 'Above', rewardPercentage: 100 },
 ];
 
-export default function MerchantRuleTable() {
+export default function MerchantRuleTable({ merchantId }: { merchantId: string }) {
+  const { data: rewardData, isPending: isRewardPending, isError: isRewardError, error: rewardError, refetch } = useGetMerchantRewardById({ merchantId });
+  console.log(rewardData?.data);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
@@ -41,6 +46,17 @@ export default function MerchantRuleTable() {
   // const handleAddRule = () => {
   //   console.log('Add new rule');
   // };
+
+  if (isRewardPending) {
+    return <LoadingSpinner message="Loading reward rules..." />;
+  }
+
+  if (isRewardError) {
+    return <ErrorState title="Error Loading Reward" message={rewardError?.message || "Failed to load reward. Please try again."}
+      onRetry={refetch}
+      retryText="Retry"
+    />;
+  }
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
