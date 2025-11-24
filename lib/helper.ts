@@ -1309,6 +1309,8 @@ export const getDealStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
+    case 'inactive':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'expired':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     case 'paused':
