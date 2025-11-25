@@ -9,7 +9,7 @@ import MerchantRuleTable from "./merchant-rule-table";
 import PointAllocationCard from "./point-allocation-card";
 
 
-export default function MerchantRewardPoints({ merchantId }: { merchantId: string }) {
+export default function MerchantRewardPoints({ merchantId, userId }: { merchantId: string, userId: string | null }) {
   const { data: rewardPointData, isPending: isRewardPointPending, isError: isRewardPointError, error: rewardPointError, refetch } = useGetMerchantRewardPointById({ merchantId });
   const rewardData = rewardPointData?.data?.data;
 
@@ -124,7 +124,7 @@ export default function MerchantRewardPoints({ merchantId }: { merchantId: strin
         <hr />
         {/* reward insights and rules table */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-          <MerchantRuleTable merchantId={merchantId} />
+          <MerchantRuleTable userId={userId} />
           <MerchantRuleCard />
         </div>
       </div>

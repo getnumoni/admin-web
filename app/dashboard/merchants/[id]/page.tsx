@@ -2,11 +2,14 @@
 
 
 import MerchantDetails from "@/components/admin/add-merchants/merchant-details";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function Page() {
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId');
+
 
   // console.log(id);
-  return <MerchantDetails merchantId={id} />;
+  return <MerchantDetails merchantId={id} userId={userId} />;
 }

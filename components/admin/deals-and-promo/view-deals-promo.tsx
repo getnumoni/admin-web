@@ -8,7 +8,6 @@ import useGetDealList from "@/hooks/query/useGetDealList";
 import useGetDealsStatistics from "@/hooks/query/useGetDealsStatistics";
 import { PauseIcon } from "lucide-react";
 import AllDealsData from "./all-deals-data";
-import SponsoredDeal from "./sponsored-deal";
 
 export default function ViewDealsPromo() {
   const { data, isPending, error, isError, refetch } = useGetDealList();
@@ -125,8 +124,6 @@ export default function ViewDealsPromo() {
           error={error || undefined}
           refetch={refetch}
         />
-
-        <SponsoredDeal />
       </div>
     </div>
   );

@@ -83,14 +83,10 @@ export default function SponsoredDeal() {
 
   // Extract data from API response
   const apiData = sponsorDealsData?.data as SponsorDealApiResponse | undefined;
-  const sponsorDeals = apiData?.content || [];
-
-  // Get pagination info from API response
-  const totalRows = apiData?.totalElements || 0;
-  const totalPages = apiData?.totalPages || 0;
 
   // Map API data to SponsorDeal format using useMemo
   const deals = useMemo(() => {
+    const sponsorDeals = apiData?.content || [];
     if (!Array.isArray(sponsorDeals)) return [];
 
     return sponsorDeals.map((item: SponsorDealApiItem): SponsorDeal => ({
@@ -103,16 +99,15 @@ export default function SponsoredDeal() {
       createdAt: item.createdAt || "",
       updatedAt: item.updatedAt || "",
     }));
-  }, [sponsorDeals]);
+  }, [apiData?.content]);
+
+  // Get pagination info from API response
+  const totalRows = apiData?.totalElements || 0;
+  const totalPages = apiData?.totalPages || 0;
 
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setIsImageDialogOpen(true);
-  };
-
-  const handleCloseImageDialog = () => {
-    setIsImageDialogOpen(false);
-    setSelectedImage(null);
   };
 
   const handleResetFilter = () => {

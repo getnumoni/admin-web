@@ -74,7 +74,7 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
             {merchant?.businessName?.charAt(0).toUpperCase()}
           </div>
           <div>
-            <Link href={`/dashboard/merchants/${merchant?.id}/?merchantName=${encodeURIComponent(merchant.businessName)}`}>
+            <Link href={`/dashboard/merchants/${merchant?.id}/?userId=${merchant?.userId}&merchantName=${encodeURIComponent(merchant.businessName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
                 {merchant?.businessName}
               </div>
