@@ -25,9 +25,10 @@ import SocialMediaLinks from "./social-media-links";
 
 interface MerchantDetailsProps {
   merchantId: string | string[] | undefined;
+  userId: string | null;
 }
 
-export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
+export default function MerchantDetails({ merchantId, userId }: MerchantDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
   const { handleDeleteMerchant, isPending: isDeletePending } = useDeleteMerchant();
@@ -210,7 +211,7 @@ export default function MerchantDetails({ merchantId }: MerchantDetailsProps) {
         )}
 
         {activeTab === "rewards" && (
-          <MerchantRewardPoints merchantId={merchantId as string} />
+          <MerchantRewardPoints merchantId={merchantId as string} userId={userId} />
         )}
       </div>
     </div>
