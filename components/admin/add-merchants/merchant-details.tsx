@@ -203,7 +203,7 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
         )}
 
         {activeTab === "kyc" && (
-          <MerchantKyc merchantDetails={merchantData} merchantId={merchantId ?? ""} />
+          <MerchantKyc merchantDetails={merchantData} merchantId={userId ?? ""} />
         )}
 
         {activeTab === "transactions" && (
