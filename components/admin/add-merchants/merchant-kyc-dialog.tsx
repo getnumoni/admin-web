@@ -21,7 +21,7 @@ import {
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { FormPdfUpload } from "@/components/ui/form-pdf-upload";
 import { FormSelectTopLabel } from "@/components/ui/form-select";
-import { useCreateMerchantKyc } from "@/hooks/mutation/useCreateMerchantKyc";
+import { useAddMerchantKyc } from "@/hooks/mutation/useAddMerchantKyc";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -30,6 +30,7 @@ import * as z from "zod";
 const identificationTypes = [
   { value: "CAC", label: "CAC" },
   { value: "TIN", label: "TIN" },
+  { value: "TAX", label: "TAX" },
   { value: "NIN", label: "NIN" }
 ];
 
@@ -38,13 +39,14 @@ const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertif
   identificationTypeNumber: z.string().optional(),
   businessRegNo: z.string().min(1, "Business registration number is required"),
   cacDocumentPath: z.string().optional(),
-  reqCertificatePath: existingKycData?.reqCertificatePath ? z.string().optional() : z.string().min(1, "Required certificate is required"),
+  reqCertificatePath: existingKycData?.reqCertificatePath ? z.string().optional() : z.string().min(1, "Tax certificate is required"),
   tinNo: z.string().optional(),
   tinPath: z.string().optional(),
-  menuPath: existingKycData?.menuPath ? z.string().optional() : z.string().min(1, "Menu document is required"),
+  menuPath: existingKycData?.menuPath ? z.string().optional() : z.string().min(1, "NIN document is required"),
   verifiedNin: z.boolean(),
   verifiedTinNo: z.boolean(),
   verifiedCac: z.boolean(),
+  verifiedTax: z.boolean(),
 }).refine((data) => {
   // CAC validation
   if (data.identificationType === "CAC") {
@@ -54,9 +56,13 @@ const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertif
   if (data.identificationType === "TIN") {
     return data.tinNo && data.tinPath;
   }
+  // TAX validation
+  if (data.identificationType === "TAX") {
+    return data.reqCertificatePath;
+  }
   // NIN validation
   if (data.identificationType === "NIN") {
-    return data.identificationTypeNumber;
+    return data.identificationTypeNumber && data.menuPath;
   }
   return true;
 }, {
@@ -79,7 +85,8 @@ interface MerchantKycDialogProps {
 
 export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName, existingKycData }: MerchantKycDialogProps) {
   // console.log('merchantId', merchantId);
-  const { handleCreateMerchantKyc, isPending, isSuccess } = useCreateMerchantKyc(merchantId);
+  // const { handleCreateMerchantKyc, isPending, isSuccess } = useCreateMerchantKyc(merchantId);
+  const { handleAddMerchantKyc, isPending, isSuccess } = useAddMerchantKyc();
 
   const form = useForm<KycFormValues>({
     resolver: zodResolver(createKycSchema(existingKycData)),
@@ -95,16 +102,72 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
       verifiedNin: false,
       verifiedTinNo: false,
       verifiedCac: false,
+      verifiedTax: false,
     },
   });
 
   const selectedIdentificationType = form.watch("identificationType");
 
   const onSubmit = (data: KycFormValues) => {
-    console.log('Form submitted with data:', data);
-    // console.log('Form validation state:', form.formState);
-    // console.log('Form errors:', form.formState.errors);
-    // handleCreateMerchantKyc(data);
+    let payload: {
+      id: string;
+      identificationType: string;
+      identificationTypeNumber?: string;
+      cacIdentificationNumber?: string;
+      tinIdentificationNumber?: string;
+      businessRegistrationNumber: string;
+      documentUrl: string;
+      verificationStatus: boolean;
+    };
+
+    const basePayload = {
+      id: merchantId,
+      identificationType: data.identificationType,
+      businessRegistrationNumber: data.businessRegNo,
+    };
+
+    switch (data.identificationType) {
+      case "CAC":
+        payload = {
+          ...basePayload,
+          identificationTypeNumber: data.identificationTypeNumber || "",
+          cacIdentificationNumber: data.identificationTypeNumber || "",
+          documentUrl: data.cacDocumentPath || "",
+          verificationStatus: data.verifiedCac,
+        };
+        break;
+
+      case "TIN":
+        payload = {
+          ...basePayload,
+          tinIdentificationNumber: data.tinNo || "",
+          documentUrl: data.tinPath || "",
+          verificationStatus: data.verifiedTinNo,
+        };
+        break;
+
+      case "TAX":
+        payload = {
+          ...basePayload,
+          documentUrl: data.reqCertificatePath || "",
+          verificationStatus: data.verifiedTax,
+        };
+        break;
+
+      case "NIN":
+        payload = {
+          ...basePayload,
+          identificationTypeNumber: data.identificationTypeNumber || "",
+          documentUrl: data.menuPath || "",
+          verificationStatus: data.verifiedNin,
+        };
+        break;
+
+      default:
+        return;
+    }
+
+    handleAddMerchantKyc(payload);
   };
 
   useEffect(() => {
@@ -155,8 +218,8 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                             <FormInputTopLabel
                               control={form.control}
                               name="identificationTypeNumber"
-                              label="CAC Identification Number"
-                              placeholder="Enter identification number"
+                              label={selectedIdentificationType === "CAC" ? "CAC Identification Number" : "NIN Identification Number"}
+                              placeholder={`Enter ${selectedIdentificationType} identification number`}
                               required
                               transform={(value) => value?.toUpperCase()}
                             />
@@ -276,8 +339,36 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                 )}
               </div>
 
-              {/* Required Certificate - only show if not already uploaded */}
-              {!existingKycData?.reqCertificatePath && (
+              {/* Show TAX document only for TAX */}
+              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TAX"
+                ? 'opacity-100 max-h-96 translate-y-0'
+                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
+                }`}>
+                {selectedIdentificationType === "TAX" && (
+                  <FormField
+                    control={form.control}
+                    name="reqCertificatePath"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <FormPdfUpload
+                            label="Tax Certificate"
+                            onPdfChange={field.onChange}
+                            currentValue={field.value}
+                            required
+                            maxSize="500kb"
+                            error={form.formState.errors.reqCertificatePath?.message}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* Tax Certificate - only show if not already uploaded and TAX is not selected */}
+              {!existingKycData?.reqCertificatePath && selectedIdentificationType !== "TAX" && (
                 <div className="transition-all duration-300 ease-in-out">
                   <FormField
                     control={form.control}
@@ -286,7 +377,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       <FormItem>
                         <FormControl>
                           <FormPdfUpload
-                            label="Required Certificate"
+                            label="Tax Certificate"
                             onPdfChange={field.onChange}
                             currentValue={field.value}
                             required
@@ -301,8 +392,36 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                 </div>
               )}
 
-              {/* Menu Document - only show if not already uploaded */}
-              {!existingKycData?.menuPath && (
+              {/* Show NIN document only for NIN */}
+              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "NIN"
+                ? 'opacity-100 max-h-96 translate-y-0'
+                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
+                }`}>
+                {selectedIdentificationType === "NIN" && (
+                  <FormField
+                    control={form.control}
+                    name="menuPath"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <FormPdfUpload
+                            label="NIN Document"
+                            onPdfChange={field.onChange}
+                            currentValue={field.value}
+                            required
+                            maxSize="500kb"
+                            error={form.formState.errors.menuPath?.message}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* NIN Document - only show if not already uploaded and NIN is not selected */}
+              {!existingKycData?.menuPath && selectedIdentificationType !== "NIN" && (
                 <div className="transition-all duration-300 ease-in-out">
                   <FormField
                     control={form.control}
@@ -311,7 +430,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       <FormItem>
                         <FormControl>
                           <FormPdfUpload
-                            label="Menu Document"
+                            label="NIN Document"
                             onPdfChange={field.onChange}
                             currentValue={field.value}
                             required
@@ -402,6 +521,32 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel>CAC Verified</FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+
+                {/* Show TAX verification only for TAX */}
+                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TAX"
+                  ? 'opacity-100 max-h-96 translate-y-0'
+                  : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
+                  }`}>
+                  {selectedIdentificationType === "TAX" && (
+                    <FormField
+                      control={form.control}
+                      name="verifiedTax"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>TAX Verified</FormLabel>
                           </div>
                         </FormItem>
                       )}
