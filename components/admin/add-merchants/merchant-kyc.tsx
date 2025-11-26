@@ -1,14 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { MerchantDetailsResponse } from "@/lib/types";
-import { Check, Download, Eye, Plus, Trash2, X } from "lucide-react";
+import { MerchantDetailsResponse, UpdateKycStatusPayload } from "@/lib/types";
+import { Check, Download, Eye, Plus, X } from "lucide-react";
 
-import { useState } from "react";
+import { useUpdateKycStatus } from "@/hooks/mutation/useUpdateKycStatus";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import MerchantKycDialog from "./merchant-kyc-dialog";
+import RejectKycDialog from "./reject-kyc-dialog";
 
 export default function MerchantKyc({ merchantDetails, merchantId }: { merchantDetails: MerchantDetailsResponse, merchantId: string | string[] | undefined }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [rejectingDocumentType, setRejectingDocumentType] = useState<string | null>(null);
   const [documentStatus, setDocumentStatus] = useState<Record<string, 'pending' | 'approved' | 'rejected'>>({});
+  const [pendingDocumentType, setPendingDocumentType] = useState<string | null>(null);
+  const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null);
+
+  const { isPending, handleUpdateKyc, isSuccess } = useUpdateKycStatus()
+
+  // Reset pending state when operation completes
+  useEffect(() => {
+    if (!isPending && pendingDocumentType) {
+      setPendingDocumentType(null);
+      // Dismiss loading toast when operation completes
+      if (loadingToastId !== null) {
+        toast.dismiss(loadingToastId);
+        setLoadingToastId(null);
+      }
+    }
+  }, [isPending, pendingDocumentType, loadingToastId]);
 
   // Check if any of the KYC-related fields are null
   const hasKycData = merchantDetails?.cacDocumentPath ||
@@ -20,12 +41,59 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
   // console.log('hasKycData', hasKycData);
 
   const handleApprove = (documentType: string) => {
+    setPendingDocumentType(documentType);
     setDocumentStatus(prev => ({ ...prev, [documentType]: 'approved' }));
+
+    // Get document name for toast message
+    const documentNameMap: Record<string, string> = {
+      'CAC': 'CAC Document',
+      'TIN': 'TIN Document',
+      'TAX': 'Tax Certificate',
+      'NIN': 'NIN Document'
+    };
+    const documentName = documentNameMap[documentType] || 'Document';
+
+    // Show loading toast
+    const toastId = toast.loading(`Approving ${documentName}...`);
+    setLoadingToastId(toastId);
+
+    const payload: UpdateKycStatusPayload = {
+      merchantId: merchantId as string,
+      documentType,
+      status: 'APPROVE'
+    }
+
+    handleUpdateKyc(payload);
   };
 
   const handleReject = (documentType: string) => {
-    setDocumentStatus(prev => ({ ...prev, [documentType]: 'rejected' }));
+    setRejectingDocumentType(documentType);
+    setIsRejectDialogOpen(true);
   };
+
+  const handleConfirmReject = (reason: string) => {
+    if (!rejectingDocumentType) return;
+
+    setPendingDocumentType(rejectingDocumentType);
+    setDocumentStatus(prev => ({ ...prev, [rejectingDocumentType]: 'rejected' }));
+
+    const payload: UpdateKycStatusPayload = {
+      merchantId: merchantId as string,
+      documentType: rejectingDocumentType,
+      status: 'REJECT',
+      reason
+    }
+    // console.log('payload', payload)
+
+    handleUpdateKyc(payload);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsRejectDialogOpen(false);
+      setRejectingDocumentType(null);
+    }
+  }, [isSuccess]);
 
   const handlePreview = (documentPath: string) => {
     // Check if it's a base64 PDF
@@ -73,16 +141,18 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
     fileType?: string;
   }) => {
     const status = documentStatus[documentType] || 'pending';
+    // Show loading state immediately when approve/reject is clicked for this document
+    const isPendingForThisDoc = pendingDocumentType === documentType;
 
     // Generate document name based on document type if not provided
     const getDocumentName = () => {
       if (documentName) return documentName;
 
       const nameMap: Record<string, string> = {
-        'cac': 'CAC Document',
-        'tin': 'TIN Document',
-        'taxCertificate': 'Tax Certificate',
-        'menu': 'Menu Document'
+        'CAC': 'CAC Document',
+        'TIN': 'TIN Document',
+        'TAX': 'Tax Certificate',
+        'NIN': 'NIN Document'
       };
 
       return nameMap[documentType] || 'Document';
@@ -139,7 +209,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
               <Download className="h-4 w-4 mr-1" />
               Download
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               onClick={() => handleDelete(documentType)}
@@ -147,7 +217,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Delete
-            </Button>
+            </Button> */}
           </div>
 
           {/* Approve/Reject Buttons */}
@@ -177,6 +247,9 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
                   size="sm"
                   onClick={() => handleApprove(documentType)}
                   className="h-8 px-4 bg-green-600 hover:bg-green-700 text-white"
+                  disabled={isPendingForThisDoc}
+                  isLoading={isPendingForThisDoc}
+                  loadingText="Approving..."
                 >
                   Approve
                 </Button>
@@ -185,6 +258,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
                   variant="outline"
                   onClick={() => handleReject(documentType)}
                   className="h-8 px-4 border-red-600 text-red-600 hover:bg-red-50"
+                  disabled={isPendingForThisDoc}
                 >
                   Reject
                 </Button>
@@ -225,7 +299,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
               </div>
               <div className="p-6">
                 <DocumentCard
-                  documentType="cac"
+                  documentType="CAC"
                   documentName=""
                   documentPath={merchantDetails.cacDocumentPath}
                   fileType="pdf"
@@ -242,7 +316,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
               </div>
               <div className="p-6">
                 <DocumentCard
-                  documentType="tin"
+                  documentType="TIN"
                   documentName=""
                   documentPath={merchantDetails.tinPath}
                   fileType="pdf"
@@ -259,7 +333,7 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
               </div>
               <div className="p-6">
                 <DocumentCard
-                  documentType="taxCertificate"
+                  documentType="TAX"
                   documentName=""
                   documentPath={merchantDetails.reqCertificatePath}
                   fileType="pdf"
@@ -268,15 +342,15 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
             </div>
           )}
 
-          {/* Menu Documents Section */}
+          {/* NIN Documents Section */}
           {merchantDetails?.menuPath && (
             <div className="bg-white rounded-lg border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Menu Documents</h3>
+                <h3 className="text-lg font-semibold text-gray-900">NIN Documents</h3>
               </div>
               <div className="p-6">
                 <DocumentCard
-                  documentType="menu"
+                  documentType="NIN"
                   documentName=""
                   documentPath={merchantDetails.menuPath}
                   fileType="pdf"
@@ -299,6 +373,28 @@ export default function MerchantKyc({ merchantDetails, merchantId }: { merchantD
           reqCertificatePath: merchantDetails?.reqCertificatePath
         }}
       />
+
+      {rejectingDocumentType && (
+        <RejectKycDialog
+          isOpen={isRejectDialogOpen}
+          onClose={() => {
+            setIsRejectDialogOpen(false);
+            setRejectingDocumentType(null);
+          }}
+          onConfirm={handleConfirmReject}
+          documentType={rejectingDocumentType}
+          documentName={(() => {
+            const nameMap: Record<string, string> = {
+              'CAC': 'CAC Document',
+              'TIN': 'TIN Document',
+              'TAX': 'Tax Certificate',
+              'NIN': 'NIN Document'
+            };
+            return nameMap[rejectingDocumentType] || 'Document';
+          })()}
+          isLoading={isPending && pendingDocumentType === rejectingDocumentType}
+        />
+      )}
     </main>
   )
 }

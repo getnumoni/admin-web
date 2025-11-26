@@ -1,6 +1,7 @@
 //lib/api.ts
 
 import axios from "axios";
+import { toast } from "sonner";
 import { clearAuthCookies, getAuthCookies, setAuthCookies } from "./cookies-utils";
 
 
@@ -81,7 +82,10 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed, clear cookies and redirect to login
-        console.error('❌ Token refresh failed:', refreshError);
+        const errorMessage = refreshError instanceof Error
+          ? refreshError.message
+          : 'Token refresh failed. Please sign in again.';
+        toast.error(`❌ ${errorMessage}`);
         clearAuthCookies();
         if (typeof window !== "undefined") {
           window.location.href = "/auth/sign-in";
