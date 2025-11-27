@@ -79,6 +79,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                   <Link
                     key={child.name}
                     href={child.path!}
+                    onClick={onClose}
                     className={cn(
                       "flex items-center px-3 py-3 text-sm rounded-lg transition-colors relative",
                       isChildActive
@@ -106,6 +107,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       <Link
         key={item.name}
         href={item.path!}
+        onClick={onClose}
         className={cn(
           "flex items-center justify-between px-3 py-4 text-sm font-medium rounded-lg transition-colors",
           isActive
@@ -136,7 +138,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
