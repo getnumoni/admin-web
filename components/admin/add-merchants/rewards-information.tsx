@@ -43,7 +43,7 @@ export default function RewardsInformation({
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="mb-6 pb-4 border-b border-gray-200">
-        <h3 className="text-lg font-bold text-gray-900">Rewards Information</h3>
+        <h3 className="text-lg font-bold text-gray-900">Wallet Information</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-8">
