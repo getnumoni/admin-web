@@ -19,8 +19,8 @@ export default function AccountInformation({
   ];
 
   const rightColumnItems: InfoItem[] = [
-    { label: "Last Login", value: formatDateReadable(merchantData?.lastLogin) || "N/A" },
-    { label: "Account Status", value: merchantData?.status || "Active", isBadge: true },
+    { label: "Last Login", value: merchantData?.lastLogin ? formatDateReadable(merchantData.lastLogin) : "N/A" },
+    { label: "Account Status", value: merchantData?.status || "N/A", isBadge: true },
     { label: "Identity Number", value: merchantData?.identificationTypeNumber || "N/A" },
     { label: "Minimum Threshold", value: merchantData?.minimumThreshold || "N/A" },
   ];
