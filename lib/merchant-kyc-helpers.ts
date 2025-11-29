@@ -42,11 +42,37 @@ export const isDocumentVerified = (
 };
 
 /**
+ * Get document number for a specific document type
+ */
+export const getDocumentNumber = (
+  documentType: string,
+  merchantDetails: MerchantDetailsResponse | null | undefined
+): string | null => {
+  if (!merchantDetails) return null;
+
+  switch (documentType) {
+    case 'CAC':
+      // Use cacNo if available, otherwise fall back to businessReqNo
+      return merchantDetails.cacNo || merchantDetails.businessReqNo || null;
+    case 'TIN':
+      return merchantDetails.tinNo || null;
+    case 'NIN':
+      // Use ninNo only, no fallback
+      return merchantDetails.ninNo || null;
+    case 'TAX':
+      // Tax certificate might not have a specific number
+      return null;
+    default:
+      return null;
+  }
+};
+
+/**
  * Check if merchant has any KYC data
  */
 export const hasKycData = (merchantDetails: MerchantDetailsResponse | null | undefined): boolean => {
   if (!merchantDetails) return false;
-  
+
   return !!(
     merchantDetails.cacDocumentPath ||
     merchantDetails.menuPath ||
@@ -65,7 +91,7 @@ export const calculateBase64FileSize = (base64String: string): string => {
 
   const base64Length = base64String.split(',')[1]?.length || 0;
   const sizeInBytes = (base64Length * 3) / 4;
-  
+
   if (sizeInBytes > 1024 * 1024) {
     return `${(sizeInBytes / (1024 * 1024)).toFixed(1)}MB`;
   } else {
@@ -87,11 +113,11 @@ export const downloadDocument = (documentPath: string, documentName: string): vo
   const link = document.createElement('a');
   link.href = documentPath;
   link.download = documentName;
-  
+
   if (!documentPath.startsWith('data:')) {
     link.target = '_blank';
   }
-  
+
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

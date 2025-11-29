@@ -1,5 +1,5 @@
 import { MerchantDetailsResponse } from "@/lib/types";
-import { getDocumentDisplayName, isDocumentVerified } from "../../../lib/merchant-kyc-helpers";
+import { getDocumentDisplayName, getDocumentNumber, isDocumentVerified } from "../../../lib/merchant-kyc-helpers";
 import { KycDocumentCard } from "./kyc-document-card";
 
 interface DocumentSectionProps {
@@ -26,6 +26,7 @@ export function KycDocumentSection({
   if (!documentPath) return null;
 
   const isVerified = isDocumentVerified(documentType, merchantDetails);
+  const documentNumber = getDocumentNumber(documentType, merchantDetails);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
@@ -37,6 +38,7 @@ export function KycDocumentSection({
           documentType={documentType}
           documentName={getDocumentDisplayName(documentType)}
           documentPath={documentPath}
+          documentNumber={documentNumber}
           fileType="pdf"
           status={status}
           isVerified={isVerified}
