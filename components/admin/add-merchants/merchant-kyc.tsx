@@ -163,7 +163,7 @@ export default function MerchantKyc({
       <MerchantKycDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        businessName={merchantDetails.businessName}
+        businessName={merchantDetails?.businessName}
         merchantId={Array.isArray(merchantId) ? merchantId[0] : merchantId || ""}
         existingKycData={{
           menuPath: merchantDetails?.menuPath,
