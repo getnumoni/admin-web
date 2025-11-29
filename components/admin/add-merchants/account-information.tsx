@@ -11,7 +11,7 @@ export default function AccountInformation({
 }: { merchantData: MerchantDetailsResponse }) {
 
   const leftColumnItems: InfoItem[] = [
-    { label: "Registration Date", value: merchantData?.createdDt || "N/A" },
+    { label: "Registration Date", value: formatDateReadable(merchantData?.registrationDate || "N/A") },
     { label: "Account type", value: "Merchant", icon: User },
     { label: "Identity type", value: merchantData?.identificationType || "N/A" },
     { label: "Business Number", value: merchantData?.businessReqNo || "N/A" },
@@ -79,12 +79,12 @@ export default function AccountInformation({
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-yellow-400 fill-current" />
                 <span className="text-sm text-gray-900 font-semibold">
-                  {merchantData?.averageRating?.toFixed(1) || "0.0"}
+                  {merchantData?.reviewAvg?.toFixed(1) || "0.0"}
                 </span>
               </div>
             </div>
             <div className="text-sm text-gray-600">
-              ({merchantData?.numberOfReviews || 0} {merchantData?.numberOfReviews === 1 ? "review" : "reviews"})
+              ({merchantData?.reviewCount || 0} {merchantData?.reviewCount === 1 ? "review" : "reviews"})
             </div>
           </div>
         </div>

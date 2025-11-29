@@ -1,7 +1,6 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { mockMerchantData } from "@/data";
 import { useAdjustMerchantBalance } from "@/hooks/mutation/useAdjustMerchantBalance";
 import { useAdjustMerchantPoints } from "@/hooks/mutation/useAdjustMerchantPoints";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
@@ -118,6 +117,7 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
     }
   };
 
+
   if (isMerchantDetailsPending) {
     return <LoadingSpinner message="Loading merchant details..." />
   }
@@ -127,7 +127,7 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
         <MerchantHeader
           merchantName={merchantData?.businessName}
           userId={merchantData?.merchantId}
-          level={mockMerchantData.level}
+          level={merchantData?.level}
         />
 
         <MerchantTabs activeTab={activeTab} onTabChange={setActiveTab} />

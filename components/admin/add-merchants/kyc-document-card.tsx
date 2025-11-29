@@ -6,6 +6,7 @@ interface DocumentCardProps {
   documentType: string;
   documentName?: string;
   documentPath: string;
+  documentNumber?: string | null;
   fileSize?: string;
   fileType?: string;
   status: 'pending' | 'approved' | 'rejected';
@@ -19,6 +20,7 @@ export function KycDocumentCard({
   documentType,
   documentName,
   documentPath,
+  documentNumber,
   fileSize,
   fileType = "pdf",
   status,
@@ -38,9 +40,17 @@ export function KycDocumentCard({
           <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center">
             <span className="text-white text-xs font-medium">PDF</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h4 className="text-sm font-medium text-gray-900">{displayName}</h4>
-            <p className="text-xs text-gray-500">{calculatedFileSize} • {fileType}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-gray-500">{calculatedFileSize} • {fileType}</p>
+              {documentNumber && (
+                <>
+                  <span className="text-xs text-gray-300">•</span>
+                  <p className="text-xs text-gray-600 font-medium">Number: {documentNumber}</p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

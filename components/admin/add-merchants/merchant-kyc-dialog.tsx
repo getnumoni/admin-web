@@ -19,18 +19,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FormInputTopLabel } from "@/components/ui/form-input";
-import { FormPdfUpload } from "@/components/ui/form-pdf-upload";
 import { FormSelectTopLabel } from "@/components/ui/form-select";
 import { useAddMerchantKyc } from "@/hooks/mutation/useAddMerchantKyc";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { KycPdfUpload } from "./kyc-pdf-upload";
 
 const identificationTypes = [
-  { value: "CAC", label: "CAC" },
-  { value: "TIN", label: "TIN" },
-  { value: "TAX", label: "TAX" },
+  // { value: "CAC", label: "CAC" },
+  // { value: "TIN", label: "TIN" },
+  // { value: "TAX", label: "TAX" },
   { value: "NIN", label: "NIN" }
 ];
 
@@ -84,8 +84,6 @@ interface MerchantKycDialogProps {
 }
 
 export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName, existingKycData }: MerchantKycDialogProps) {
-  // console.log('merchantId', merchantId);
-  // const { handleCreateMerchantKyc, isPending, isSuccess } = useCreateMerchantKyc(merchantId);
   const { handleAddMerchantKyc, isPending, isSuccess } = useAddMerchantKyc();
 
   const form = useForm<KycFormValues>({
@@ -284,165 +282,99 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
               <p className="text-xs text-gray-500">Upload PDF documents (Max 500KB each)</p>
 
               {/* Show CAC document only for CAC */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "CAC"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "CAC" && (
-                  <FormField
-                    control={form.control}
-                    name="cacDocumentPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="CAC Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.cacDocumentPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
+              {selectedIdentificationType === "CAC" && (
+                <FormField
+                  control={form.control}
+                  name="cacDocumentPath"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <KycPdfUpload
+                          label="CAC Document"
+                          onPdfChange={field.onChange}
+                          currentValue={field.value}
+                          required
+                          maxSize="500kb"
+                          error={form.formState.errors.cacDocumentPath?.message}
+                          fieldName="cacDocumentPath"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Show TIN document only for TIN */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TIN"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "TIN" && (
-                  <FormField
-                    control={form.control}
-                    name="tinPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="TIN Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.tinPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
+              {selectedIdentificationType === "TIN" && (
+                <FormField
+                  control={form.control}
+                  name="tinPath"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <KycPdfUpload
+                          label="TIN Document"
+                          onPdfChange={field.onChange}
+                          currentValue={field.value}
+                          required
+                          maxSize="500kb"
+                          error={form.formState.errors.tinPath?.message}
+                          fieldName="tinPath"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Show TAX document only for TAX */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TAX"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "TAX" && (
-                  <FormField
-                    control={form.control}
-                    name="reqCertificatePath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="Tax Certificate"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.reqCertificatePath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-
-              {/* Tax Certificate - only show if not already uploaded and TAX is not selected */}
-              {!existingKycData?.reqCertificatePath && selectedIdentificationType !== "TAX" && (
-                <div className="transition-all duration-300 ease-in-out">
-                  <FormField
-                    control={form.control}
-                    name="reqCertificatePath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="Tax Certificate"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.reqCertificatePath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              {selectedIdentificationType === "TAX" && (
+                <FormField
+                  control={form.control}
+                  name="reqCertificatePath"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <KycPdfUpload
+                          label="Tax Certificate"
+                          onPdfChange={field.onChange}
+                          currentValue={field.value}
+                          required
+                          maxSize="500kb"
+                          error={form.formState.errors.reqCertificatePath?.message}
+                          fieldName="reqCertificatePath"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
 
               {/* Show NIN document only for NIN */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "NIN"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "NIN" && (
-                  <FormField
-                    control={form.control}
-                    name="menuPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="NIN Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.menuPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-
-              {/* NIN Document - only show if not already uploaded and NIN is not selected */}
-              {!existingKycData?.menuPath && selectedIdentificationType !== "NIN" && (
-                <div className="transition-all duration-300 ease-in-out">
-                  <FormField
-                    control={form.control}
-                    name="menuPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="NIN Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.menuPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              {selectedIdentificationType === "NIN" && (
+                <FormField
+                  control={form.control}
+                  name="menuPath"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <KycPdfUpload
+                          label="NIN Document"
+                          onPdfChange={field.onChange}
+                          currentValue={field.value}
+                          required
+                          maxSize="500kb"
+                          error={form.formState.errors.menuPath?.message}
+                          fieldName="menuPath"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
             </div>
 
