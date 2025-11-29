@@ -590,6 +590,8 @@ type MerchantDetailsResponse = {
   reqCertificatePath: string | null,
   tinNo: string | null,
   tinPath: string | null,
+  ninNo: string | null,
+  cacNo: string | null,
   menuPath: string | null,
   userInformation: string | null,
   menu: string | null,
@@ -650,6 +652,9 @@ type MerchantDetailsResponse = {
   wallet: string | null
   lastLogin: string;
   kycStatus: string;
+  reviewAvg: number | null;
+  reviewCount: number | null;
+  registrationDate: string | null;
 }
 
 type CustomerDetailsResponse = {
