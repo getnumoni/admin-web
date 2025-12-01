@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +14,12 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { FormSelectTopLabel } from "@/components/ui/form-select";
 import { useAddMerchantKyc } from "@/hooks/mutation/useAddMerchantKyc";
+import { useMerchantKycStore } from "@/lib/stores/merchant-kyc-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -39,10 +38,10 @@ const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertif
   identificationTypeNumber: z.string().optional(),
   businessRegNo: z.string().min(1, "Business registration number is required"),
   cacDocumentPath: z.string().optional(),
-  reqCertificatePath: existingKycData?.reqCertificatePath ? z.string().optional() : z.string().min(1, "Tax certificate is required"),
+  reqCertificatePath: z.string().optional(),
   tinNo: z.string().optional(),
   tinPath: z.string().optional(),
-  menuPath: existingKycData?.menuPath ? z.string().optional() : z.string().min(1, "NIN document is required"),
+  menuPath: z.string().optional(),
   verifiedNin: z.boolean(),
   verifiedTinNo: z.boolean(),
   verifiedCac: z.boolean(),
@@ -50,19 +49,40 @@ const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertif
 }).refine((data) => {
   // CAC validation
   if (data.identificationType === "CAC") {
-    return data.identificationTypeNumber && data.cacDocumentPath;
+    if (!data.identificationTypeNumber) {
+      return false;
+    }
+    if (!data.cacDocumentPath) {
+      return false;
+    }
+    return true;
   }
   // TIN validation
   if (data.identificationType === "TIN") {
-    return data.tinNo && data.tinPath;
+    if (!data.tinNo) {
+      return false;
+    }
+    if (!data.tinPath) {
+      return false;
+    }
+    return true;
   }
   // TAX validation
   if (data.identificationType === "TAX") {
-    return data.reqCertificatePath;
+    if (!data.reqCertificatePath) {
+      return false;
+    }
+    return true;
   }
   // NIN validation
   if (data.identificationType === "NIN") {
-    return data.identificationTypeNumber && data.menuPath;
+    if (!data.identificationTypeNumber) {
+      return false;
+    }
+    if (!data.menuPath) {
+      return false;
+    }
+    return true;
   }
   return true;
 }, {
@@ -85,9 +105,11 @@ interface MerchantKycDialogProps {
 
 export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName, existingKycData }: MerchantKycDialogProps) {
   const { handleAddMerchantKyc, isPending, isSuccess } = useAddMerchantKyc();
+  const { documentPaths, clearAllPaths } = useMerchantKycStore();
 
   const form = useForm<KycFormValues>({
     resolver: zodResolver(createKycSchema(existingKycData)),
+    mode: "onSubmit",
     defaultValues: {
       identificationType: "",
       identificationTypeNumber: "",
@@ -106,7 +128,26 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
 
   const selectedIdentificationType = form.watch("identificationType");
 
+  // Sync store paths with form fields when documents are uploaded
+  useEffect(() => {
+    if (documentPaths.cacDocumentPath) {
+      form.setValue("cacDocumentPath", documentPaths.cacDocumentPath, { shouldValidate: true });
+    }
+    if (documentPaths.tinPath) {
+      form.setValue("tinPath", documentPaths.tinPath, { shouldValidate: true });
+    }
+    if (documentPaths.reqCertificatePath) {
+      form.setValue("reqCertificatePath", documentPaths.reqCertificatePath, { shouldValidate: true });
+    }
+    if (documentPaths.menuPath) {
+      form.setValue("menuPath", documentPaths.menuPath, { shouldValidate: true });
+    }
+  }, [documentPaths, form]);
+
   const onSubmit = (data: KycFormValues) => {
+    // console.log('Form submitted with data:', data);
+    // console.log('Form errors:', form.formState.errors);
+
     let payload: {
       id: string;
       identificationType: string;
@@ -115,7 +156,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
       tinIdentificationNumber?: string;
       businessRegistrationNumber: string;
       documentUrl: string;
-      verificationStatus: boolean;
+      // verificationStatus: boolean;
     };
 
     const basePayload = {
@@ -130,8 +171,8 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
           ...basePayload,
           identificationTypeNumber: data.identificationTypeNumber || "",
           cacIdentificationNumber: data.identificationTypeNumber || "",
-          documentUrl: data.cacDocumentPath || "",
-          verificationStatus: data.verifiedCac,
+          documentUrl: data.cacDocumentPath || documentPaths.cacDocumentPath || "",
+          // verificationStatus: data.verifiedCac,
         };
         break;
 
@@ -139,16 +180,16 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
         payload = {
           ...basePayload,
           tinIdentificationNumber: data.tinNo || "",
-          documentUrl: data.tinPath || "",
-          verificationStatus: data.verifiedTinNo,
+          documentUrl: data.tinPath || documentPaths.tinPath || "",
+          // verificationStatus: data.verifiedTinNo,
         };
         break;
 
       case "TAX":
         payload = {
           ...basePayload,
-          documentUrl: data.reqCertificatePath || "",
-          verificationStatus: data.verifiedTax,
+          documentUrl: data.reqCertificatePath || documentPaths.reqCertificatePath || "",
+          // verificationStatus: data.verifiedTax,
         };
         break;
 
@@ -156,23 +197,33 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
         payload = {
           ...basePayload,
           identificationTypeNumber: data.identificationTypeNumber || "",
-          documentUrl: data.menuPath || "",
-          verificationStatus: data.verifiedNin,
+          documentUrl: data.menuPath || documentPaths.menuPath || "",
+          // verificationStatus: data.verifiedNin,
         };
         break;
 
       default:
+        console.error('Invalid identification type:', data.identificationType);
         return;
     }
 
+    // console.log('Payload:', payload);
     handleAddMerchantKyc(payload);
   };
 
   useEffect(() => {
     if (isSuccess) {
+      clearAllPaths(); // Clear store paths after successful submission
       onClose();
     }
-  }, [isSuccess, onClose]);
+  }, [isSuccess, onClose, clearAllPaths]);
+
+  // Clear store paths when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      clearAllPaths();
+    }
+  }, [isOpen, clearAllPaths]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -185,13 +236,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={(e) => {
-            // console.log('Form submit event triggered');
-            // console.log('Current form values:', form.getValues());
-            // console.log('Form is valid:', form.formState.isValid);
-            // console.log('Form errors before submit:', form.formState.errors);
-            form.handleSubmit(onSubmit)(e);
-          }} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormSelectTopLabel
@@ -279,7 +324,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
 
             <div className="space-y-4">
               <h4 className="text-sm font-medium text-gray-900">Document Uploads</h4>
-              <p className="text-xs text-gray-500">Upload PDF documents (Max 500KB each)</p>
+              <p className="text-xs text-gray-500">Upload PDF or image documents (PDF, JPEG, JPG, PNG - Max 500KB each)</p>
 
               {/* Show CAC document only for CAC */}
               {selectedIdentificationType === "CAC" && (
@@ -379,11 +424,11 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-900">Verification Status</h4>
+              {/* <h4 className="text-sm font-medium text-gray-900">Verification Status</h4> */}
 
               <div className="space-y-3">
                 {/* Show NIN verification only for NIN */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "NIN"
+                {/* <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "NIN"
                   ? 'opacity-100 max-h-96 translate-y-0'
                   : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
                   }`}>
@@ -406,10 +451,10 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       )}
                     />
                   )}
-                </div>
+                </div> */}
 
                 {/* Show TIN verification only for TIN */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TIN"
+                {/* <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TIN"
                   ? 'opacity-100 max-h-96 translate-y-0'
                   : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
                   }`}>
@@ -432,10 +477,10 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       )}
                     />
                   )}
-                </div>
+                </div> */}
 
                 {/* Show CAC verification only for CAC */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "CAC"
+                {/* <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "CAC"
                   ? 'opacity-100 max-h-96 translate-y-0'
                   : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
                   }`}>
@@ -458,10 +503,10 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       )}
                     />
                   )}
-                </div>
+                </div> */}
 
                 {/* Show TAX verification only for TAX */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TAX"
+                {/* <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TAX"
                   ? 'opacity-100 max-h-96 translate-y-0'
                   : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
                   }`}>
@@ -484,7 +529,7 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                       )}
                     />
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -492,9 +537,22 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
               <Button type="button" variant="outline" onClick={onClose} className="px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed "
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 isLoading={isPending}
                 loadingText="Creating..."
+              // onClick={(e) => {
+              //   console.log('Button clicked');
+              //   console.log('Form state:', {
+              //     isValid: form.formState.isValid,
+              //     errors: form.formState.errors,
+              //     values: form.getValues(),
+              //     isSubmitting: form.formState.isSubmitting
+              //   });
+              //   // Let the form handle submission
+              // }}
               >
                 Create KYC
               </Button>
