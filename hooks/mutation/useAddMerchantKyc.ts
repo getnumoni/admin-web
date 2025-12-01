@@ -10,7 +10,7 @@ type AddMerchantKycPayload = {
   tinIdentificationNumber?: string;
   businessRegistrationNumber: string;
   documentUrl: string;
-  verificationStatus: boolean;
+  verificationStatus?: boolean;
 }
 
 
