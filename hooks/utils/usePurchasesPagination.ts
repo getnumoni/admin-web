@@ -1,4 +1,4 @@
-interface UsePurchasesPaginationProps {
+export interface UsePurchasesPaginationProps {
   currentPage: number;
   totalRows: number;
   itemsPerPage: number;
