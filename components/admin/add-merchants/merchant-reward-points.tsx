@@ -13,10 +13,6 @@ export default function MerchantRewardPoints({ merchantId, userId }: { merchantI
   const { data: rewardPointData, isPending: isRewardPointPending, isError: isRewardPointError, error: rewardPointError, refetch } = useGetMerchantRewardPointById({ merchantId });
   const rewardData = rewardPointData?.data?.data;
 
-  // const { data, isPending } = useGetRewardPointsTypeByMerchantId({ merchantId });
-
-  // // console.log('data', data);
-
 
   const metrics = [
     {
@@ -125,7 +121,7 @@ export default function MerchantRewardPoints({ merchantId, userId }: { merchantI
         {/* reward insights and rules table */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
           <MerchantRuleTable userId={userId} />
-          <MerchantRuleCard />
+          <MerchantRuleCard userId={userId} />
         </div>
       </div>
 

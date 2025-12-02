@@ -110,7 +110,7 @@ export const useBranchStore = create<BranchStore>((set, get) => ({
 
   submitForm: (_data) => {
     // console.log('=== BRANCH FORM SUBMISSION ===')
-    // console.log('Complete Payload:', JSON.stringify(_data, null, 2))
+    console.log('Complete Payload:', JSON.stringify(_data, null, 2))
     // console.log('Form Data Keys:', Object.keys(_data))
     // console.log('Total Fields:', Object.keys(_data).length)
     // console.log('==============================')
