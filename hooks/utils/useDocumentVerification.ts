@@ -46,6 +46,9 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
   // Track if CAC verification just completed successfully
   const [cacVerificationCompleted, setCacVerificationCompleted] = useState(false);
 
+  // Track if NIN verification just completed successfully
+  const [ninVerificationCompleted, setNinVerificationCompleted] = useState(false);
+
   // Handle TIN verification responses - only show toast if verification was triggered
   useEffect(() => {
     const dataChanged = previousDataRef.current.tin !== verifyTin.data;
@@ -102,8 +105,12 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
   useEffect(() => {
     const dataChanged = previousDataRef.current.nin !== verifyNin.data;
     if (verifyNin.data && !verifyNin.isPending && dataChanged && verificationTriggeredRef.current.NIN) {
-      toast.success("NIN verification successful!");
-      verificationTriggeredRef.current.NIN = false;
+      const apiResponse = verifyNin.data?.data;
+      if (apiResponse?.data) {
+        toast.success("NIN verification successful!");
+        setNinVerificationCompleted(true);
+        verificationTriggeredRef.current.NIN = false;
+      }
     }
     if (dataChanged) {
       previousDataRef.current.nin = verifyNin.data;
@@ -200,6 +207,10 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
     verifyCacIsPending: verifyCac.isPending,
     cacVerificationCompleted,
     setCacVerificationCompleted,
+    verifyNinData: verifyNin.data,
+    verifyNinIsPending: verifyNin.isPending,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
   };
 };
 

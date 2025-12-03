@@ -35,8 +35,27 @@ export const useKycVerification = () => {
     status: number;
   }
 
+  // Track NIN verification data and completion state
+  interface NinVerificationResponse {
+    data: {
+      nin: string;
+      firstname: string;
+      phone: string;
+      middlename: string;
+      id: number;
+      state: string;
+      nin_check: string;
+      status: string;
+      lastname: string;
+    };
+    message: string;
+    status: number;
+  }
+
   const [cacVerificationData, setCacVerificationData] = useState<CacVerificationResponse | null>(null);
   const [cacVerificationCompleted, setCacVerificationCompleted] = useState(false);
+  const [ninVerificationData, setNinVerificationData] = useState<NinVerificationResponse | null>(null);
+  const [ninVerificationCompleted, setNinVerificationCompleted] = useState(false);
 
   /**
    * Handles CAC document verification
@@ -141,8 +160,13 @@ export const useKycVerification = () => {
       toast.dismiss(toastId);
       setIsVerifyingNin(false);
 
-      if (result?.data) {
+      // result is the axios response, so result.data is the API response
+      // API response structure: { data: NinVerificationData, message: string, status: number }
+      if (result?.data?.data) {
         toast.success("NIN verification successful!");
+        // Store the API response data (not the axios wrapper)
+        setNinVerificationData(result.data);
+        setNinVerificationCompleted(true);
       }
     } catch (error) {
       toast.dismiss(toastId);
@@ -165,6 +189,8 @@ export const useKycVerification = () => {
     setIsVerifyingNin(false);
     setCacVerificationData(null);
     setCacVerificationCompleted(false);
+    setNinVerificationData(null);
+    setNinVerificationCompleted(false);
   }, []); // Empty dependency array since we're only resetting state
 
   return {
@@ -180,6 +206,10 @@ export const useKycVerification = () => {
     cacVerificationData,
     cacVerificationCompleted,
     setCacVerificationCompleted,
+    // NIN verification data and state
+    ninVerificationData,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
     // Reset function
     resetVerification,
   };
