@@ -30,10 +30,9 @@ export function KycDocumentSection({
   const documentNumber = getDocumentNumber(documentType, merchantDetails);
   const verifyButtonText = `Verify ${documentType}`;
 
-  // CAC is compulsory - require document path
-  // TIN and NIN can show even without document path if number exists
-  if (documentType === 'CAC' && !documentPath) return null;
-  if ((documentType === 'TIN' || documentType === 'NIN') && !documentPath && !documentNumber) return null;
+  // Show section if document path exists OR document number exists
+  // CAC, TIN, and NIN can all show even without document path if number exists
+  if (!documentPath && !documentNumber) return null;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">

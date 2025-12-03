@@ -39,7 +39,10 @@ export function CacVerificationSheet({
   onClose,
   verificationData,
 }: CacVerificationSheetProps) {
-  if (!verificationData?.data) return null;
+  // Check if verification data exists and is not an empty array
+  if (!verificationData?.data || (Array.isArray(verificationData.data) && verificationData.data.length === 0)) {
+    return null;
+  }
 
   const data = verificationData.data;
 
@@ -54,22 +57,27 @@ export function CacVerificationSheet({
         </SheetHeader>
 
         <div className="mt-6 space-y-6 px-5">
-          {/* Status Badge */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Status:</span>
-            <Badge
-              variant={data.status?.toLowerCase() === "verified" || data.status?.toLowerCase() === "active" ? "default" : "secondary"}
-              className={
-                data.status?.toLowerCase() === "verified" || data.status?.toLowerCase() === "active"
-                  ? "bg-green-100 text-green-800 hover:bg-green-100"
-                  : ""
-              }
-            >
-              {data.status.toUpperCase()}
-            </Badge>
+          {/* Status Badges - Displayed Separately with Aligned Layout */}
+          <div className="space-y-3">
+            {/* Status Badge */}
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-700 w-24">Status:</span>
+              <Badge
+                variant={data.status?.toLowerCase() === "verified" || data.status?.toLowerCase() === "active" ? "default" : "secondary"}
+                className={
+                  data.status?.toLowerCase() === "verified" || data.status?.toLowerCase() === "active"
+                    ? "bg-green-100 text-green-800 hover:bg-green-100"
+                    : ""
+                }
+              >
+                {data.status?.toUpperCase()}
+              </Badge>
+            </div>
+
+            {/* CAC Check Badge */}
             {data.cac_check && (
-              <>
-                <span className="text-sm text-gray-400">•</span>
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-700 w-24">CAC Check:</span>
                 <Badge
                   variant={data.cac_check === "verified" ? "default" : "secondary"}
                   className={
@@ -80,7 +88,24 @@ export function CacVerificationSheet({
                 >
                   {data.cac_check.toUpperCase()}
                 </Badge>
-              </>
+              </div>
+            )}
+
+            {/* CAC Status Badge */}
+            {data.cac_status && (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-700 w-24">CAC Status:</span>
+                <Badge
+                  variant={data.cac_status?.toUpperCase() === "ACTIVE" ? "default" : "secondary"}
+                  className={
+                    data.cac_status?.toUpperCase() === "ACTIVE"
+                      ? "bg-green-100 text-green-800 hover:bg-green-100"
+                      : ""
+                  }
+                >
+                  {data.cac_status.toUpperCase()}
+                </Badge>
+              </div>
             )}
           </div>
 
@@ -128,19 +153,7 @@ export function CacVerificationSheet({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
             <div className="space-y-3">
-              <div>
-                <span className="text-sm text-gray-500 font-medium">CAC Status:</span>
-                <Badge
-                  variant={data.cac_status?.toUpperCase() === "ACTIVE" ? "default" : "secondary"}
-                  className={
-                    data.cac_status?.toUpperCase() === "ACTIVE"
-                      ? "ml-2 bg-green-100 text-green-800 hover:bg-green-100"
-                      : "ml-2"
-                  }
-                >
-                  {data.cac_status}
-                </Badge>
-              </div>
+
               {data.id && (
                 <div>
                   <span className="text-sm text-gray-500 font-medium">ID:</span>
