@@ -10,6 +10,7 @@ import { getDocumentDisplayName, hasKycData } from "@/lib/merchant-kyc-helpers";
 import { CacVerificationSheet } from "./cac-verification-sheet";
 import { KycDocumentList } from "./kyc-document-list";
 import MerchantKycDialog from "./merchant-kyc-dialog";
+import { NinVerificationSheet } from "./nin-verification-sheet";
 import RejectKycDialog from "./reject-kyc-dialog";
 
 export default function MerchantKyc({
@@ -22,6 +23,7 @@ export default function MerchantKyc({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [isCacSheetOpen, setIsCacSheetOpen] = useState(false);
+  const [isNinSheetOpen, setIsNinSheetOpen] = useState(false);
 
   // Custom hooks for managing KYC operations
   const {
@@ -35,13 +37,23 @@ export default function MerchantKyc({
     isLoadingReject,
   } = useKycStatus(merchantId);
 
-  const { handleVerify, verifyCacData, verifyCacIsPending, cacVerificationCompleted, setCacVerificationCompleted } = useDocumentVerification(merchantDetails);
+  const {
+    handleVerify,
+    verifyCacData,
+    verifyCacIsPending,
+    cacVerificationCompleted,
+    setCacVerificationCompleted,
+    verifyNinData,
+    verifyNinIsPending,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
+  } = useDocumentVerification(merchantDetails);
 
   // Open CAC verification sheet when verification succeeds
   useEffect(() => {
     if (cacVerificationCompleted && verifyCacData && !verifyCacIsPending) {
-      // Extract the actual response data from axios response
       // verifyCacData is the axios response, so verifyCacData.data is the API response
+      // API response structure: { data: CacVerificationData, message: string, status: number }
       const apiResponse = verifyCacData?.data;
 
       // Check if we have valid data - open sheet if data exists
@@ -53,14 +65,32 @@ export default function MerchantKyc({
     }
   }, [cacVerificationCompleted, verifyCacData, verifyCacIsPending, setCacVerificationCompleted]);
 
+  // Open NIN verification sheet when verification succeeds
+  useEffect(() => {
+    if (ninVerificationCompleted && verifyNinData && !verifyNinIsPending) {
+      // verifyNinData is the axios response, so verifyNinData.data is the API response
+      // API response structure: { data: NinVerificationData, message: string, status: number }
+      const apiResponse = verifyNinData?.data;
+
+      // Check if we have valid data - open sheet if data exists
+      if (apiResponse?.data) {
+        setIsNinSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setNinVerificationCompleted(false);
+      }
+    }
+  }, [ninVerificationCompleted, verifyNinData, verifyNinIsPending, setNinVerificationCompleted]);
+
   // Reset verification state when component unmounts
   useEffect(() => {
     return () => {
       // Cleanup: reset state when component unmounts
       setCacVerificationCompleted(false);
       setIsCacSheetOpen(false);
+      setNinVerificationCompleted(false);
+      setIsNinSheetOpen(false);
     };
-  }, [setCacVerificationCompleted]);
+  }, [setCacVerificationCompleted, setNinVerificationCompleted]);
 
   return (
     <main>
@@ -125,7 +155,57 @@ export default function MerchantKyc({
           setIsCacSheetOpen(false);
           setCacVerificationCompleted(false);
         }}
-        verificationData={verifyCacData?.data || null}
+        verificationData={
+          // verifyCacData is the axios response, so verifyCacData.data is the API response
+          // API response structure: { data: CacVerificationData, message: string, status: number }
+          // This matches CacVerificationResponse interface expected by CacVerificationSheet
+          // Pass verifyCacData.data directly (not verifyCacData.data.data) since it already has the correct structure
+          (verifyCacData?.data as {
+            data: {
+              headOfficeAddress: string;
+              companyEmail: string;
+              city: string;
+              rcNumber: string;
+              companyName: string;
+              cac_status: string;
+              id: number;
+              state: string;
+              cac_check: string;
+              status: string;
+            };
+            message: string;
+            status: number;
+          } | undefined) || null
+        }
+      />
+
+      <NinVerificationSheet
+        isOpen={isNinSheetOpen}
+        onClose={() => {
+          setIsNinSheetOpen(false);
+          setNinVerificationCompleted(false);
+        }}
+        verificationData={
+          // verifyNinData is the axios response, so verifyNinData.data is the API response
+          // API response structure: { data: NinVerificationData, message: string, status: number }
+          // This matches NinVerificationResponse interface expected by NinVerificationSheet
+          // Pass verifyNinData.data directly (not verifyNinData.data.data) since it already has the correct structure
+          (verifyNinData?.data as {
+            data: {
+              nin: string;
+              firstname: string;
+              phone: string;
+              middlename: string;
+              id: number;
+              state: string;
+              nin_check: string;
+              status: string;
+              lastname: string;
+            };
+            message: string;
+            status: number;
+          } | undefined) || null
+        }
       />
     </main>
   );

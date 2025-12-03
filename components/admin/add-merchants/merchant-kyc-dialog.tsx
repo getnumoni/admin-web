@@ -25,6 +25,7 @@ import {
   identificationTypes,
   MerchantKycDialogProps,
 } from "./merchant-kyc-dialog-schema";
+import { NinVerificationSheet } from "./nin-verification-sheet";
 
 // Type for CAC verification response from API
 interface CacVerificationResponse {
@@ -92,8 +93,9 @@ export default function MerchantKycDialog({
   const identificationTypeNumber = form.watch("identificationTypeNumber");
   const tinNo = form.watch("tinNo");
 
-  // State to control CAC verification sheet visibility
+  // State to control CAC and NIN verification sheet visibility
   const [isCacSheetOpen, setIsCacSheetOpen] = useState(false);
+  const [isNinSheetOpen, setIsNinSheetOpen] = useState(false);
 
   // Custom hooks for verification and form submission
   const {
@@ -106,6 +108,9 @@ export default function MerchantKycDialog({
     cacVerificationData,
     cacVerificationCompleted,
     setCacVerificationCompleted,
+    ninVerificationData,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
     resetVerification,
   } = useKycVerification();
 
@@ -122,6 +127,20 @@ export default function MerchantKycDialog({
       }
     }
   }, [cacVerificationCompleted, cacVerificationData, setCacVerificationCompleted]);
+
+  // Open NIN verification sheet when verification succeeds
+  useEffect(() => {
+    if (ninVerificationCompleted && ninVerificationData) {
+      // ninVerificationData is already the API response (not axios wrapped)
+      // Structure: { data: NinVerificationData, message: string, status: number }
+      // Check if we have valid data - open sheet if data exists
+      if (ninVerificationData?.data) {
+        setIsNinSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setNinVerificationCompleted(false);
+      }
+    }
+  }, [ninVerificationCompleted, ninVerificationData, setNinVerificationCompleted]);
 
   const { onSubmit, isPending } = useKycFormSubmission(
     form,
@@ -165,6 +184,7 @@ export default function MerchantKycDialog({
 
       // Reset verification states and data
       setIsCacSheetOpen(false);
+      setIsNinSheetOpen(false);
       resetVerificationRef.current();
     }
 
@@ -273,6 +293,16 @@ export default function MerchantKycDialog({
             setCacVerificationCompleted(false); // Reset flag on close
           }}
           verificationData={cacVerificationData}
+        />
+
+        {/* NIN Verification Sheet - Shows verification details on successful NIN verification */}
+        <NinVerificationSheet
+          isOpen={isNinSheetOpen}
+          onClose={() => {
+            setIsNinSheetOpen(false);
+            setNinVerificationCompleted(false); // Reset flag on close
+          }}
+          verificationData={ninVerificationData}
         />
       </DialogContent>
     </Dialog>
