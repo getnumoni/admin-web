@@ -3,7 +3,7 @@ import useVerifyNin from "@/hooks/query/useVerifyNin";
 import useVerifyTin from "@/hooks/query/useVerifyTin";
 import { getDocumentDisplayName, getDocumentNumber } from "@/lib/merchant-kyc-helpers";
 import { MerchantDetailsResponse } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface ApiError {
@@ -21,63 +21,103 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
   const verifyCac = useVerifyCac({ cacNo: merchantDetails?.cacNo || merchantDetails?.businessReqNo || "" });
   const verifyNin = useVerifyNin({ ninNo: merchantDetails?.ninNo || "" });
 
+  // Track if verification was just triggered (to prevent showing toasts from cached data)
+  const verificationTriggeredRef = useRef<{
+    TIN: boolean;
+    CAC: boolean;
+    NIN: boolean;
+  }>({
+    TIN: false,
+    CAC: false,
+    NIN: false,
+  });
+
+  // Track previous data states to detect new verifications
+  const previousDataRef = useRef<{
+    tin: unknown;
+    cac: unknown;
+    nin: unknown;
+  }>({
+    tin: null,
+    cac: null,
+    nin: null,
+  });
+
   // Track if CAC verification just completed successfully
   const [cacVerificationCompleted, setCacVerificationCompleted] = useState(false);
 
-  // Handle TIN verification responses
+  // Handle TIN verification responses - only show toast if verification was triggered
   useEffect(() => {
-    if (verifyTin.data && !verifyTin.isPending) {
+    const dataChanged = previousDataRef.current.tin !== verifyTin.data;
+    if (verifyTin.data && !verifyTin.isPending && dataChanged && verificationTriggeredRef.current.TIN) {
       toast.success("TIN verification successful!");
+      verificationTriggeredRef.current.TIN = false;
+    }
+    if (dataChanged) {
+      previousDataRef.current.tin = verifyTin.data;
     }
   }, [verifyTin.data, verifyTin.isPending]);
 
   useEffect(() => {
-    if (verifyTin.isError && !verifyTin.isPending && verifyTin.error) {
+    if (verifyTin.isError && !verifyTin.isPending && verifyTin.error && verificationTriggeredRef.current.TIN) {
       const apiError = verifyTin.error as ApiError;
       const errorMessage = apiError?.response?.data?.message
         || apiError?.message
         || "TIN verification failed. Please try again.";
       toast.error(errorMessage);
+      verificationTriggeredRef.current.TIN = false;
     }
   }, [verifyTin.isError, verifyTin.isPending, verifyTin.error]);
 
-  // Handle CAC verification responses
+  // Handle CAC verification responses - only show toast/sheet if verification was triggered
   useEffect(() => {
-    if (verifyCac.data && !verifyCac.isPending) {
+    const dataChanged = previousDataRef.current.cac !== verifyCac.data;
+    if (verifyCac.data && !verifyCac.isPending && dataChanged && verificationTriggeredRef.current.CAC) {
       const apiResponse = verifyCac.data?.data;
       if (apiResponse?.data) {
         toast.success("CAC verification successful!");
         setCacVerificationCompleted(true);
+        verificationTriggeredRef.current.CAC = false;
       }
     } else if (verifyCac.isPending) {
       setCacVerificationCompleted(false);
     }
+    if (dataChanged) {
+      previousDataRef.current.cac = verifyCac.data;
+    }
   }, [verifyCac.data, verifyCac.isPending]);
 
   useEffect(() => {
-    if (verifyCac.isError && !verifyCac.isPending && verifyCac.error) {
+    if (verifyCac.isError && !verifyCac.isPending && verifyCac.error && verificationTriggeredRef.current.CAC) {
       const apiError = verifyCac.error as ApiError;
       const errorMessage = apiError?.response?.data?.message
         || apiError?.message
         || "CAC verification failed. Please try again.";
       toast.error(errorMessage);
+      verificationTriggeredRef.current.CAC = false;
     }
   }, [verifyCac.isError, verifyCac.isPending, verifyCac.error]);
 
-  // Handle NIN verification responses
+  // Handle NIN verification responses - only show toast if verification was triggered
   useEffect(() => {
-    if (verifyNin.data && !verifyNin.isPending) {
+    const dataChanged = previousDataRef.current.nin !== verifyNin.data;
+    if (verifyNin.data && !verifyNin.isPending && dataChanged && verificationTriggeredRef.current.NIN) {
       toast.success("NIN verification successful!");
+      verificationTriggeredRef.current.NIN = false;
+    }
+    if (dataChanged) {
+      previousDataRef.current.nin = verifyNin.data;
     }
   }, [verifyNin.data, verifyNin.isPending]);
 
   useEffect(() => {
-    if (verifyNin.isError && !verifyNin.isPending && verifyNin.error) {
+    if (verifyNin.isError && !verifyNin.isPending && verifyNin.error && verificationTriggeredRef.current.NIN) {
       const apiError = verifyNin.error as ApiError;
       const errorMessage = apiError?.response?.data?.message
         || apiError?.message
         || "NIN verification failed. Please try again.";
       toast.error(errorMessage);
+      verificationTriggeredRef.current.NIN = false;
     }
   }, [verifyNin.isError, verifyNin.isPending, verifyNin.error]);
 
@@ -88,6 +128,15 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
     if (!documentNumber || documentNumber.trim() === '') {
       toast.error(`No ${documentName} number found`);
       return;
+    }
+
+    // Mark that verification was triggered for this document type
+    if (documentType === 'TIN' || documentType === 'TAX') {
+      verificationTriggeredRef.current.TIN = true;
+    } else if (documentType === 'CAC') {
+      verificationTriggeredRef.current.CAC = true;
+    } else if (documentType === 'NIN') {
+      verificationTriggeredRef.current.NIN = true;
     }
 
     const toastId = toast.loading(`Verifying ${documentName} with number ${documentNumber}...`);
@@ -117,6 +166,14 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
           || apiError?.message
           || `Failed to verify ${documentName}`;
         toast.error(errorMessage);
+        // Reset trigger flag on error
+        if (documentType === 'TIN' || documentType === 'TAX') {
+          verificationTriggeredRef.current.TIN = false;
+        } else if (documentType === 'CAC') {
+          verificationTriggeredRef.current.CAC = false;
+        } else if (documentType === 'NIN') {
+          verificationTriggeredRef.current.NIN = false;
+        }
       }
     } catch (error) {
       toast.dismiss(toastId);
@@ -126,6 +183,14 @@ export const useDocumentVerification = (merchantDetails: MerchantDetailsResponse
         || `Failed to verify ${documentName}`;
       toast.error(errorMessage);
       console.error(`Error verifying ${documentType}:`, error);
+      // Reset trigger flag on error
+      if (documentType === 'TIN' || documentType === 'TAX') {
+        verificationTriggeredRef.current.TIN = false;
+      } else if (documentType === 'CAC') {
+        verificationTriggeredRef.current.CAC = false;
+      } else if (documentType === 'NIN') {
+        verificationTriggeredRef.current.NIN = false;
+      }
     }
   };
 

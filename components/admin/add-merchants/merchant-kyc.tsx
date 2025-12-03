@@ -53,6 +53,15 @@ export default function MerchantKyc({
     }
   }, [cacVerificationCompleted, verifyCacData, verifyCacIsPending, setCacVerificationCompleted]);
 
+  // Reset verification state when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cleanup: reset state when component unmounts
+      setCacVerificationCompleted(false);
+      setIsCacSheetOpen(false);
+    };
+  }, [setCacVerificationCompleted]);
+
   return (
     <main>
       <div className="flex justify-end mb-4">
