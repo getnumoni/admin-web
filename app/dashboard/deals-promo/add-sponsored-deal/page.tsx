@@ -1,3 +1,4 @@
+import AddSponsoredDeals from "@/components/admin/deals-and-promo/add-sponsored-deals";
 import { Metadata } from "next";
 
 
@@ -8,8 +9,6 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div>
-      <h1>Add Sponsored Deal</h1>
-    </div>
+    <AddSponsoredDeals />
   );
 }

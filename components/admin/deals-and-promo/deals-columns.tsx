@@ -2,7 +2,6 @@
 
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
 import { useApproveDeal } from "@/hooks/mutation/useApproveDeal";
 import { useDeleteDeals } from "@/hooks/mutation/useDeleteDeals";
 import { useUpdateDeals } from "@/hooks/mutation/useUpdateDeals";
@@ -11,13 +10,14 @@ import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getDealSt
 import { DealData, EditDealPayload } from "@/lib/types";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, MoreVertical, Package, X } from "lucide-react";
+import { Check, MoreVertical, Package, Settings, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ApproveDealDialog from "./approve-deal-dialog";
 import EditDealDialog from "./edit-deal-dialog";
 import RejectDealDialog from "./reject-deal-dialog";
+import UpdateDealStatusDialog from "./update-deal-status-dialog";
 
 // Extended DealData type that includes approveStatus from API response
 type DealDataWithApproval = DealData & {
@@ -225,13 +225,6 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     },
   },
   {
-    id: "updateStatus",
-    header: "Update Status",
-    cell: ({ row }) => {
-      return <StatusSwitchCell deal={row.original} />;
-    },
-  },
-  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
@@ -240,83 +233,17 @@ export const dealsColumns: ColumnDef<DealData>[] = [
   },
 ];
 
-// Status Switch Cell Component
-function StatusSwitchCell({ deal }: { deal: DealData }) {
-  const { handleUpdateDealStatus, isPending: isUpdatePending, isSuccess: isUpdateSuccess, isError } = useUpdateDealStatus();
-  // Initialize checked state based on current deal status
-  const [checked, setChecked] = useState(() => {
-    return deal.dealStatus?.toUpperCase() === "ACTIVE";
-  });
-  const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null);
-  const [previousChecked, setPreviousChecked] = useState(checked);
-
-  // Update checked state when deal status changes externally
-  useEffect(() => {
-    const isActive = deal.dealStatus?.toUpperCase() === "ACTIVE";
-    setChecked(isActive);
-    setPreviousChecked(isActive);
-  }, [deal.dealStatus]);
-
-  // Handle success - dismiss loading toast and keep the new state
-  useEffect(() => {
-    if (isUpdateSuccess && loadingToastId !== null) {
-      toast.dismiss(loadingToastId);
-      setLoadingToastId(null);
-      // Update previous checked state to current state on success
-      setPreviousChecked(checked);
-    }
-  }, [isUpdateSuccess, loadingToastId, checked]);
-
-  // Handle error - dismiss loading toast and revert to previous state
-  useEffect(() => {
-    if (isError && loadingToastId !== null) {
-      toast.dismiss(loadingToastId);
-      setLoadingToastId(null);
-      // Revert to previous state on error
-      setChecked(previousChecked);
-    }
-  }, [isError, loadingToastId, previousChecked]);
-
-  const handleToggle = (newChecked: boolean) => {
-    const newStatus = newChecked ? "OPEN" : "HIDDEN";
-
-    // Store current state as previous before changing
-    setPreviousChecked(checked);
-
-    // Show loading toast
-    const toastId = toast.loading(`Updating deal status to ${newStatus}...`);
-    setLoadingToastId(toastId);
-
-    // Optimistically update the UI
-    setChecked(newChecked);
-
-    // Call the API
-    handleUpdateDealStatus({
-      dealId: deal.id,
-      status: newStatus,
-    });
-  };
-
-  return (
-    <div className="flex items-center">
-      <Switch
-        checked={checked}
-        onCheckedChange={handleToggle}
-        disabled={isUpdatePending}
-      />
-    </div>
-  );
-}
-
 // Action Cell Component
 function ActionCell({ deal }: { deal: DealData }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [isUpdateStatusDialogOpen, setIsUpdateStatusDialogOpen] = useState(false);
   const { handleDeleteDeals, isPending, isSuccess } = useDeleteDeals();
   const { handleUpdateDeals, isPending: isUpdatePending, isSuccess: isUpdateSuccess } = useUpdateDeals();
   const { handleApproveDeal, isPending: isApprovePending, isSuccess: isApproveSuccess } = useApproveDeal();
+  const { handleUpdateDealStatus, isPending: isUpdateStatusPending, isSuccess: isUpdateStatusSuccess } = useUpdateDealStatus();
 
   const dealWithApproval = deal as DealDataWithApproval;
   const approveStatus = dealWithApproval.approveStatus ?? null;
@@ -331,11 +258,19 @@ function ActionCell({ deal }: { deal: DealData }) {
 
   const handleApproveClick = () => {
     setIsApproveDialogOpen(true);
-
   };
 
   const handleRejectClick = () => {
     setIsRejectDialogOpen(true);
+  };
+
+  const handleUpdateStatusClick = () => {
+    // Check if deal is approved before allowing status update
+    if (approveStatus !== "APPROVED") {
+      toast.error("Deal must be approved before the status can be updated");
+      return;
+    }
+    setIsUpdateStatusDialogOpen(true);
   };
 
   const { user } = useUserAuthStore();
@@ -368,6 +303,13 @@ function ActionCell({ deal }: { deal: DealData }) {
     handleUpdateDeals({ ...data, dealId: deal.id });
   };
 
+  const handleUpdateStatusConfirm = (status: string) => {
+    handleUpdateDealStatus({
+      dealId: deal.id,
+      status: status,
+    });
+  };
+
   useEffect(() => {
     if (isSuccess) {
       setIsDeleteDialogOpen(false);
@@ -387,6 +329,12 @@ function ActionCell({ deal }: { deal: DealData }) {
     }
   }, [isApproveSuccess]);
 
+  useEffect(() => {
+    if (isUpdateStatusSuccess) {
+      setIsUpdateStatusDialogOpen(false);
+    }
+  }, [isUpdateStatusSuccess]);
+
   return (
     <>
       <div className="flex items-center justify-end">
@@ -402,6 +350,15 @@ function ActionCell({ deal }: { deal: DealData }) {
               className="cursor-pointer"
             >
               Edit Deal
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={handleUpdateStatusClick}
+              disabled={isUpdateStatusPending || approveStatus !== "APPROVED"}
+              className="cursor-pointer"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Update Deal Status
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -472,6 +429,16 @@ function ActionCell({ deal }: { deal: DealData }) {
         onConfirm={handleRejectConfirm}
         dealName={deal.name}
         isLoading={isApprovePending}
+      />
+
+      <UpdateDealStatusDialog
+        isOpen={isUpdateStatusDialogOpen}
+        onClose={() => setIsUpdateStatusDialogOpen(false)}
+        onConfirm={handleUpdateStatusConfirm}
+        dealName={deal.name}
+        currentStatus={deal.dealStatus}
+        approveStatus={approveStatus}
+        isLoading={isUpdateStatusPending}
       />
     </>
   );

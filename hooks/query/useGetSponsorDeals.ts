@@ -9,7 +9,7 @@ interface GetSponsorDealsParams {
 
 const useGetSponsorDeals = ({ page = 0, size = 10, dealId }: GetSponsorDealsParams = {}) => {
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["sponsor-deals", page, size, dealId],
+    queryKey: ["sponsored-deals", page, size, dealId],
     queryFn: () => {
       const queryParams = new URLSearchParams();
       queryParams.append("page", page.toString());

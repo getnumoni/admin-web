@@ -50,13 +50,13 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
     console.log("Edit description");
   };
 
-  const handleManageCharity = () => {
-    console.log("Manage charity");
-  };
+  // const handleManageCharity = () => {
+  //   console.log("Manage charity");
+  // };
 
-  const handleNotifyMerchant = () => {
-    console.log("Notify merchant");
-  };
+  // const handleNotifyMerchant = () => {
+  //   console.log("Notify merchant");
+  // };
 
   const handleHideReview = (id: string) => {
     console.log("Hide review:", id);
