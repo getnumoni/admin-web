@@ -1307,6 +1307,10 @@ export const convertDateFormat = (dateStr: string): string => {
 // Helper function to get deal status color
 export const getDealStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'hidden':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'inactive':
@@ -1325,6 +1329,10 @@ export const getDealStatusColor = (status: string) => {
 // Helper function to get deal status text
 export const getDealStatusText = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'Open';
+    case 'hidden':
+      return 'Hidden';
     case 'active':
       return 'Active';
     case 'expired':
