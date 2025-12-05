@@ -27,24 +27,6 @@ import {
 } from "./merchant-kyc-dialog-schema";
 import { NinVerificationSheet } from "./nin-verification-sheet";
 
-// Type for CAC verification response from API
-interface CacVerificationResponse {
-  data: {
-    headOfficeAddress: string;
-    companyEmail: string;
-    city: string;
-    rcNumber: string;
-    companyName: string;
-    cac_status: string;
-    id: number;
-    state: string;
-    cac_check: string;
-    status: string;
-  };
-  message: string;
-  status: number;
-}
-
 /**
  * Main dialog component for adding KYC information to a merchant
  * 
