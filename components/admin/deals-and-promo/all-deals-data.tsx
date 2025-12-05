@@ -2,7 +2,6 @@
 
 import SearchInput from "@/components/common/search-input";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetDealList from "@/hooks/query/useGetDealList";
@@ -10,7 +9,7 @@ import { useDebounce } from "@/hooks/utils/useDebounce";
 import { DealData } from "@/lib/types";
 import { RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { dealsColumns } from "./deals-columns";
+import DealsTableContent from "./deals-table-content";
 
 export default function AllDealsData() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -106,27 +105,11 @@ export default function AllDealsData() {
       </div>
 
       {/* Data Table */}
-      <div className="p-6">
-        {dealsData && dealsData.length > 0 ? (
-          <DataTable
-            columns={dealsColumns}
-            data={dealsData}
-          />
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-lg font-medium mb-2">
-              {searchTerm || statusFilter !== "all"
-                ? "No deals found matching your criteria"
-                : "No deals available"}
-            </div>
-            <div className="text-gray-400 text-sm">
-              {searchTerm || statusFilter !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "Deals will appear here once they are created"}
-            </div>
-          </div>
-        )}
-      </div>
+      <DealsTableContent
+        dealsData={dealsData}
+        searchTerm={searchTerm}
+        statusFilter={statusFilter}
+      />
     </div>
   );
 }
