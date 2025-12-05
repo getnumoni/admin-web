@@ -2,15 +2,27 @@
 
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { useApproveDeal } from "@/hooks/mutation/useApproveDeal";
 import { useDeleteDeals } from "@/hooks/mutation/useDeleteDeals";
 import { useUpdateDeals } from "@/hooks/mutation/useUpdateDeals";
+import { useUpdateDealStatus } from "@/hooks/mutation/useUpdateDealStatus";
 import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getDealStatusColor, getDealStatusText } from "@/lib/helper";
 import { DealData, EditDealPayload } from "@/lib/types";
+import { useUserAuthStore } from "@/stores/user-auth-store";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreVertical, Package } from "lucide-react";
+import { Check, MoreVertical, Package, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import ApproveDealDialog from "./approve-deal-dialog";
 import EditDealDialog from "./edit-deal-dialog";
+import RejectDealDialog from "./reject-deal-dialog";
+
+// Extended DealData type that includes approveStatus from API response
+type DealDataWithApproval = DealData & {
+  approveStatus?: string | null;
+};
 
 
 // Column definitions
@@ -74,9 +86,13 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     header: "Category",
     cell: ({ row }) => {
       const categories = row.getValue("category") as string[];
+      const maxVisible = 1; // Show only the first category
+      const visibleCategories = categories.slice(0, maxVisible);
+      const remainingCount = categories.length - maxVisible;
+
       return (
-        <div className="flex flex-wrap gap-1">
-          {categories.map((category, index) => (
+        <div className="flex flex-wrap gap-1 items-center">
+          {visibleCategories.map((category, index) => (
             <span
               key={index}
               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${generateRandomBadgeColor(category)}`}
@@ -84,6 +100,11 @@ export const dealsColumns: ColumnDef<DealData>[] = [
               {category}
             </span>
           ))}
+          {remainingCount > 0 && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-600 border-gray-200">
+              +{remainingCount}
+            </span>
+          )}
         </div>
       );
     },
@@ -161,6 +182,56 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     },
   },
   {
+    accessorKey: "approveStatus",
+    header: "Approved Status",
+    cell: ({ row }) => {
+      const deal = row.original as DealDataWithApproval;
+      const approveStatus = deal.approveStatus ?? null;
+      const getApproveStatusColor = (status: string | null) => {
+        if (!status) return 'bg-gray-100 text-gray-800 border-gray-200';
+        switch (status.toUpperCase()) {
+          case 'APPROVED':
+            return 'bg-green-100 text-green-800 border-green-200';
+          case 'OPEN':
+            return 'bg-green-100 text-green-800 border-green-200';
+          case 'HIDDEN':
+            return 'bg-red-100 text-red-800 border-red-200';
+          case 'REJECTED':
+            return 'bg-red-100 text-red-800 border-red-200';
+          case 'PENDING':
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+          default:
+            return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+      };
+      const getApproveStatusText = (status: string | null) => {
+        if (!status) return 'Not Set';
+        switch (status.toUpperCase()) {
+          case 'APPROVED':
+            return 'Approved';
+          case 'REJECTED':
+            return 'Rejected';
+          case 'PENDING':
+            return 'Pending';
+          default:
+            return status;
+        }
+      };
+      return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getApproveStatusColor(approveStatus)}`}>
+          {getApproveStatusText(approveStatus)}
+        </span>
+      );
+    },
+  },
+  {
+    id: "updateStatus",
+    header: "Update Status",
+    cell: ({ row }) => {
+      return <StatusSwitchCell deal={row.original} />;
+    },
+  },
+  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
@@ -169,12 +240,86 @@ export const dealsColumns: ColumnDef<DealData>[] = [
   },
 ];
 
+// Status Switch Cell Component
+function StatusSwitchCell({ deal }: { deal: DealData }) {
+  const { handleUpdateDealStatus, isPending: isUpdatePending, isSuccess: isUpdateSuccess, isError } = useUpdateDealStatus();
+  // Initialize checked state based on current deal status
+  const [checked, setChecked] = useState(() => {
+    return deal.dealStatus?.toUpperCase() === "ACTIVE";
+  });
+  const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null);
+  const [previousChecked, setPreviousChecked] = useState(checked);
+
+  // Update checked state when deal status changes externally
+  useEffect(() => {
+    const isActive = deal.dealStatus?.toUpperCase() === "ACTIVE";
+    setChecked(isActive);
+    setPreviousChecked(isActive);
+  }, [deal.dealStatus]);
+
+  // Handle success - dismiss loading toast and keep the new state
+  useEffect(() => {
+    if (isUpdateSuccess && loadingToastId !== null) {
+      toast.dismiss(loadingToastId);
+      setLoadingToastId(null);
+      // Update previous checked state to current state on success
+      setPreviousChecked(checked);
+    }
+  }, [isUpdateSuccess, loadingToastId, checked]);
+
+  // Handle error - dismiss loading toast and revert to previous state
+  useEffect(() => {
+    if (isError && loadingToastId !== null) {
+      toast.dismiss(loadingToastId);
+      setLoadingToastId(null);
+      // Revert to previous state on error
+      setChecked(previousChecked);
+    }
+  }, [isError, loadingToastId, previousChecked]);
+
+  const handleToggle = (newChecked: boolean) => {
+    const newStatus = newChecked ? "OPEN" : "HIDDEN";
+
+    // Store current state as previous before changing
+    setPreviousChecked(checked);
+
+    // Show loading toast
+    const toastId = toast.loading(`Updating deal status to ${newStatus}...`);
+    setLoadingToastId(toastId);
+
+    // Optimistically update the UI
+    setChecked(newChecked);
+
+    // Call the API
+    handleUpdateDealStatus({
+      dealId: deal.id,
+      status: newStatus,
+    });
+  };
+
+  return (
+    <div className="flex items-center">
+      <Switch
+        checked={checked}
+        onCheckedChange={handleToggle}
+        disabled={isUpdatePending}
+      />
+    </div>
+  );
+}
+
 // Action Cell Component
 function ActionCell({ deal }: { deal: DealData }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const { handleDeleteDeals, isPending, isSuccess } = useDeleteDeals();
   const { handleUpdateDeals, isPending: isUpdatePending, isSuccess: isUpdateSuccess } = useUpdateDeals();
+  const { handleApproveDeal, isPending: isApprovePending, isSuccess: isApproveSuccess } = useApproveDeal();
+
+  const dealWithApproval = deal as DealDataWithApproval;
+  const approveStatus = dealWithApproval.approveStatus ?? null;
 
   const handleDeleteDealClick = () => {
     setIsDeleteDialogOpen(true);
@@ -182,6 +327,37 @@ function ActionCell({ deal }: { deal: DealData }) {
 
   const handleEditDealClick = () => {
     setIsEditDialogOpen(true);
+  };
+
+  const handleApproveClick = () => {
+    setIsApproveDialogOpen(true);
+
+  };
+
+  const handleRejectClick = () => {
+    setIsRejectDialogOpen(true);
+  };
+
+  const { user } = useUserAuthStore();
+
+  const handleApproveConfirm = (adminComments: string) => {
+    handleApproveDeal({
+      dealId: deal.id,
+      approvalStatus: "APPROVED",
+      adminComments: adminComments || undefined,
+      adminUsername: user?.username,
+      approved: true,
+    });
+  };
+
+  const handleRejectConfirm = (rejectionReason: string) => {
+    handleApproveDeal({
+      dealId: deal.id,
+      approvalStatus: "REJECTED",
+      rejectionReason: rejectionReason,
+      adminUsername: user?.username,
+      approved: false,
+    });
   };
 
   const handleDeleteConfirm = () => {
@@ -204,6 +380,13 @@ function ActionCell({ deal }: { deal: DealData }) {
     }
   }, [isUpdateSuccess]);
 
+  useEffect(() => {
+    if (isApproveSuccess) {
+      setIsApproveDialogOpen(false);
+      setIsRejectDialogOpen(false);
+    }
+  }, [isApproveSuccess]);
+
   return (
     <>
       <div className="flex items-center justify-end">
@@ -220,6 +403,30 @@ function ActionCell({ deal }: { deal: DealData }) {
             >
               Edit Deal
             </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            {approveStatus !== "APPROVED" && (
+              <DropdownMenuItem
+                onClick={handleApproveClick}
+                disabled={isApprovePending}
+                className="cursor-pointer text-green-600 hover:text-green-700 hover:bg-green-50"
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Approve Deal
+              </DropdownMenuItem>
+            )}
+
+            {approveStatus !== "REJECTED" && (
+              <DropdownMenuItem
+                onClick={handleRejectClick}
+                disabled={isApprovePending}
+                className="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Reject Deal
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuSeparator />
 
@@ -249,6 +456,22 @@ function ActionCell({ deal }: { deal: DealData }) {
         deal={deal}
         onSave={handleEditSave}
         isLoading={isUpdatePending}
+      />
+
+      <ApproveDealDialog
+        isOpen={isApproveDialogOpen}
+        onClose={() => setIsApproveDialogOpen(false)}
+        onConfirm={handleApproveConfirm}
+        dealName={deal.name}
+        isLoading={isApprovePending}
+      />
+
+      <RejectDealDialog
+        isOpen={isRejectDialogOpen}
+        onClose={() => setIsRejectDialogOpen(false)}
+        onConfirm={handleRejectConfirm}
+        dealName={deal.name}
+        isLoading={isApprovePending}
       />
     </>
   );
