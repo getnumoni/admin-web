@@ -2,19 +2,31 @@
 
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface SponsoredDealImageUploadProps {
   onImageChange: (image: File | null) => void;
   maxSize?: number; // in MB
+  initialImageUrl?: string | null; // For update mode
 }
 
 export default function SponsoredDealImageUpload({
   onImageChange,
-  maxSize = 5
+  maxSize = 5,
+  initialImageUrl = null,
 }: SponsoredDealImageUploadProps) {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [error, setError] = useState<string>('');
+  const [displayImageUrl, setDisplayImageUrl] = useState<string | null>(initialImageUrl);
+
+  // Update display image when initialImageUrl changes
+  useEffect(() => {
+    if (initialImageUrl && !uploadedImage) {
+      setDisplayImageUrl(initialImageUrl);
+    } else if (!initialImageUrl && !uploadedImage) {
+      setDisplayImageUrl(null);
+    }
+  }, [initialImageUrl, uploadedImage]);
 
   const validateFile = (file: File): boolean => {
     // Check file type
@@ -47,6 +59,7 @@ export default function SponsoredDealImageUpload({
 
   const removeImage = () => {
     setUploadedImage(null);
+    setDisplayImageUrl(null);
     onImageChange(null);
     setError('');
   };
@@ -59,11 +72,13 @@ export default function SponsoredDealImageUpload({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const hasImage = uploadedImage || displayImageUrl;
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Background Image</h2>
 
-      {!uploadedImage ? (
+      {!hasImage ? (
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-400 transition-colors">
           <input
             type="file"
@@ -86,11 +101,12 @@ export default function SponsoredDealImageUpload({
         <div className="relative">
           <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200">
             <Image
-              src={URL.createObjectURL(uploadedImage)}
+              src={uploadedImage ? URL.createObjectURL(uploadedImage) : displayImageUrl!}
               alt="Background"
               width={800}
               height={400}
               className="w-full h-full object-cover"
+              unoptimized={displayImageUrl?.includes('?') || displayImageUrl?.includes('&') || displayImageUrl?.startsWith('http')}
             />
           </div>
           <button
@@ -100,9 +116,16 @@ export default function SponsoredDealImageUpload({
           >
             <X className="h-5 w-5" />
           </button>
-          <div className="mt-2 text-sm text-gray-500">
-            {formatFileSize(uploadedImage.size)}
-          </div>
+          {uploadedImage && (
+            <div className="mt-2 text-sm text-gray-500">
+              {formatFileSize(uploadedImage.size)}
+            </div>
+          )}
+          {!uploadedImage && displayImageUrl && (
+            <div className="mt-2 text-sm text-gray-500">
+              Current image (click to replace)
+            </div>
+          )}
         </div>
       )}
 
