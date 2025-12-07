@@ -1,9 +1,14 @@
 "use client";
 
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useDeleteSponsoredDeal } from "@/hooks/mutation/useDeleteSponsoredDeal";
 import { getDealStatusColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
+import { Eye, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import UpdateSponsoredDealDialog from "./update-sponsored-deal-dialog";
 
 export interface SponsorDeal {
   id: string;
@@ -21,6 +26,53 @@ interface SponsorDealColumnsProps {
   currentPage?: number;
   pageSize?: number;
 }
+
+interface SponsorDealImageCellProps {
+  imageUrl: string | null | undefined;
+  onImageClick: (imageUrl: string) => void;
+}
+
+const SponsorDealImageCell = ({ imageUrl, onImageClick }: SponsorDealImageCellProps) => {
+  const [imageError, setImageError] = useState(false);
+  const fallbackImage = "/assets/icons/store-icon.svg";
+
+  // Reset error state when imageUrl changes
+  useEffect(() => {
+    setImageError(false);
+  }, [imageUrl]);
+
+  const displayImage = imageUrl && !imageError ? imageUrl : fallbackImage;
+  const hasValidImage = imageUrl && !imageError;
+  const isExternalUrl = imageUrl?.includes('?') || imageUrl?.includes('&') || imageUrl?.startsWith('http');
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group"
+        onClick={() => {
+          if (hasValidImage) {
+            onImageClick(imageUrl!);
+          }
+        }}
+      >
+        <Image
+          key={imageUrl || 'fallback'}
+          src={displayImage}
+          alt="Sponsor deal background"
+          fill
+          className="object-cover group-hover:opacity-80 transition-opacity"
+          onError={() => setImageError(true)}
+          unoptimized={isExternalUrl}
+        />
+        {hasValidImage && (
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <Eye className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const createSponsorDealColumns = ({
   onImageClick,
@@ -47,27 +99,10 @@ export const createSponsorDealColumns = ({
       cell: ({ row }) => {
         const imageUrl = row.getValue("backgroundImage") as string;
         return (
-          <div className="flex items-center gap-2">
-            {imageUrl ? (
-              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 cursor-pointer group"
-                onClick={() => onImageClick(imageUrl)}
-              >
-                <Image
-                  src={imageUrl}
-                  alt="Sponsor deal background"
-                  fill
-                  className="object-cover group-hover:opacity-80 transition-opacity"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <Eye className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-            ) : (
-              <div className="w-16 h-16 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center">
-                <span className="text-xs text-gray-400">No Image</span>
-              </div>
-            )}
-          </div>
+          <SponsorDealImageCell
+            imageUrl={imageUrl}
+            onImageClick={onImageClick}
+          />
         );
       },
       enableSorting: false,
@@ -134,6 +169,94 @@ export const createSponsorDealColumns = ({
         );
       },
     },
+    {
+      id: "actions",
+      header: "Action",
+      cell: ({ row }) => {
+        return <SponsorDealActionCell deal={row.original} />;
+      },
+      enableSorting: false,
+    },
   ];
 };
+
+// Action Cell Component
+function SponsorDealActionCell({ deal }: { deal: SponsorDeal }) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const { handleDeleteSponsoredDeal, isPending, isSuccess } = useDeleteSponsoredDeal();
+
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleUpdateClick = () => {
+    setIsUpdateDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    handleDeleteSponsoredDeal({ id: deal.id });
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isSuccess]);
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                handleUpdateClick();
+              }}
+              className="cursor-pointer"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Update
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                handleDeleteClick();
+              }}
+              className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Sponsored Deal"
+        description={`This will permanently delete the sponsored deal and all associated data. Deal ID: ${deal.id}`}
+        itemName={deal.heading}
+        isLoading={isPending}
+      />
+
+      <UpdateSponsoredDealDialog
+        isOpen={isUpdateDialogOpen}
+        onClose={() => setIsUpdateDialogOpen(false)}
+        deal={deal}
+      />
+    </>
+  );
+}
 
