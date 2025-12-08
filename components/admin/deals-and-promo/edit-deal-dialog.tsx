@@ -15,7 +15,7 @@ import { calculateNewPrice, convertDateFormat } from '@/lib/helper';
 import { categoryOptions, dealTypeOptions } from '@/lib/schemas/deal-schema';
 import { DealData, Merchant } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -70,11 +70,11 @@ export default function EditDealDialog({
   isLoading = false
 }: EditDealDialogProps) {
 
-  const { data: brandsMerchants } = useGetAllMerchants();
+  const { data: brandsMerchants } = useGetAllMerchants({ size: 1000 });
   const brandsMerchantsData = brandsMerchants?.data?.data?.pageData;
 
   // Transform merchants data for combobox
-  const merchantOptions = brandsMerchantsData?.map((merchant: Merchant) => ({
+  const merchantOptionsFromAPI = brandsMerchantsData?.map((merchant: Merchant) => ({
     value: merchant.userId,
     label: merchant.businessName,
   })) || [];
@@ -85,6 +85,29 @@ export default function EditDealDialog({
       merchant.businessName === deal.merchantName
     )
     : null;
+
+  // Create merchant options with temporary option for deal's merchant if not found in API response yet
+  const merchantOptions = useMemo(() => {
+    if (!deal?.merchantName) return merchantOptionsFromAPI;
+
+    // Check if merchant is already in the options
+    const merchantExists = merchantOptionsFromAPI.some(
+      (option: { value: string; label: string }) => option.label === deal.merchantName
+    );
+
+    // If merchant exists, return options as is
+    if (merchantExists) return merchantOptionsFromAPI;
+
+    // If merchant not found yet and we have merchantName, add temporary option
+    // Use merchantName as both value and label temporarily
+    return [
+      {
+        value: deal.merchantName, // Temporary value until API loads
+        label: deal.merchantName,
+      },
+      ...merchantOptionsFromAPI,
+    ];
+  }, [merchantOptionsFromAPI, deal?.merchantName]);
 
   const methods = useForm<EditDealFormData>({
     resolver: zodResolver(editDealSchema),
@@ -149,12 +172,15 @@ export default function EditDealDialog({
     }
   }, [watchedOldPrice, watchedDiscountPercent, setValue]);
 
-  // Reset form when deal changes
+  // Reset form when deal changes - set merchant name immediately
   useEffect(() => {
     if (deal && isOpen) {
+      // Use merchantName as initial value if merchant not found yet, otherwise use userId
+      const merchantValue = currentMerchant?.userId || deal.merchantName || '';
+
       const formData = {
         dealsTitle: deal.name || '',
-        brandsMerchants: currentMerchant?.userId || '',
+        brandsMerchants: merchantValue,
         dealType: deal.dealType || 'Discount',
         dealCategory: deal.category || [],
         startDate: convertDateFormat(deal.startDate || ''),
@@ -173,7 +199,18 @@ export default function EditDealDialog({
       };
       reset(formData);
     }
-  }, [deal, isOpen, reset, currentMerchant]);
+  }, [deal, isOpen, reset]);
+
+  // Update merchant value when currentMerchant is found
+  useEffect(() => {
+    if (deal && isOpen && currentMerchant?.userId && deal.merchantName) {
+      const currentValue = watch('brandsMerchants');
+      // If current value is the merchant name (temporary), update to userId
+      if (currentValue === deal.merchantName) {
+        setValue('brandsMerchants', currentMerchant.userId);
+      }
+    }
+  }, [currentMerchant, deal, isOpen, setValue, watch]);
 
   // Helper function to convert YYYY-MM-DD to DD-MM-YYYY
   const convertToAPIFormat = (dateStr: string): string => {

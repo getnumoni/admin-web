@@ -248,9 +248,9 @@ function ActionCell({ deal }: { deal: DealData }) {
   const dealWithApproval = deal as DealDataWithApproval;
   const approveStatus = dealWithApproval.approveStatus ?? null;
 
-  const handleDeleteDealClick = () => {
-    setIsDeleteDialogOpen(true);
-  };
+  // const handleDeleteDealClick = () => {
+  //   setIsDeleteDialogOpen(true);
+  // };
 
   const handleEditDealClick = () => {
     setIsEditDialogOpen(true);
@@ -387,12 +387,12 @@ function ActionCell({ deal }: { deal: DealData }) {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={handleDeleteDealClick}
               className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               Delete Deal
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
