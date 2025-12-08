@@ -8,7 +8,7 @@ import { FormTextareaTopLabel } from '@/components/ui/form-textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateSponsoredDeal } from '@/hooks/mutation/useCreateSponsoredDeal';
 import { useUploadDealsFile } from '@/hooks/mutation/useUploadDealsFile';
-import useGetDealList from '@/hooks/query/useGetDealList';
+import useGetDealFilterList from '@/hooks/query/useGetDealFilterList';
 import { SponsoredDealFormData, sponsoredDealSchema } from '@/lib/schemas/sponsored-deal-schema';
 import { DealData } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,16 +23,14 @@ export default function AddSponsoredDeals() {
   const { handleUploadDealsFile, isPending: isUploading } = useUploadDealsFile();
   const { handleCreateSponsoredDeal, isPending: isCreating } = useCreateSponsoredDeal();
 
-  // Fetch deals for dropdown
-  const { data: dealsData } = useGetDealList({ size: 1000 });
-  const apiResponse = dealsData?.data?.data;
-  const deals = (apiResponse?.pageData as DealData[] | undefined) || [];
+  const { data: dealFilterList } = useGetDealFilterList({ dealName: '' });
 
-  // Transform deals for dropdown
-  const dealOptions = deals.map((deal) => ({
+  console.log(dealFilterList?.data?.data);
+
+  const deals = dealFilterList?.data?.data?.map((deal: DealData) => ({
     value: deal.id,
     label: `${deal.name} - ${deal.merchantName}`,
-  }));
+  })) || [];
 
   const methods = useForm<SponsoredDealFormData>({
     resolver: zodResolver(sponsoredDealSchema),
@@ -109,7 +107,7 @@ export default function AddSponsoredDeals() {
                     control={control}
                     name="dealId"
                     label="Select Deal"
-                    options={dealOptions}
+                    options={deals}
                     placeholder="Select a deal"
                     required
                   />
