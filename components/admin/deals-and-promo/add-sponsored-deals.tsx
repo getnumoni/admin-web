@@ -25,7 +25,7 @@ export default function AddSponsoredDeals() {
 
   const { data: dealFilterList } = useGetDealFilterList({ dealName: '' });
 
-  console.log(dealFilterList?.data?.data);
+  // console.log(dealFilterList?.data?.data);
 
   const deals = dealFilterList?.data?.data?.map((deal: DealData) => ({
     value: deal.id,

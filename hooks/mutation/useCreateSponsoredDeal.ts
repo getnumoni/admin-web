@@ -7,7 +7,7 @@ import { toast } from "sonner";
 interface CreateSponsoredDealPayload {
   heading: string;
   description: string;
-  dealId: string;
+  dealId?: string | null;
   backgroundImage: string;
   isActive: boolean;
 }
