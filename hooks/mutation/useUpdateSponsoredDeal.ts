@@ -8,7 +8,7 @@ interface UpdateSponsoredDealPayload {
   id: string;
   heading: string;
   description: string;
-  dealId: string;
+  dealId?: string;
   backgroundImage: string;
   isActive: boolean;
 }
