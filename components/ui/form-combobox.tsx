@@ -40,6 +40,8 @@ interface FormComboboxProps<
   searchPlaceholder?: string
   emptyMessage?: string
   footerSlot?: React.ReactNode
+  onSearch?: (searchValue: string) => void
+  isSearching?: boolean
 }
 
 export function FormCombobox<
@@ -57,11 +59,13 @@ export function FormCombobox<
   searchPlaceholder = "Search...",
   emptyMessage = "No option found.",
   footerSlot,
+  onSearch,
+  isSearching: externalIsSearching = false,
 }: FormComboboxProps<TFieldValues, TName>) {
   const [open, setOpen] = React.useState(false)
   const [searchValue, setSearchValue] = React.useState("")
   const [debouncedSearchValue, setDebouncedSearchValue] = React.useState("")
-  const [isSearching, setIsSearching] = React.useState(false)
+  const [internalIsSearching, setInternalIsSearching] = React.useState(false)
 
   const {
     field,
@@ -74,22 +78,37 @@ export function FormCombobox<
 
   const selectedOption = options.find((option) => option.value === field.value)
 
+  // Use external isSearching if provided, otherwise use internal
+  const isSearching = externalIsSearching !== undefined ? externalIsSearching : internalIsSearching;
+
   // Debounce search value to improve performance
   React.useEffect(() => {
     if (searchValue !== debouncedSearchValue) {
-      setIsSearching(true);
+      if (!externalIsSearching && onSearch) {
+        setInternalIsSearching(true);
+      }
     }
 
     const timer = setTimeout(() => {
+      const previousValue = debouncedSearchValue;
       setDebouncedSearchValue(searchValue);
-      setIsSearching(false);
-    }, 150); // 150ms delay
+      if (!externalIsSearching && onSearch) {
+        setInternalIsSearching(false);
+      }
+      // Call onSearch callback for server-side search when value changes
+      if (onSearch && searchValue !== previousValue) {
+        onSearch(searchValue);
+      }
+    }, 300); // 300ms delay for API calls
 
     return () => clearTimeout(timer);
-  }, [searchValue, debouncedSearchValue]);
+  }, [searchValue, debouncedSearchValue, onSearch, externalIsSearching]);
 
-  // Filter options based on debounced search value
+  // Filter options based on debounced search value (only if no server-side search)
   const filteredOptions = React.useMemo(() => {
+    // If onSearch is provided, don't filter client-side (server handles it)
+    if (onSearch) return options;
+
     if (!debouncedSearchValue.trim()) return options;
 
     const searchLower = debouncedSearchValue.toLowerCase().trim();
@@ -97,16 +116,22 @@ export function FormCombobox<
       option.label.toLowerCase().includes(searchLower) ||
       option.value.toLowerCase().includes(searchLower)
     );
-  }, [options, debouncedSearchValue]);
+  }, [options, debouncedSearchValue, onSearch]);
 
   // Clear search when popover closes
   React.useEffect(() => {
     if (!open) {
       setSearchValue("");
       setDebouncedSearchValue("");
-      setIsSearching(false);
+      if (!externalIsSearching) {
+        setInternalIsSearching(false);
+      }
+      // Reset search on server-side when popover closes
+      if (onSearch) {
+        onSearch("");
+      }
     }
-  }, [open]);
+  }, [open, onSearch, externalIsSearching]);
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -161,6 +186,10 @@ export function FormCombobox<
                           field.onChange(currentValue === field.value ? "" : currentValue)
                           setOpen(false)
                           setSearchValue("") // Clear search when selecting
+                          // Reset server-side search when selecting
+                          if (onSearch) {
+                            onSearch("")
+                          }
                         }}
                       >
                         {option.label}

@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { FormComboboxTopLabel } from '@/components/ui/form-combobox-top-label';
 import { FormInputTopLabel } from '@/components/ui/form-input';
-import { FormSelectTopLabel } from '@/components/ui/form-select';
 import { FormTextareaTopLabel } from '@/components/ui/form-textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCreateSponsoredDeal } from '@/hooks/mutation/useCreateSponsoredDeal';
@@ -18,12 +18,13 @@ import SponsoredDealImageUpload from './sponsored-deal-image-upload';
 
 export default function AddSponsoredDeals() {
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
+  const [dealSearchTerm, setDealSearchTerm] = useState('');
 
   // Hooks for API calls
   const { handleUploadDealsFile, isPending: isUploading } = useUploadDealsFile();
   const { handleCreateSponsoredDeal, isPending: isCreating } = useCreateSponsoredDeal();
 
-  const { data: dealFilterList } = useGetDealFilterList({ dealName: '' });
+  const { data: dealFilterList, isPending: isLoadingDeals } = useGetDealFilterList({ dealName: dealSearchTerm });
 
   // console.log(dealFilterList?.data?.data);
 
@@ -103,12 +104,17 @@ export default function AddSponsoredDeals() {
                   />
 
                   {/* Deal Selection */}
-                  <FormSelectTopLabel
+                  <FormComboboxTopLabel
                     control={control}
                     name="dealId"
                     label="Select Deal"
                     options={deals}
                     placeholder="Select a deal"
+                    searchPlaceholder="Search deals..."
+                    emptyMessage="No deals found."
+                    isLoading={isLoadingDeals && !dealSearchTerm}
+                    onSearch={setDealSearchTerm}
+                    isSearching={isLoadingDeals && !!dealSearchTerm}
                   />
                 </div>
 
