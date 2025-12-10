@@ -109,7 +109,6 @@ export default function AddSponsoredDeals() {
                     label="Select Deal"
                     options={deals}
                     placeholder="Select a deal"
-                    required
                   />
                 </div>
 
