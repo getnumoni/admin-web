@@ -1,62 +1,56 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { ErrorState } from "@/components/ui/error-state";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import RuleCard from "@/components/ui/rule-card";
+import useGetMerchantRewardById from "@/hooks/query/useGetMerchantRewardById";
+import { formatNumberWithCommas, formatRewardType } from "@/lib/helper";
+import { RewardRuleApiResponse } from "@/lib/types";
 
-interface RuleCardProps {
-  title: string;
-  value: string;
-  tooltip?: string;
-}
+export default function MerchantRuleCard({ userId }: { userId: string | null }) {
+  const { data: rewardData, isPending: isRewardPending, isError: isRewardError, error: rewardError, refetch } = useGetMerchantRewardById({ userId });
 
-function RuleCard({ title, value, tooltip }: RuleCardProps) {
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">{title}</span>
-        {tooltip && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-theme-dark-green cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-xs bg-theme-dark-green text-white">
-                <p className="text-sm">{tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
-      <span className="text-sm font-semibold text-gray-900">{value}</span>
-    </div>
-  );
-}
+  const apiResponse = rewardData?.data as RewardRuleApiResponse | undefined;
 
-export default function MerchantRuleCard() {
+  if (isRewardPending) {
+    return <LoadingSpinner message="Loading reward rules..." />;
+  }
+
+  if (isRewardError) {
+    return (
+      <ErrorState
+        title="Error Loading Reward Rules"
+        message={rewardError?.message || "Failed to load reward rules. Please try again."}
+        onRetry={refetch}
+        retryText="Retry"
+      />
+    );
+  }
+
   const ruleCards = [
     {
       title: "Percentage Deduction per transaction",
-      value: "20% (System)",
+      value: `${apiResponse?.data?.PercentageDeductionpertransaction ?? 0}% (System)`,
       tooltip: "The percentage of each transaction that is deducted for the reward system"
     },
     {
       title: "How customer earn points",
-      value: "Percentage Based",
+      value: formatRewardType(apiResponse?.data?.rewardType ?? "N/A"),
       tooltip: "Customers earn points based on a percentage of their transaction amount"
     },
     {
       title: "How customer receive points",
-      value: "Instantly",
+      value: apiResponse?.data?.distributionType ?? "N/A",
       tooltip: "Points are credited to customer accounts immediately after transaction completion"
     },
     {
       title: "Reward Point Cap",
-      value: "2000",
+      value: formatNumberWithCommas(apiResponse?.data?.rewardCap ?? 0),
       tooltip: "Maximum number of points a customer can earn per transaction"
     },
     {
-      title: "Point Target before Redemption",
-      value: "20000",
+      title: "Milestone Target",
+      value: formatNumberWithCommas(apiResponse?.data?.milestoneTarget ?? 0),
       tooltip: "Maximum number of reward points this brand can give out within a period"
     }
   ];

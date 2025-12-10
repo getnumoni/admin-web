@@ -2,15 +2,28 @@
 
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useApproveDeal } from "@/hooks/mutation/useApproveDeal";
 import { useDeleteDeals } from "@/hooks/mutation/useDeleteDeals";
 import { useUpdateDeals } from "@/hooks/mutation/useUpdateDeals";
-import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getDealStatusColor, getDealStatusText } from "@/lib/helper";
+import { useUpdateDealStatus } from "@/hooks/mutation/useUpdateDealStatus";
+import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getApproveStatusColor, getApproveStatusText, getDealStatusColor, getDealStatusText } from "@/lib/helper";
 import { DealData, EditDealPayload } from "@/lib/types";
+import { useUserAuthStore } from "@/stores/user-auth-store";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreVertical, Package } from "lucide-react";
+import { Check, MoreVertical, Package, Settings, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import ApproveDealDialog from "./approve-deal-dialog";
 import EditDealDialog from "./edit-deal-dialog";
+import RejectDealDialog from "./reject-deal-dialog";
+import UpdateDealStatusDialog from "./update-deal-status-dialog";
+
+// Extended DealData type that includes approveStatus from API response
+type DealDataWithApproval = DealData & {
+  approveStatus?: string | null;
+};
 
 
 // Column definitions
@@ -51,9 +64,11 @@ export const dealsColumns: ColumnDef<DealData>[] = [
             )}
           </div>
           <div>
-            <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
-              {deal.name}
-            </div>
+            <Link href={`/dashboard/deals-promo/${deal.id}/?dealName=${encodeURIComponent(deal.name)}`}>
+              <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
+                {deal.name}
+              </div>
+            </Link>
             <div className="text-xs text-gray-500">{deal.merchantName}</div>
           </div>
         </div>
@@ -74,9 +89,13 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     header: "Category",
     cell: ({ row }) => {
       const categories = row.getValue("category") as string[];
+      const maxVisible = 1; // Show only the first category
+      const visibleCategories = categories.slice(0, maxVisible);
+      const remainingCount = categories.length - maxVisible;
+
       return (
-        <div className="flex flex-wrap gap-1">
-          {categories.map((category, index) => (
+        <div className="flex flex-wrap gap-1 items-center">
+          {visibleCategories.map((category, index) => (
             <span
               key={index}
               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${generateRandomBadgeColor(category)}`}
@@ -84,6 +103,11 @@ export const dealsColumns: ColumnDef<DealData>[] = [
               {category}
             </span>
           ))}
+          {remainingCount > 0 && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-600 border-gray-200">
+              +{remainingCount}
+            </span>
+          )}
         </div>
       );
     },
@@ -161,6 +185,19 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     },
   },
   {
+    accessorKey: "approveStatus",
+    header: "Approved Status",
+    cell: ({ row }) => {
+      const deal = row.original as DealDataWithApproval;
+      const approveStatus = deal.approveStatus ?? null;
+      return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getApproveStatusColor(approveStatus)}`}>
+          {getApproveStatusText(approveStatus)}
+        </span>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
@@ -173,15 +210,62 @@ export const dealsColumns: ColumnDef<DealData>[] = [
 function ActionCell({ deal }: { deal: DealData }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [isUpdateStatusDialogOpen, setIsUpdateStatusDialogOpen] = useState(false);
   const { handleDeleteDeals, isPending, isSuccess } = useDeleteDeals();
   const { handleUpdateDeals, isPending: isUpdatePending, isSuccess: isUpdateSuccess } = useUpdateDeals();
+  const { handleApproveDeal, isPending: isApprovePending, isSuccess: isApproveSuccess } = useApproveDeal();
+  const { handleUpdateDealStatus, isPending: isUpdateStatusPending, isSuccess: isUpdateStatusSuccess } = useUpdateDealStatus();
 
-  const handleDeleteDealClick = () => {
-    setIsDeleteDialogOpen(true);
-  };
+  const dealWithApproval = deal as DealDataWithApproval;
+  const approveStatus = dealWithApproval.approveStatus ?? null;
+
+  // const handleDeleteDealClick = () => {
+  //   setIsDeleteDialogOpen(true);
+  // };
 
   const handleEditDealClick = () => {
     setIsEditDialogOpen(true);
+  };
+
+  const handleApproveClick = () => {
+    setIsApproveDialogOpen(true);
+  };
+
+  const handleRejectClick = () => {
+    setIsRejectDialogOpen(true);
+  };
+
+  const handleUpdateStatusClick = () => {
+    // Check if deal is approved before allowing status update
+    if (approveStatus !== "APPROVED") {
+      toast.error("Deal must be approved before the status can be updated");
+      return;
+    }
+    setIsUpdateStatusDialogOpen(true);
+  };
+
+  const { user } = useUserAuthStore();
+
+  const handleApproveConfirm = (adminComments: string) => {
+    handleApproveDeal({
+      dealId: deal.id,
+      approvalStatus: "APPROVED",
+      adminComments: adminComments || undefined,
+      adminUsername: user?.username,
+      approved: true,
+    });
+  };
+
+  const handleRejectConfirm = (rejectionReason: string) => {
+    handleApproveDeal({
+      dealId: deal.id,
+      approvalStatus: "REJECTED",
+      rejectionReason: rejectionReason,
+      adminUsername: user?.username,
+      approved: false,
+    });
   };
 
   const handleDeleteConfirm = () => {
@@ -190,6 +274,13 @@ function ActionCell({ deal }: { deal: DealData }) {
 
   const handleEditSave = (data: Omit<EditDealPayload, 'dealId'>) => {
     handleUpdateDeals({ ...data, dealId: deal.id });
+  };
+
+  const handleUpdateStatusConfirm = (status: string) => {
+    handleUpdateDealStatus({
+      dealId: deal.id,
+      status: status,
+    });
   };
 
   useEffect(() => {
@@ -203,6 +294,19 @@ function ActionCell({ deal }: { deal: DealData }) {
       setIsEditDialogOpen(false);
     }
   }, [isUpdateSuccess]);
+
+  useEffect(() => {
+    if (isApproveSuccess) {
+      setIsApproveDialogOpen(false);
+      setIsRejectDialogOpen(false);
+    }
+  }, [isApproveSuccess]);
+
+  useEffect(() => {
+    if (isUpdateStatusSuccess) {
+      setIsUpdateStatusDialogOpen(false);
+    }
+  }, [isUpdateStatusSuccess]);
 
   return (
     <>
@@ -221,14 +325,47 @@ function ActionCell({ deal }: { deal: DealData }) {
               Edit Deal
             </DropdownMenuItem>
 
+            <DropdownMenuItem
+              onClick={handleUpdateStatusClick}
+              disabled={isUpdateStatusPending || approveStatus !== "APPROVED"}
+              className="cursor-pointer"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Update Deal Status
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
+            {approveStatus !== "APPROVED" && (
+              <DropdownMenuItem
+                onClick={handleApproveClick}
+                disabled={isApprovePending}
+                className="cursor-pointer text-green-600 hover:text-green-700 hover:bg-green-50"
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Approve Deal
+              </DropdownMenuItem>
+            )}
+
+            {approveStatus !== "REJECTED" && (
+              <DropdownMenuItem
+                onClick={handleRejectClick}
+                disabled={isApprovePending}
+                className="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Reject Deal
+              </DropdownMenuItem>
+            )}
+
+            <DropdownMenuSeparator />
+
+            {/* <DropdownMenuItem
               onClick={handleDeleteDealClick}
               className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               Delete Deal
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -249,6 +386,32 @@ function ActionCell({ deal }: { deal: DealData }) {
         deal={deal}
         onSave={handleEditSave}
         isLoading={isUpdatePending}
+      />
+
+      <ApproveDealDialog
+        isOpen={isApproveDialogOpen}
+        onClose={() => setIsApproveDialogOpen(false)}
+        onConfirm={handleApproveConfirm}
+        dealName={deal.name}
+        isLoading={isApprovePending}
+      />
+
+      <RejectDealDialog
+        isOpen={isRejectDialogOpen}
+        onClose={() => setIsRejectDialogOpen(false)}
+        onConfirm={handleRejectConfirm}
+        dealName={deal.name}
+        isLoading={isApprovePending}
+      />
+
+      <UpdateDealStatusDialog
+        isOpen={isUpdateStatusDialogOpen}
+        onClose={() => setIsUpdateStatusDialogOpen(false)}
+        onConfirm={handleUpdateStatusConfirm}
+        dealName={deal.name}
+        currentStatus={deal.dealStatus}
+        approveStatus={approveStatus}
+        isLoading={isUpdateStatusPending}
       />
     </>
   );

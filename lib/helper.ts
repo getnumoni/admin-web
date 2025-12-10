@@ -1307,6 +1307,10 @@ export const convertDateFormat = (dateStr: string): string => {
 // Helper function to get deal status color
 export const getDealStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'hidden':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'inactive':
@@ -1325,6 +1329,10 @@ export const getDealStatusColor = (status: string) => {
 // Helper function to get deal status text
 export const getDealStatusText = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'Open';
+    case 'hidden':
+      return 'Hidden';
     case 'active':
       return 'Active';
     case 'expired':
@@ -1335,6 +1343,40 @@ export const getDealStatusText = (status: string) => {
       return 'Pending';
     default:
       return 'Unknown';
+  }
+};
+
+// Helper function to get approval status color
+export const getApproveStatusColor = (status: string | null | undefined): string => {
+  if (!status) return 'bg-gray-100 text-gray-800 border-gray-200';
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case 'approved':
+    case 'open':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'rejected':
+    case 'hidden':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+// Helper function to get approval status text
+export const getApproveStatusText = (status: string | null | undefined): string => {
+  if (!status) return 'Not Set';
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case 'approved':
+      return 'Approved';
+    case 'rejected':
+      return 'Rejected';
+    case 'pending':
+      return 'Pending';
+    default:
+      return status;
   }
 };
 
@@ -1540,6 +1582,17 @@ export const isPathMatch = (pathname: string, routePath: string): boolean => {
   }
 
   return false;
+};
+
+/**
+ * Formats deal date from DD-MM-YYYY to readable format
+ * @param dateStr - Date string in DD-MM-YYYY format
+ * @returns Formatted readable date string or "N/A" if invalid
+ */
+export const formatDealDate = (dateStr: string): string => {
+  if (!dateStr) return "N/A";
+  const convertedDate = convertDateFormat(dateStr);
+  return formatDateReadable(convertedDate);
 };
 
 /**

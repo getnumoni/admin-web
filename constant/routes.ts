@@ -29,7 +29,7 @@ const ADMIN_CHARITY_TRANSACTION_URL: string = `${ADMIN_CHARITY_URL}/transactions
 const ADMIN_DEALS_PROMO_URL: string = `${ADMIN_URL}/deals-promo`;
 const ADMIN_DEALS_PROMO_ADD_URL: string = `${ADMIN_DEALS_PROMO_URL}/add-deal-promo`;
 const ADMIN_DEALS_PROMO_SPONSORED_DEAL_URL: string = `${ADMIN_DEALS_PROMO_URL}/sponsored-deal`;
-const ADMIN_DEALS_PROMO_SPONSORED_DEAL_ADD_URL: string = `${ADMIN_DEALS_PROMO_SPONSORED_DEAL_URL}/add-sponsored-deal`;
+const ADMIN_DEALS_PROMO_SPONSORED_DEAL_ADD_URL: string = `${ADMIN_DEALS_PROMO_URL}/add-sponsored-deal`;
 const ADMIN_MANAGEMENT_URL: string = `${ADMIN_URL}/admin-management`;
 const ADMIN_MANAGEMENT_ADD_URL: string = `${ADMIN_MANAGEMENT_URL}/add-admin`;
 

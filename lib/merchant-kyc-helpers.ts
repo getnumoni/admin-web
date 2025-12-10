@@ -60,8 +60,8 @@ export const getDocumentNumber = (
       // Use ninNo only, no fallback
       return merchantDetails.ninNo || null;
     case 'TAX':
-      // Tax certificate might not have a specific number
-      return null;
+      // Tax certificate uses tinNo
+      return merchantDetails.tinNo || null;
     default:
       return null;
   }
@@ -75,8 +75,6 @@ export const hasKycData = (merchantDetails: MerchantDetailsResponse | null | und
 
   return !!(
     merchantDetails.cacDocumentPath ||
-    merchantDetails.menuPath ||
-    merchantDetails.reqCertificatePath ||
     merchantDetails.businessReqNo
   );
 };

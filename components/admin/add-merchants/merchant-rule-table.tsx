@@ -6,50 +6,29 @@ import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import useGetMerchantRewardById from "@/hooks/query/useGetMerchantRewardById";
+import { MerchantRewardRule, RewardData, RewardRuleApiItem, RewardRuleApiResponse } from "@/lib/types";
 import { useMemo } from "react";
 
-export interface RewardRule {
-  id: string;
-  minSpend: number;
-  maxSpend: number;
-  rewardValue: number;
-}
 
-interface RewardRuleApiItem {
-  id?: string;
-  minSpend?: number;
-  maxSpend?: number | string;
-  rewardValue?: number;
-}
-
-interface RewardRuleApiResponse {
-  pagination: {
-    totalPages: number;
-    pageSize: number;
-    currentPage: number;
-    totalElements: number;
-  };
-  data: RewardRuleApiItem[];
-  success: boolean;
-  message: string;
-}
 
 export default function MerchantRuleTable({ userId }: { userId: string | null }) {
   const { data: rewardData, isPending: isRewardPending, isError: isRewardError, error: rewardError, refetch } = useGetMerchantRewardById({ userId });
 
   // Extract data from API response
-  const apiData = rewardData?.data as RewardRuleApiResponse | undefined;
-  const apiRules = Array.isArray(apiData?.data) ? apiData.data : [];
+  // rewardData is the axios response, so rewardData?.data is the API response object
+  const apiResponse = rewardData?.data as RewardRuleApiResponse | undefined;
+  const rewardDataInner = apiResponse?.data as RewardData | undefined;
+  const apiRules = Array.isArray(rewardDataInner?.rules) ? rewardDataInner.rules : [];
 
   // Map API data to RewardRule format
   const rewardRules = useMemo(() => {
     if (!Array.isArray(apiRules)) return [];
 
-    return apiRules.map((item: RewardRuleApiItem, index: number): RewardRule => ({
+    return apiRules.map((item: RewardRuleApiItem, index: number): MerchantRewardRule => ({
       id: String(index + 1),
-      minSpend: item.minSpend || 0,
-      maxSpend: typeof item.maxSpend === 'number' ? item.maxSpend : Number(item.maxSpend) || 0,
-      rewardValue: item.rewardValue || 0,
+      minSpend: item.minSpend ?? 0,
+      maxSpend: item.maxSpend ?? 0,
+      rewardValue: item.rewardValue ?? 0,
     }));
   }, [apiRules]);
 
@@ -73,7 +52,7 @@ export default function MerchantRuleTable({ userId }: { userId: string | null })
       <div className="bg-white rounded-lg border border-gray-200">
         <EmptyState
           title="No Reward Rules"
-          description={apiData?.message || "No reward rules found for this merchant."}
+          description={apiResponse?.message || "No reward rules found for this merchant."}
         />
       </div>
     );

@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { MerchantDetailsResponse, UpdateKycStatusPayload } from "@/lib/types";
+import { MerchantDetailsResponse } from "@/lib/types";
 import { Plus } from "lucide-react";
-
-import { useUpdateKycStatus } from "@/hooks/mutation/useUpdateKycStatus";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
+import { useDocumentVerification } from "@/hooks/utils/useDocumentVerification";
+import { useKycStatus } from "@/hooks/utils/useKycStatus";
 import { getDocumentDisplayName, hasKycData } from "@/lib/merchant-kyc-helpers";
-import { KycDocumentSection } from "./kyc-document-section";
+import { CacVerificationSheet } from "./cac-verification-sheet";
+import { KycDocumentList } from "./kyc-document-list";
 import MerchantKycDialog from "./merchant-kyc-dialog";
+import { NinVerificationSheet } from "./nin-verification-sheet";
 import RejectKycDialog from "./reject-kyc-dialog";
 
 export default function MerchantKyc({
@@ -21,77 +22,75 @@ export default function MerchantKyc({
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [rejectingDocumentType, setRejectingDocumentType] = useState<string | null>(null);
-  const [documentStatus, setDocumentStatus] = useState<Record<string, 'pending' | 'approved' | 'rejected'>>({});
-  const [pendingDocumentType, setPendingDocumentType] = useState<string | null>(null);
-  const [loadingToastId, setLoadingToastId] = useState<string | number | null>(null);
+  const [isCacSheetOpen, setIsCacSheetOpen] = useState(false);
+  const [isNinSheetOpen, setIsNinSheetOpen] = useState(false);
 
-  const { isPending, handleUpdateKyc, isSuccess } = useUpdateKycStatus();
+  // Custom hooks for managing KYC operations
+  const {
+    rejectingDocumentType,
+    setRejectingDocumentType,
+    getDocumentStatus,
+    isDocumentPending,
+    handleApprove,
+    handleReject,
+    handleConfirmReject,
+    isLoadingReject,
+  } = useKycStatus(merchantId);
 
-  // Reset pending state when operation completes
+  const {
+    handleVerify,
+    verifyCacData,
+    verifyCacIsPending,
+    cacVerificationCompleted,
+    setCacVerificationCompleted,
+    verifyNinData,
+    verifyNinIsPending,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
+  } = useDocumentVerification(merchantDetails);
+
+  // Open CAC verification sheet when verification succeeds
   useEffect(() => {
-    if (!isPending && pendingDocumentType) {
-      setPendingDocumentType(null);
-      if (loadingToastId !== null) {
-        toast.dismiss(loadingToastId);
-        setLoadingToastId(null);
+    if (cacVerificationCompleted && verifyCacData && !verifyCacIsPending) {
+      // verifyCacData is the axios response, so verifyCacData.data is the API response
+      // API response structure: { data: CacVerificationData, message: string, status: number }
+      const apiResponse = verifyCacData?.data;
+
+      // Check if we have valid data - open sheet if data exists
+      if (apiResponse?.data) {
+        setIsCacSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setCacVerificationCompleted(false);
       }
     }
-  }, [isPending, pendingDocumentType, loadingToastId]);
+  }, [cacVerificationCompleted, verifyCacData, verifyCacIsPending, setCacVerificationCompleted]);
 
-  // Close reject dialog on success
+  // Open NIN verification sheet when verification succeeds
   useEffect(() => {
-    if (isSuccess) {
-      setIsRejectDialogOpen(false);
-      setRejectingDocumentType(null);
+    if (ninVerificationCompleted && verifyNinData && !verifyNinIsPending) {
+      // verifyNinData is the axios response, so verifyNinData.data is the API response
+      // API response structure: { data: NinVerificationData, message: string, status: number }
+      const apiResponse = verifyNinData?.data;
+
+      // Check if we have valid data - open sheet if data exists
+      if (apiResponse?.data) {
+        setIsNinSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setNinVerificationCompleted(false);
+      }
     }
-  }, [isSuccess]);
+  }, [ninVerificationCompleted, verifyNinData, verifyNinIsPending, setNinVerificationCompleted]);
 
-  const handleApprove = (documentType: string) => {
-    setPendingDocumentType(documentType);
-    setDocumentStatus(prev => ({ ...prev, [documentType]: 'approved' }));
-
-    const documentName = getDocumentDisplayName(documentType);
-    const toastId = toast.loading(`Approving ${documentName}...`);
-    setLoadingToastId(toastId);
-
-    const payload: UpdateKycStatusPayload = {
-      merchantId: merchantId as string,
-      documentType,
-      status: 'APPROVE'
+  // Reset verification state when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cleanup: reset state when component unmounts
+      setCacVerificationCompleted(false);
+      setIsCacSheetOpen(false);
+      setNinVerificationCompleted(false);
+      setIsNinSheetOpen(false);
     };
-
-    handleUpdateKyc(payload);
-  };
-
-  const handleReject = (documentType: string) => {
-    setRejectingDocumentType(documentType);
-    setIsRejectDialogOpen(true);
-  };
-
-  const handleConfirmReject = (reason: string) => {
-    if (!rejectingDocumentType) return;
-
-    setPendingDocumentType(rejectingDocumentType);
-    setDocumentStatus(prev => ({ ...prev, [rejectingDocumentType]: 'rejected' }));
-
-    const payload: UpdateKycStatusPayload = {
-      merchantId: merchantId as string,
-      documentType: rejectingDocumentType,
-      status: 'REJECT',
-      reason
-    };
-
-    handleUpdateKyc(payload);
-  };
-
-  const getDocumentStatus = (documentType: string): 'pending' | 'approved' | 'rejected' => {
-    return documentStatus[documentType] || 'pending';
-  };
-
-  const isDocumentPending = (documentType: string): boolean => {
-    return pendingDocumentType === documentType;
-  };
+  }, [setCacVerificationCompleted, setNinVerificationCompleted]);
 
   return (
     <main>
@@ -113,51 +112,17 @@ export default function MerchantKyc({
           />
         </div>
       ) : (
-        <div className="space-y-6">
-          <KycDocumentSection
-            title="CAC Documents"
-            documentType="CAC"
-            documentPath={merchantDetails?.cacDocumentPath}
-            merchantDetails={merchantDetails}
-            status={getDocumentStatus('CAC')}
-            isPending={isDocumentPending('CAC')}
-            onApprove={() => handleApprove('CAC')}
-            onReject={() => handleReject('CAC')}
-          />
-
-          <KycDocumentSection
-            title="TIN Documents"
-            documentType="TIN"
-            documentPath={merchantDetails?.tinPath}
-            merchantDetails={merchantDetails}
-            status={getDocumentStatus('TIN')}
-            isPending={isDocumentPending('TIN')}
-            onApprove={() => handleApprove('TIN')}
-            onReject={() => handleReject('TIN')}
-          />
-
-          <KycDocumentSection
-            title="Tax Certificate"
-            documentType="TAX"
-            documentPath={merchantDetails?.reqCertificatePath}
-            merchantDetails={merchantDetails}
-            status={getDocumentStatus('TAX')}
-            isPending={isDocumentPending('TAX')}
-            onApprove={() => handleApprove('TAX')}
-            onReject={() => handleReject('TAX')}
-          />
-
-          <KycDocumentSection
-            title="NIN Documents"
-            documentType="NIN"
-            documentPath={merchantDetails?.menuPath}
-            merchantDetails={merchantDetails}
-            status={getDocumentStatus('NIN')}
-            isPending={isDocumentPending('NIN')}
-            onApprove={() => handleApprove('NIN')}
-            onReject={() => handleReject('NIN')}
-          />
-        </div>
+        <KycDocumentList
+          merchantDetails={merchantDetails}
+          getDocumentStatus={getDocumentStatus}
+          isDocumentPending={isDocumentPending}
+          onApprove={handleApprove}
+          onReject={(documentType) => {
+            handleReject(documentType);
+            setIsRejectDialogOpen(true);
+          }}
+          onVerify={handleVerify}
+        />
       )}
 
       <MerchantKycDialog
@@ -166,8 +131,7 @@ export default function MerchantKyc({
         businessName={merchantDetails?.businessName}
         merchantId={Array.isArray(merchantId) ? merchantId[0] : merchantId || ""}
         existingKycData={{
-          menuPath: merchantDetails?.menuPath,
-          reqCertificatePath: merchantDetails?.reqCertificatePath
+          menuPath: merchantDetails?.menuPath
         }}
       />
 
@@ -181,9 +145,68 @@ export default function MerchantKyc({
           onConfirm={handleConfirmReject}
           documentType={rejectingDocumentType}
           documentName={getDocumentDisplayName(rejectingDocumentType)}
-          isLoading={isPending && pendingDocumentType === rejectingDocumentType}
+          isLoading={isLoadingReject}
         />
       )}
+
+      <CacVerificationSheet
+        isOpen={isCacSheetOpen}
+        onClose={() => {
+          setIsCacSheetOpen(false);
+          setCacVerificationCompleted(false);
+        }}
+        verificationData={
+          // verifyCacData is the axios response, so verifyCacData.data is the API response
+          // API response structure: { data: CacVerificationData, message: string, status: number }
+          // This matches CacVerificationResponse interface expected by CacVerificationSheet
+          // Pass verifyCacData.data directly (not verifyCacData.data.data) since it already has the correct structure
+          (verifyCacData?.data as {
+            data: {
+              headOfficeAddress: string;
+              companyEmail: string;
+              city: string;
+              rcNumber: string;
+              companyName: string;
+              cac_status: string;
+              id: number;
+              state: string;
+              cac_check: string;
+              status: string;
+            };
+            message: string;
+            status: number;
+          } | undefined) || null
+        }
+      />
+
+      <NinVerificationSheet
+        isOpen={isNinSheetOpen}
+        onClose={() => {
+          setIsNinSheetOpen(false);
+          setNinVerificationCompleted(false);
+        }}
+        verificationData={
+          // verifyNinData is the axios response, so verifyNinData.data is the API response
+          // API response structure: { data: NinVerificationData, message: string, status: number }
+          // This matches NinVerificationResponse interface expected by NinVerificationSheet
+          // Pass verifyNinData.data directly (not verifyNinData.data.data) since it already has the correct structure
+          (verifyNinData?.data as {
+            data: {
+              nin: string;
+              firstname: string;
+              phone: string;
+              middlename: string;
+              id: number;
+              state: string;
+              nin_check: string;
+              status: string;
+              lastname: string;
+            };
+            message: string;
+            status: number;
+          } | undefined) || null
+        }
+      />
     </main>
   );
 }

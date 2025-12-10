@@ -5,7 +5,7 @@ import { calculateBase64FileSize, downloadDocument, getDocumentDisplayName, prev
 interface DocumentCardProps {
   documentType: string;
   documentName?: string;
-  documentPath: string;
+  documentPath: string | null | undefined;
   documentNumber?: string | null;
   fileSize?: string;
   fileType?: string;
@@ -30,25 +30,33 @@ export function KycDocumentCard({
   onReject,
 }: DocumentCardProps) {
   const displayName = documentName || getDocumentDisplayName(documentType);
-  const calculatedFileSize = fileSize || calculateBase64FileSize(documentPath);
+  const calculatedFileSize = documentPath ? (fileSize || calculateBase64FileSize(documentPath)) : null;
+  const hasDocumentPath = !!documentPath;
 
   return (
     <div className="space-y-4">
       {/* Document Entry */}
       <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center">
-            <span className="text-white text-xs font-medium">PDF</span>
-          </div>
+          {hasDocumentPath && (
+            <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center">
+              <span className="text-white text-xs font-medium">PDF</span>
+            </div>
+          )}
           <div className="flex-1">
             <h4 className="text-sm font-medium text-gray-900">{displayName}</h4>
             <div className="flex items-center gap-2 mt-1">
-              <p className="text-xs text-gray-500">{calculatedFileSize} • {fileType}</p>
+              {calculatedFileSize && (
+                <p className="text-xs text-gray-500">{calculatedFileSize} • {fileType}</p>
+              )}
               {documentNumber && (
                 <>
-                  <span className="text-xs text-gray-300">•</span>
+                  {calculatedFileSize && <span className="text-xs text-gray-300">•</span>}
                   <p className="text-xs text-gray-600 font-medium">Number: {documentNumber}</p>
                 </>
+              )}
+              {!hasDocumentPath && !documentNumber && (
+                <p className="text-xs text-gray-500 italic">No document uploaded</p>
               )}
             </div>
           </div>
@@ -58,24 +66,31 @@ export function KycDocumentCard({
       {/* Action Buttons */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => previewDocument(documentPath)}
-            className="h-8 px-3"
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Open
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadDocument(documentPath, displayName)}
-            className="h-8 px-3"
-          >
-            <Download className="h-4 w-4 mr-1" />
-            Download
-          </Button>
+          {hasDocumentPath && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => previewDocument(documentPath)}
+                className="h-8 px-3"
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Open
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadDocument(documentPath, displayName)}
+                className="h-8 px-3"
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </Button>
+            </>
+          )}
+          {!hasDocumentPath && documentNumber && (
+            <p className="text-xs text-gray-500 italic">Document number available but file not uploaded</p>
+          )}
         </div>
 
         {/* Approve/Reject Buttons */}
