@@ -4,7 +4,7 @@ import { CardSkeletonGrid } from "@/components/common/card-skeleton";
 import { MetricCard } from "@/components/common/metric-card";
 import { ErrorState } from "@/components/ui/error-state";
 import useGetReportSalesDashboard from "@/hooks/query/useGetReportSalesDashboard";
-import { BarChart3, DollarSign, ShoppingCart, TrendingUp } from "lucide-react";
+import { BarChart3, CreditCard, ShoppingCart, TrendingUp } from "lucide-react";
 import { ReactNode } from "react";
 import ChurnTrend from "./churn-trend";
 import DealPerformance from "./deal-performance";
@@ -38,7 +38,7 @@ export default function SalesReport() {
       value: `₦ ${salesDashboardData?.totalRevenue || 0}`,
       // change: "+12.5% Up from last month",
       // changeType: "positive" as const,
-      icon: <DollarSign className="h-6 w-6 text-white" />,
+      icon: <CreditCard className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
     },
