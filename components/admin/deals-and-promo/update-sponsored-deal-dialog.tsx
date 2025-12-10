@@ -162,7 +162,6 @@ export default function UpdateSponsoredDealDialog({
                       label="Select Deal"
                       options={deals}
                       placeholder="Select a deal"
-                      required
                     />
                   </div>
 

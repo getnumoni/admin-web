@@ -6,12 +6,13 @@ import { useApproveDeal } from "@/hooks/mutation/useApproveDeal";
 import { useDeleteDeals } from "@/hooks/mutation/useDeleteDeals";
 import { useUpdateDeals } from "@/hooks/mutation/useUpdateDeals";
 import { useUpdateDealStatus } from "@/hooks/mutation/useUpdateDealStatus";
-import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getDealStatusColor, getDealStatusText } from "@/lib/helper";
+import { formatCurrency, formatDateReadable, generateRandomBadgeColor, getApproveStatusColor, getApproveStatusText, getDealStatusColor, getDealStatusText } from "@/lib/helper";
 import { DealData, EditDealPayload } from "@/lib/types";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, MoreVertical, Package, Settings, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ApproveDealDialog from "./approve-deal-dialog";
@@ -63,9 +64,11 @@ export const dealsColumns: ColumnDef<DealData>[] = [
             )}
           </div>
           <div>
-            <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
-              {deal.name}
-            </div>
+            <Link href={`/dashboard/deals-promo/${deal.id}/?dealName=${encodeURIComponent(deal.name)}`}>
+              <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
+                {deal.name}
+              </div>
+            </Link>
             <div className="text-xs text-gray-500">{deal.merchantName}</div>
           </div>
         </div>
@@ -187,36 +190,6 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     cell: ({ row }) => {
       const deal = row.original as DealDataWithApproval;
       const approveStatus = deal.approveStatus ?? null;
-      const getApproveStatusColor = (status: string | null) => {
-        if (!status) return 'bg-gray-100 text-gray-800 border-gray-200';
-        switch (status.toUpperCase()) {
-          case 'APPROVED':
-            return 'bg-green-100 text-green-800 border-green-200';
-          case 'OPEN':
-            return 'bg-green-100 text-green-800 border-green-200';
-          case 'HIDDEN':
-            return 'bg-red-100 text-red-800 border-red-200';
-          case 'REJECTED':
-            return 'bg-red-100 text-red-800 border-red-200';
-          case 'PENDING':
-            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-          default:
-            return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-      };
-      const getApproveStatusText = (status: string | null) => {
-        if (!status) return 'Not Set';
-        switch (status.toUpperCase()) {
-          case 'APPROVED':
-            return 'Approved';
-          case 'REJECTED':
-            return 'Rejected';
-          case 'PENDING':
-            return 'Pending';
-          default:
-            return status;
-        }
-      };
       return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getApproveStatusColor(approveStatus)}`}>
           {getApproveStatusText(approveStatus)}
