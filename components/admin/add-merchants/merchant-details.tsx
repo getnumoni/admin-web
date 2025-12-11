@@ -141,40 +141,42 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
+
         <MerchantHeader
           merchantName={merchantData?.businessName}
           userId={merchantData?.merchantId}
           level={merchantData?.level}
         />
-
-        {merchantData?.businessImagePath && (
-          <div className="w-full relative group cursor-pointer my-5" onClick={() => setIsImageDialogOpen(true)}>
-            <div className="relative w-full h-48 md:h-52 rounded-lg overflow-hidden border border-gray-200">
-              <Image
-                src={merchantData.businessImagePath}
-                alt={merchantData.businessName || "Merchant image"}
-                fill
-                className="object-cover group-hover:opacity-90 transition-opacity"
-                sizes="100vw"
-              />
-              {/* Download button overlay - bottom right */}
-              <div className="absolute bottom-2 right-2">
-                <Button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownloadImage();
-                  }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-theme-dark-green hover:bg-theme-dark-green/90 text-white shadow-lg"
-                  size="sm"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Image
-                </Button>
+        <div className="flex items-start gap-4 mb-6">
+          {merchantData?.businessImagePath && (
+            <div className="relative group cursor-pointer shrink-0" onClick={() => setIsImageDialogOpen(true)}>
+              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
+                <Image
+                  src={merchantData.businessImagePath}
+                  alt={merchantData.businessName || "Merchant image"}
+                  fill
+                  className="object-cover group-hover:opacity-90 transition-opacity"
+                  sizes="160px"
+                />
+                {/* Download button overlay - center */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownloadImage();
+                    }}
+                    className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white shadow-lg rounded-full p-2"
+                    size="sm"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+
+        </div>
 
         {/* Full Screen Image Dialog */}
         <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
