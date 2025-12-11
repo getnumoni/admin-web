@@ -27,7 +27,7 @@ export default function FundingCard() {
       iconBgColor: "bg-black"
     },
     {
-      title: "Number of Points Issued",
+      title: "Total Fees",
       value: formatValue(fundingOverview?.TotalFees, false) ?? 0,
       icon: <TrendingUp className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
