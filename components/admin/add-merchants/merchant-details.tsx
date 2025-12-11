@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAdjustMerchantBalance } from "@/hooks/mutation/useAdjustMerchantBalance";
 import { useAdjustMerchantPoints } from "@/hooks/mutation/useAdjustMerchantPoints";
@@ -7,6 +9,8 @@ import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useResetMerchantPassword } from "@/hooks/mutation/useResetMerchantPassword";
 import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
 import { useUserAuthStore } from "@/stores/user-auth-store";
+import { Download } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import AccountInformation from "./account-information";
@@ -29,6 +33,7 @@ interface MerchantDetailsProps {
 
 export default function MerchantDetails({ merchantId, userId }: MerchantDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
   const { handleDeleteMerchant, isPending: isDeletePending } = useDeleteMerchant();
   const { handleResetMerchantPassword, isPending: isResetPending } = useResetMerchantPassword();
@@ -117,6 +122,18 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (!merchantData?.businessImagePath) return;
+    const link = document.createElement('a');
+    link.href = merchantData.businessImagePath;
+    link.download = `${(merchantData.businessName || 'merchant').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-image.jpg`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  };
+
 
   if (isMerchantDetailsPending) {
     return <LoadingSpinner message="Loading merchant details..." />
@@ -129,6 +146,65 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
           userId={merchantData?.merchantId}
           level={merchantData?.level}
         />
+
+        {merchantData?.businessImagePath && (
+          <div className="w-full relative group cursor-pointer my-5" onClick={() => setIsImageDialogOpen(true)}>
+            <div className="relative w-full h-48 md:h-52 rounded-lg overflow-hidden border border-gray-200">
+              <Image
+                src={merchantData.businessImagePath}
+                alt={merchantData.businessName || "Merchant image"}
+                fill
+                className="object-cover group-hover:opacity-90 transition-opacity"
+                sizes="100vw"
+              />
+              {/* Download button overlay - bottom right */}
+              <div className="absolute bottom-2 right-2">
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownloadImage();
+                  }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-theme-dark-green hover:bg-theme-dark-green/90 text-white shadow-lg"
+                  size="sm"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Image
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Full Screen Image Dialog */}
+        <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+          <DialogContent className="max-w-7xl w-full p-0 bg-black" showCloseButton={true}>
+            <DialogTitle className="sr-only">Merchant Image Preview</DialogTitle>
+            {merchantData?.businessImagePath && (
+              <div className="relative w-full h-[90vh] bg-black">
+                <Image
+                  src={merchantData.businessImagePath}
+                  alt={merchantData.businessName || "Full screen merchant image"}
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+                {/* Download button in full screen */}
+                <div className="absolute bottom-4 right-4 z-10">
+                  <Button
+                    type="button"
+                    onClick={handleDownloadImage}
+                    className="bg-white hover:bg-gray-100 text-gray-900 shadow-lg"
+                    size="lg"
+                  >
+                    <Download className="h-5 w-5 mr-2" />
+                    Download Image
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         <MerchantTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
