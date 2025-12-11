@@ -1,8 +1,8 @@
 import { DealIcon } from "@/components/common/icon-svg";
 import { calenderIcon, dealIcon, emailIcon, giftIcon, graphDirectionIcon, grayPointIcon, instagramIcon, musicPauseIcon, phoneNotificationIcon, twitterIcon, whatsappIcon } from "@/constant/icons";
-import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_ROLES_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_REPORTS_CHARITY_URL, ADMIN_REPORTS_POINTS_URL, ADMIN_REPORTS_SUPPORT_URL, ADMIN_REPORTS_URL, ADMIN_URL } from "@/constant/routes";
+import { ADMIN_ACTIVITY_LOGS_URL, ADMIN_CHARITY_ADD_URL, ADMIN_CHARITY_URL, ADMIN_CUSTOMERS_ADD_URL, ADMIN_CUSTOMERS_TRANSACTION_URL, ADMIN_CUSTOMERS_URL, ADMIN_DEALS_PROMO_ADD_URL, ADMIN_DEALS_PROMO_SPONSORED_DEAL_ADD_URL, ADMIN_DEALS_PROMO_SPONSORED_DEAL_URL, ADMIN_DEALS_PROMO_URL, ADMIN_FUNDING_URL, ADMIN_MANAGEMENT_ADD_URL, ADMIN_MANAGEMENT_URL, ADMIN_MERCHANTS_ADD_URL, ADMIN_MERCHANTS_ROLES_URL, ADMIN_MERCHANTS_TRANSACTION_URL, ADMIN_MERCHANTS_URL, ADMIN_NOTIFICATIONS_URL, ADMIN_REPORTS_CHARITY_URL, ADMIN_REPORTS_POINTS_URL, ADMIN_REPORTS_SUPPORT_URL, ADMIN_REPORTS_URL, ADMIN_TRANSACTIONS_PAYOUTS_URL, ADMIN_TRANSACTIONS_PURCHASES_URL, ADMIN_URL } from "@/constant/routes";
 import { AdminNavigationItem } from "@/lib/types";
-import { BarChart3, Bell, Building, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, Ticket, User, Users } from "lucide-react";
+import { AppWindow, BarChart3, Bell, Building, ChartArea, FileBarChart, FileText, Heart, LayoutDashboard, Plus, Shield, Ticket, User, Users } from "lucide-react";
 
 
 
@@ -161,7 +161,7 @@ const adminNavigationItem: AdminNavigationItem[] = [
     name: 'Notifications',
     path: ADMIN_NOTIFICATIONS_URL,
     icon: Bell,
-    badge: '12'
+    // badge: '12'
   },
   {
     name: 'Merchants',
@@ -196,6 +196,17 @@ const adminNavigationItem: AdminNavigationItem[] = [
     children: [
       { name: 'All Deals & Promo', path: ADMIN_DEALS_PROMO_URL, icon: Heart },
       { name: 'Add New Deals & Promo', path: ADMIN_DEALS_PROMO_ADD_URL, icon: Plus },
+      { name: 'All Sponsored Deals', path: ADMIN_DEALS_PROMO_SPONSORED_DEAL_URL, icon: AppWindow },
+      { name: 'Add New Sponsored Deal', path: ADMIN_DEALS_PROMO_SPONSORED_DEAL_ADD_URL, icon: Plus },
+    ]
+  },
+  {
+    name: 'Transactions',
+    icon: ChartArea,
+    children: [
+      { name: 'Funding', path: ADMIN_FUNDING_URL, icon: ChartArea },
+      { name: 'Purchases', path: ADMIN_TRANSACTIONS_PURCHASES_URL, icon: BarChart3 },
+      { name: 'Payouts', path: ADMIN_TRANSACTIONS_PAYOUTS_URL, icon: FileText },
     ]
   },
   {
@@ -308,36 +319,7 @@ const mockMerchantData = {
   charityCount: 20,
   reportsCompleted: 1,
   totalReports: 3,
-  reviews: [
-    {
-      id: "1",
-      customerName: "Shai Hulud",
-      rating: 4.2,
-      reviewText: "Great service and quality products. Highly recommend!",
-      date: "21 Jun 2022 - 10:30am",
-    },
-    {
-      id: "2",
-      customerName: "Shai Hulud",
-      rating: 4.5,
-      reviewText: "Excellent customer service and fast delivery.",
-      date: "20 Jun 2022 - 2:15pm",
-    },
-    {
-      id: "3",
-      customerName: "Shai Hulud",
-      rating: 4.0,
-      reviewText: "Good quality products, will definitely order again.",
-      date: "19 Jun 2022 - 9:45am",
-    },
-    {
-      id: "4",
-      customerName: "Shai Hulud",
-      rating: 4.8,
-      reviewText: "Outstanding experience! The team was very helpful.",
-      date: "18 Jun 2022 - 4:20pm",
-    },
-  ],
+
 };
 
 

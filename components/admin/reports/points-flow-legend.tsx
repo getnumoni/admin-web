@@ -17,7 +17,7 @@ export function PointsFlowLegend({ chartData, colorByKey }: PointsFlowLegendProp
               className="h-6 w-[3px] rounded"
               style={{ backgroundColor: colorByKey[item.key] || "#e5e7eb" }}
             />
-            <span className="text-gray-900">{item.label}</span>
+            <span className="text-gray-900 text-xs">{item.label}</span>
           </div>
         ))}
       </div>

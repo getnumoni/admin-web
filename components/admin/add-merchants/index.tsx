@@ -3,10 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useCreateMerchants } from '@/hooks/mutation/useCreateMerchants';
-import useGeneratePayOnUsBankList from '@/hooks/query/useGeneratePayOnUsBankList';
+import useGetBanks from '@/hooks/query/useGetBanks';
 import { formatPhoneWithPlus234 } from '@/lib/phone-utils';
 import { merchantSchema, type MerchantFormData } from '@/lib/schemas/merchant-schema';
-import { CreateMerchantsPayload } from '@/lib/types';
+import { Bank, CreateMerchantsPayload } from '@/lib/types';
 import { useUserAuthStore } from '@/stores/user-auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -15,12 +15,14 @@ import ContactInformation from "./contact-information";
 import PayoutInformation from "./payout-information";
 import ProfileUploadSection from "./profile-upload-section";
 
+
+
 export default function AddMerchants() {
   const { user } = useUserAuthStore();
 
   const { handleCreateMerchants, isPending } = useCreateMerchants();
-  const { data: payOnUsBankList } = useGeneratePayOnUsBankList();
 
+  const { data: banks, } = useGetBanks();
 
   // const { handleGenerateBankToken } = useGenerateBankToken();
   // const hasGeneratedToken = useRef(false);
@@ -82,11 +84,8 @@ export default function AddMerchants() {
 
     // Get bank name from bank code using the actual API data
     const getBankNameFromCode = (bankCode: string) => {
-      const bankData = payOnUsBankList?.data?.data || payOnUsBankList?.data;
-      if (bankData && typeof bankData === 'object') {
-        return bankData[bankCode] || bankCode;
-      }
-      return bankCode;
+      const bankData = banks?.data?.data?.find((bank: Bank) => bank.code === bankCode)?.name;
+      return bankData || bankCode;
     };
 
     const payload: CreateMerchantsPayload = {

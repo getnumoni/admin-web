@@ -3,64 +3,21 @@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useGetDashboardInfo from '@/hooks/query/useGetDashboardInfo';
+import { getDateRange } from '@/lib/helper';
+import { ChartDataPoint, DashboardMetrics, MetricItem } from '@/lib/types';
+import { AxiosResponse } from 'axios';
 import { ShoppingCart, Ticket, Users } from 'lucide-react';
 import { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import LoadingSpinner from '../ui/loading-spinner';
 
-interface DashboardMetrics {
-  merchants: {
-    serviceFee: number;
-    totalServiceFee: number;
-    payOnUsFee: number;
-    totalCredit: number;
-    newMerchants: number;
-    totalSales: number;
-    payOut: number;
-    totalPayOut: number;
-    totalMerchants: number;
-    credit: number;
-  };
-  customers: {
-    deactiveCustomers: number;
-    totalLoadMoney: number;
-    totalBonus: number;
-    totalCustomers: number;
-    shareMoneyDebit: number;
-    totalCredit: number;
-    shareMoneyCredit: number;
-    bonus: number;
-    activeCustomers: number;
-    purchase: number;
-    loadMoney: number;
-    totalDebit: number;
-    totalPurchase: number;
-    credit: number;
-    debit: number;
-    dateBetweenUsers: number;
-  };
-  tickets: {
-    pendingTickets: string;
-    processingTickets: string;
-    totalProcessingTickets: string | number;
-    totalPendingTickets: string | number;
-    totalCompletedTickets: string | number;
-    totalTickets: number;
-    completedTickets: string;
-  };
+interface DashboardInfoResponse {
+  data: DashboardMetrics;
+  success: boolean;
+  message: string;
 }
 
-interface ChartDataPoint {
-  period: string;
-  value: number;
-}
-
-interface MetricItem {
-  label: string;
-  value: string;
-  icon: React.ComponentType<{ className?: string }>;
-  progress: number;
-}
+type DashboardInfo = AxiosResponse<DashboardInfoResponse> | undefined;
 
 
 const chartConfig = {
@@ -86,46 +43,15 @@ const getMetrics = (dashboardData: DashboardMetrics | null): MetricItem[] => {
   ];
 };
 
-// Helper function to get date range for each period
-const getDateRange = (period: string): { fromDate: string; toDate: string } => {
-  const now = new Date();
-  const formatDate = (date: Date): string => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
-  switch (period) {
-    case 'daily': {
-      const startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 6); // Last 7 days
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'weekly': {
-      const startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 27); // Last 4 weeks
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'monthly': {
-      const startDate = new Date(now);
-      startDate.setMonth(startDate.getMonth() - 5); // Last 6 months
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    case 'yearly': {
-      const startDate = new Date(now);
-      startDate.setFullYear(startDate.getFullYear() - 3); // Last 4 years
-      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
-    }
-    default:
-      return { fromDate: formatDate(now), toDate: formatDate(now) };
-  }
-};
-
 export default function ActiveUsersCard() {
+  // Manage the active tab state internally
   const [activeTab, setActiveTab] = useState('weekly');
+
+  // Get date range based on active tab
   const { fromDate, toDate } = getDateRange(activeTab);
-  const { data: dashboardInfo, isPending: dashboardInfoPending, error: dashboardInfoError } = useGetDashboardInfo({ fromDate, toDate });
+
+  // Fetch dashboard info based on the active tab
+  const { data: dashboardInfo, isPending: dashboardInfoPending } = useGetDashboardInfo({ fromDate, toDate });
 
   // Transform API data into chart format
   const transformDataForChart = (): ChartDataPoint[] => {

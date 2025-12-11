@@ -15,7 +15,7 @@ export default function ViewAdmin() {
   const [currentPage, setCurrentPage] = useState(1);
   const { data: adminList, isPending: isAdminListPending, error: isAdminError, isError: isAdminListError, refetch: refetchAdminList } = useGetAdminList();
   const admins = adminList?.data?.data?.pageData || [];
-  console.log(admins);
+  // console.log(admins);
   // const [filterBy, setFilterBy] = useState('');
   // const [roleFilter, setRoleFilter] = useState('');
   // const [teamFilter, setTeamFilter] = useState('');

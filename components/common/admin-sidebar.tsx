@@ -2,48 +2,38 @@
 
 import { numoniLogoDark } from '@/constant/icons';
 import { adminNavigationItem } from '@/data';
+import { getExpandedItemsForPath, isChildItemActive, isItemActive, toggleExpandedItems } from '@/lib/sidebar-navigation-helper';
 import { AdminNavigationItem, SidebarProps } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
-  ChevronDown,
-  HelpCircle
+  ChevronDown
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 
 export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Customers']);
+
+  const [expandedItems, setExpandedItems] = useState<string[]>(getExpandedItemsForPath(pathname, adminNavigationItem));
+
+  // Update expanded items when pathname changes
+  useEffect(() => {
+    setExpandedItems(getExpandedItemsForPath(pathname, adminNavigationItem));
+  }, [pathname]);
 
   const toggleExpanded = (itemName: string) => {
-    setExpandedItems(prev => {
-      // If clicking on an already expanded item, close it
-      if (prev.includes(itemName)) {
-        return prev.filter(name => name !== itemName);
-      }
-      // If clicking on a new item, close all others and open this one
-      return [itemName];
-    });
+    setExpandedItems(prev => toggleExpandedItems(prev, itemName));
   };
 
-  const isItemActive = (item: AdminNavigationItem): boolean => {
-    if (item.path) {
-      return pathname === item.path;
-    }
-    if (item.children) {
-      return item.children.some(child => child.path === pathname);
-    }
-    return false;
-  };
 
   const renderNavigationItem = (item: AdminNavigationItem) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.includes(item.name);
-    const isActive = isItemActive(item);
+    const isActive = isItemActive(item, pathname);
     const IconComponent = item.icon;
 
     if (hasChildren) {
@@ -78,13 +68,18 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
           {isExpanded && (
             <div className="ml-2 mt-2 space-y-1">
               {item.children!.map((child) => {
-                const isChildActive = child.path === pathname;
+                if (!child.path) {
+                  return null;
+                }
+
+                const isChildActive = isChildItemActive(child.path, pathname);
                 const ChildIconComponent = child.icon;
 
                 return (
                   <Link
                     key={child.name}
                     href={child.path!}
+                    onClick={onClose}
                     className={cn(
                       "flex items-center px-3 py-3 text-sm rounded-lg transition-colors relative",
                       isChildActive
@@ -92,7 +87,10 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
-                    <span className="mr-3 text-gray-400">
+                    <span className={cn(
+                      "mr-3",
+                      isChildActive ? "text-green-600" : "text-gray-400"
+                    )}>
                       <ChildIconComponent size={16} />
                     </span>
                     {child.name}
@@ -109,6 +107,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       <Link
         key={item.name}
         href={item.path!}
+        onClick={onClose}
         className={cn(
           "flex items-center justify-between px-3 py-4 text-sm font-medium rounded-lg transition-colors",
           isActive
@@ -139,7 +138,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -179,7 +178,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 User Management
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(2, 6).map(renderNavigationItem)}
+                {adminNavigationItem.slice(2, 7).map(renderNavigationItem)}
               </div>
               <hr className="mt-4 border-gray-200" />
             </div>
@@ -190,7 +189,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 System Management
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(6, 8).map(renderNavigationItem)}
+                {adminNavigationItem.slice(7, 9).map(renderNavigationItem)}
               </div>
               <hr className="mt-4 border-gray-200" />
             </div>
@@ -201,14 +200,14 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 Analytics & Reports
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(8).map(renderNavigationItem)}
+                {adminNavigationItem.slice(10).map(renderNavigationItem)}
               </div>
               {/* <hr className="mt-4 border-gray-200" /> */}
             </div>
           </nav>
 
           {/* Help Section */}
-          <div className="p-4 border-t border-gray-200">
+          {/* <div className="p-4 border-t border-gray-200">
             <div className="bg-green-600 rounded-lg p-4 text-center">
               <div className="flex items-center justify-center mb-2">
                 <HelpCircle size={20} className="text-white" />
@@ -220,7 +219,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                 DOCUMENTATION
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

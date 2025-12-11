@@ -1,5 +1,6 @@
 export type Customer = {
   customerId: string;
+  userId: string;
   customer: string | null;
   dateJoined: string;
   emailAddress: string;

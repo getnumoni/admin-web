@@ -1,6 +1,5 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Admin } from "@/lib/types/admin";
 import { ColumnDef } from "@tanstack/react-table";
@@ -17,27 +16,42 @@ const getLoginAccessColor = (loginAccess: boolean) => {
 
 // Column definitions
 export const adminColumns: ColumnDef<Admin>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    id: "serialNumber",
+    header: "S/N",
+    cell: ({ row }) => {
+      // Serial number starts from 1 for the current page
+      // For pagination-aware serial numbers, you would need to pass currentPage and itemsPerPage
+      const serialNumber = row.index + 1;
+      return (
+        <div className="text-gray-600 text-sm text-center">
+          {serialNumber}
+        </div>
+      );
+    },
     enableSorting: false,
-    enableHiding: false,
   },
   {
     accessorKey: "name",

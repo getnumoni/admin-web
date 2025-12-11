@@ -49,6 +49,21 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
   //   enableHiding: false,
   // },
   {
+    id: "serialNumber",
+    header: "S/N",
+    cell: ({ row }) => {
+      // Serial number starts from 1 for the current page
+      // For pagination-aware serial numbers, you would need to pass currentPage and itemsPerPage
+      const serialNumber = row.index + 1;
+      return (
+        <div className="text-gray-600 text-sm text-center">
+          {serialNumber}
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: "businessName",
     header: "Business Name",
     cell: ({ row }) => {
@@ -59,7 +74,7 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
             {merchant?.businessName?.charAt(0).toUpperCase()}
           </div>
           <div>
-            <Link href={`/dashboard/merchants/${merchant?.id}/?merchantName=${encodeURIComponent(merchant.businessName)}`}>
+            <Link href={`/dashboard/merchants/${merchant?.id}/?userId=${merchant?.userId}&merchantName=${encodeURIComponent(merchant.businessName)}`}>
               <div className="font-medium text-gray-900 hover:text-theme-dark-green cursor-pointer transition-colors">
                 {merchant?.businessName}
               </div>

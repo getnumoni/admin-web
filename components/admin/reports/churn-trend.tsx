@@ -2,20 +2,29 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useGetChurnRateTrend from "@/hooks/query/useGetChurnRateTrend";
-import { useState } from "react";
+import { getDefaultReportDates } from "@/lib/helper";
+import { useEffect, useState } from "react";
+import { ChurnTrendContent } from "./churn-trend-content";
 import { ReportHeader } from "./report-header";
 
 export default function ChurnTrend() {
-
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const defaultDates = getDefaultReportDates();
+  const [startDate, setStartDate] = useState<Date | null>(defaultDates.start);
+  const [endDate, setEndDate] = useState<Date | null>(defaultDates.end);
+  // Set to true initially since we have default dates - will auto-fetch on mount
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(true);
 
   const { data: churnRateTrend, refetch, isPending, isError, error } = useGetChurnRateTrend(startDate, endDate);
 
   console.log(churnRateTrend);
 
-
+  // Trigger fetch on mount with default dates
+  useEffect(() => {
+    if (startDate && endDate) {
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   const handleSearch = () => {
     if (startDate && endDate) {
@@ -36,7 +45,16 @@ export default function ChurnTrend() {
           description="Tracks how customer cancellation or drop-off rates change over time, showing if retention is improving or declining."
         />
       </CardHeader>
-      <CardContent className="flex-1 pb-0"></CardContent>
+      <CardContent className="flex-1 pb-0">
+        <ChurnTrendContent
+          hasAttemptedFetch={hasAttemptedFetch}
+          isPending={isPending}
+          isError={isError}
+          error={error}
+          // churnRateTrend={churnRateTrend}
+          onRetry={refetch}
+        />
+      </CardContent>
 
 
     </Card>

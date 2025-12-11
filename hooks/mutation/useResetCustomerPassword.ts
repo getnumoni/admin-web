@@ -22,7 +22,6 @@ export const useResetCustomerPassword = () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to reset customer password", error);
       toast.error(error?.response?.data?.message ?? "Failed to reset customer password");
     },
   });

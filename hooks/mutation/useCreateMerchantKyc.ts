@@ -20,7 +20,7 @@ export const useCreateMerchantKyc = (merchantId: string) => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to create customer KYC documents", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to create customer KYC documents");
     },
     onSettled: () => {
@@ -29,8 +29,6 @@ export const useCreateMerchantKyc = (merchantId: string) => {
   });
 
   const handleCreateMerchantKyc = (data: CreateCustomerKycPayload) => {
-    console.log('handleCreateMerchantKyc called with data:', data);
-    console.log('merchantId:', merchantId);
     mutate(data);
   };
 

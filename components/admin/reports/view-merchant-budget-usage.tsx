@@ -2,7 +2,8 @@
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import useGetReportMerchantUsage from "@/hooks/query/useGetReportMerchantUsage";
-import { useState } from "react";
+import { getDefaultReportDates } from "@/lib/helper";
+import { useEffect, useState } from "react";
 import { MerchantUsageContent } from "./merchant-usage-content";
 import { MerchantUsageLegend } from "./merchant-usage-legend";
 import { ReportHeader } from "./report-header";
@@ -15,13 +16,23 @@ type MerchantUsageItem = {
 };
 
 export default function ViewMerchantBudgetUsage() {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const defaultDates = getDefaultReportDates();
+
+  const [startDate, setStartDate] = useState<Date | null>(defaultDates.start);
+  const [endDate, setEndDate] = useState<Date | null>(defaultDates.end);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(true);
 
   const { data: merchantUsage, isPending, isError, error, refetch } = useGetReportMerchantUsage(startDate, endDate);
 
   const rawData: MerchantUsageItem[] | undefined = merchantUsage?.data?.data as MerchantUsageItem[] | undefined;
+
+  // Trigger fetch on mount with default dates
+  useEffect(() => {
+    if (startDate && endDate) {
+      refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   const handleSearch = () => {
     if (startDate && endDate) {

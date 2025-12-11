@@ -51,6 +51,7 @@ interface PersonalInformationProps {
   onEdit?: () => void;
   sellOnline: boolean;
   sellOffline: boolean;
+  registrationEmail: string;
 }
 
 export default function PersonalInformation({
@@ -65,19 +66,20 @@ export default function PersonalInformation({
   onEdit,
   sellOnline,
   sellOffline,
+  registrationEmail,
 }: PersonalInformationProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const leftColumnItems = [
-    { label: "Business Name", value: businessName },
-    { label: "Email Address", value: businessEmail },
-    { label: "Phone Number", value: businessPhoneNo },
+    { label: "Business Name", value: businessName || "N/A" },
+    { label: "Business Email  Address", value: businessEmail || "N/A" },
+    { label: "User Email Address", value: registrationEmail || "N/A" },
+    { label: "Phone Number", value: businessPhoneNo || "N/A" },
     { label: "Online Sales", value: sellOnline ? "Yes" : "No" },
     { label: "Offline Sales", value: sellOffline ? "Yes" : "No" },
 
   ];
-
   // Get the primary bank or first bank if no primary is set
-  const primaryBank = bankInformation.find(bank => bank.primary) || bankInformation[0];
+  const primaryBank = bankInformation?.find(bank => bank.primary === true) || bankInformation?.[0];
 
   // Get address from locations array
   const address = locations?.[0]?.contactAddress || locations?.[0]?.address || "No address provided";
@@ -117,7 +119,7 @@ export default function PersonalInformation({
           {leftColumnItems.map((item, index) => (
             <div key={index} className="flex flex-col items-start">
               <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
-              <span className="text-sm text-gray-900 font-semibold text-right max-w-[60%]">{item.value}</span>
+              <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{item.value}</span>
             </div>
           ))}
         </div>

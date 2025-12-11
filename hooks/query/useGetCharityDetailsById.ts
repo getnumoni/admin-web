@@ -8,7 +8,7 @@ interface UseGetCharityDetailsByIdProps {
 const useGetCharityDetailsById = ({ charityId }: UseGetCharityDetailsByIdProps) => {
   const { data, isPending, error, isError, refetch } = useQuery({
     queryKey: ["charity", charityId],
-    queryFn: () => api.get(`/admin/getCharityById/${charityId}`),
+    queryFn: () => api.get(`/admin/charity/charityDetails?charityId=${charityId}`),
     enabled: !!charityId,
   });
 

@@ -1,22 +1,17 @@
 "use client";
 
 import { formatCurrency } from "@/lib/helper";
+import { CustomerDetailsResponse } from "@/lib/types";
 
-// interface CustomerFinancialOverviewProps {
-//   customerData: CustomerDetailsResponse;
-// }
+export default function CustomerFinancialOverview({ customerData }: { customerData: CustomerDetailsResponse }) {
 
-export default function CustomerFinancialOverview() {
-  // Mock data - replace with actual customer data when available
-  const financialData = {
-    walletBalance: 900300,
-    allTimeSpent: 90000000,
-    allTimeWithdraws: 40000000,
-    pointBalance: 900300,
-    allTimePointsDonated: 90000000,
-    allTimePointsEarned: 40000000,
-    allTimePointsRedeemed: 40000000,
-  };
+  // console.log('customerData', customerData);
+  const financialOverview = customerData?.financialOverview;
+  const walletPointBalance = financialOverview?.walletPointBalance;
+  const brandPointBalance = financialOverview?.brandPointBalance;
+
+  // Extract wallet balance from wallet object (in naira)
+  const walletBalance = customerData?.wallet?.amount || 0;
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 my-4">
@@ -32,25 +27,19 @@ export default function CustomerFinancialOverview() {
           <div className="bg-blue-50 rounded-lg p-6">
             <h3 className="text-sm font-medium text-gray-700 mb-4">Available Wallet Balance</h3>
             <div className="text-3xl font-bold text-gray-900 mb-4">
-              {formatCurrency(financialData.walletBalance)}
+              {formatCurrency(walletPointBalance?.totalPoint || 0)}
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-500 mb-1">All time spent</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimeSpent)}
+                  {formatCurrency(walletPointBalance?.allTimeSpent || 0)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">All time withdraws</p>
+                <p className="text-xs text-gray-500 mb-1">Total Points</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimeWithdraws)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">All time withdraws</p>
-                <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimeWithdraws)}
+                  {walletPointBalance?.totalPoint?.toLocaleString() || 0}
                 </p>
               </div>
             </div>
@@ -60,25 +49,25 @@ export default function CustomerFinancialOverview() {
           <div className="bg-yellow-50 rounded-lg p-6">
             <h3 className="text-sm font-medium text-gray-700 mb-4">Available Point Balance</h3>
             <div className="text-3xl font-bold text-gray-900 mb-4">
-              {formatCurrency(financialData.pointBalance)}
+              {brandPointBalance?.totalBrandPoint?.toLocaleString() || 0}
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-gray-500 mb-1">All time points donated</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimePointsDonated)}
+                  {brandPointBalance?.allBrandPointsDonated?.toLocaleString() || 0}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">All time points earned</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimePointsEarned)}
+                  {brandPointBalance?.allBrandPointsEarned?.toLocaleString() || 0}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">All time points Redeemed</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {formatCurrency(financialData.allTimePointsRedeemed)}
+                  {brandPointBalance?.allBrandPointsRedeemed?.toLocaleString() || 0}
                 </p>
               </div>
             </div>

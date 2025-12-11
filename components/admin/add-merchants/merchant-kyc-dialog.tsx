@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,79 +9,51 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { FormInputTopLabel } from "@/components/ui/form-input";
-import { FormPdfUpload } from "@/components/ui/form-pdf-upload";
 import { FormSelectTopLabel } from "@/components/ui/form-select";
-import { useCreateMerchantKyc } from "@/hooks/mutation/useCreateMerchantKyc";
+import { useKycFormSubmission } from "@/hooks/utils/useKycFormSubmission";
+import { useKycVerification } from "@/hooks/utils/useKycVerification";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { CacVerificationSheet } from "./cac-verification-sheet";
+import { KycDocumentUploadSection } from "./kyc-document-upload-section";
+import { KycIdentificationInput } from "./kyc-identification-input";
+import {
+  createKycSchema,
+  identificationTypes,
+  MerchantKycDialogProps,
+} from "./merchant-kyc-dialog-schema";
+import { NinVerificationSheet } from "./nin-verification-sheet";
 
-const identificationTypes = [
-  { value: "CAC", label: "CAC" },
-  { value: "TIN", label: "TIN" },
-  { value: "NIN", label: "NIN" }
-];
-
-const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertificatePath?: string | null }) => z.object({
-  identificationType: z.string().min(1, "Please select an identification type"),
-  identificationTypeNumber: z.string().optional(),
-  businessRegNo: z.string().min(1, "Business registration number is required"),
-  cacDocumentPath: z.string().optional(),
-  reqCertificatePath: existingKycData?.reqCertificatePath ? z.string().optional() : z.string().min(1, "Required certificate is required"),
-  tinNo: z.string().optional(),
-  tinPath: z.string().optional(),
-  menuPath: existingKycData?.menuPath ? z.string().optional() : z.string().min(1, "Menu document is required"),
-  verifiedNin: z.boolean(),
-  verifiedTinNo: z.boolean(),
-  verifiedCac: z.boolean(),
-}).refine((data) => {
-  // CAC validation
-  if (data.identificationType === "CAC") {
-    return data.identificationTypeNumber && data.cacDocumentPath;
-  }
-  // TIN validation
-  if (data.identificationType === "TIN") {
-    return data.tinNo && data.tinPath;
-  }
-  // NIN validation
-  if (data.identificationType === "NIN") {
-    return data.identificationTypeNumber;
-  }
-  return true;
-}, {
-  message: "Please fill in all required fields for the selected identification type",
-  path: ["identificationType"]
-});
-
-type KycFormValues = z.infer<ReturnType<typeof createKycSchema>>;
-
-interface MerchantKycDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  merchantId: string;
-  businessName: string;
-  existingKycData?: {
-    menuPath?: string | null;
-    reqCertificatePath?: string | null;
-  };
-}
-
-export default function MerchantKycDialog({ isOpen, onClose, merchantId, businessName, existingKycData }: MerchantKycDialogProps) {
-  // console.log('merchantId', merchantId);
-  const { handleCreateMerchantKyc, isPending, isSuccess } = useCreateMerchantKyc(merchantId);
-
-  const form = useForm<KycFormValues>({
+/**
+ * Main dialog component for adding KYC information to a merchant
+ * 
+ * This component allows users to:
+ * - Select an identification type (CAC, TIN, TAX, or NIN)
+ * - Enter identification numbers with verification
+ * - Upload required documents
+ * - Submit KYC information
+ * 
+ * The component is broken down into smaller pieces:
+ * - Schema and types: merchant-kyc-dialog-schema.ts
+ * - Verification logic: useKycVerification hook
+ * - Form submission: useKycFormSubmission hook
+ * - Identification input: KycIdentificationInput component
+ * - Document upload: KycDocumentUploadSection component
+ */
+export default function MerchantKycDialog({
+  isOpen,
+  onClose,
+  merchantId,
+  businessName,
+  existingKycData,
+}: MerchantKycDialogProps) {
+  // Initialize form with validation schema
+  const form = useForm({
     resolver: zodResolver(createKycSchema(existingKycData)),
+    mode: "onSubmit",
     defaultValues: {
       identificationType: "",
       identificationTypeNumber: "",
@@ -95,27 +66,118 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
       verifiedNin: false,
       verifiedTinNo: false,
       verifiedCac: false,
+      verifiedTax: false,
     },
   });
 
+  // Watch form values for conditional rendering and verification
   const selectedIdentificationType = form.watch("identificationType");
+  const identificationTypeNumber = form.watch("identificationTypeNumber");
+  const tinNo = form.watch("tinNo");
 
-  const onSubmit = (data: KycFormValues) => {
-    console.log('Form submitted with data:', data);
-    // console.log('Form validation state:', form.formState);
-    // console.log('Form errors:', form.formState.errors);
-    // handleCreateMerchantKyc(data);
-  };
+  // State to control CAC and NIN verification sheet visibility
+  const [isCacSheetOpen, setIsCacSheetOpen] = useState(false);
+  const [isNinSheetOpen, setIsNinSheetOpen] = useState(false);
 
+  // Custom hooks for verification and form submission
+  const {
+    handleVerifyCac,
+    handleVerifyTin,
+    handleVerifyNin,
+    isVerifyingCac,
+    isVerifyingTin,
+    isVerifyingNin,
+    cacVerificationData,
+    cacVerificationCompleted,
+    setCacVerificationCompleted,
+    ninVerificationData,
+    ninVerificationCompleted,
+    setNinVerificationCompleted,
+    resetVerification,
+  } = useKycVerification();
+
+  // Open CAC verification sheet when verification succeeds
   useEffect(() => {
-    if (isSuccess) {
-      onClose();
+    if (cacVerificationCompleted && cacVerificationData) {
+      // cacVerificationData is already the API response (not axios wrapped)
+      // Structure: { data: CacVerificationData, message: string, status: number }
+      // Check if we have valid data - open sheet if data exists
+      if (cacVerificationData?.data) {
+        setIsCacSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setCacVerificationCompleted(false);
+      }
     }
-  }, [isSuccess, onClose]);
+  }, [cacVerificationCompleted, cacVerificationData, setCacVerificationCompleted]);
+
+  // Open NIN verification sheet when verification succeeds
+  useEffect(() => {
+    if (ninVerificationCompleted && ninVerificationData) {
+      // ninVerificationData is already the API response (not axios wrapped)
+      // Structure: { data: NinVerificationData, message: string, status: number }
+      // Check if we have valid data - open sheet if data exists
+      if (ninVerificationData?.data) {
+        setIsNinSheetOpen(true);
+        // Reset the flag so it doesn't open again
+        setNinVerificationCompleted(false);
+      }
+    }
+  }, [ninVerificationCompleted, ninVerificationData, setNinVerificationCompleted]);
+
+  const { onSubmit, isPending } = useKycFormSubmission(
+    form,
+    merchantId,
+    isOpen,
+    onClose
+  );
+
+  // Track previous isOpen value to detect when dialog closes
+  const prevIsOpenRef = useRef(isOpen);
+
+  // Store reset functions in refs to avoid dependency issues
+  const resetVerificationRef = useRef(resetVerification);
+  const formResetRef = useRef(form.reset);
+
+  // Update refs when values change
+  useEffect(() => {
+    resetVerificationRef.current = resetVerification;
+    formResetRef.current = form.reset;
+  }, [resetVerification, form.reset]);
+
+  // Reset form and verification state when dialog closes (transitions from open to closed)
+  useEffect(() => {
+    // Only reset when dialog transitions from open (true) to closed (false)
+    if (prevIsOpenRef.current && !isOpen) {
+      // Reset form to default values
+      formResetRef.current({
+        identificationType: "",
+        identificationTypeNumber: "",
+        businessRegNo: "",
+        cacDocumentPath: "",
+        reqCertificatePath: "",
+        tinNo: "",
+        tinPath: "",
+        menuPath: "",
+        verifiedNin: false,
+        verifiedTinNo: false,
+        verifiedCac: false,
+        verifiedTax: false,
+      });
+
+      // Reset verification states and data
+      setIsCacSheetOpen(false);
+      setIsNinSheetOpen(false);
+      resetVerificationRef.current();
+    }
+
+    // Update ref for next render
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen]); // Only depend on isOpen - functions accessed via refs
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="min-w-[860px] max-h-[90vh] overflow-y-auto">
+        {/* Dialog Header */}
         <DialogHeader>
           <DialogTitle>Add KYC Information for {businessName}</DialogTitle>
           <DialogDescription>
@@ -123,16 +185,13 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
           </DialogDescription>
         </DialogHeader>
 
+        {/* Form Section */}
         <Form {...form}>
-          <form onSubmit={(e) => {
-            console.log('Form submit event triggered');
-            console.log('Current form values:', form.getValues());
-            console.log('Form is valid:', form.formState.isValid);
-            console.log('Form errors before submit:', form.formState.errors);
-            form.handleSubmit(onSubmit)(e);
-          }} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Identification Type and Number Section */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Identification Type Selector */}
                 <FormSelectTopLabel
                   control={form.control}
                   name="identificationType"
@@ -142,280 +201,63 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
                   required
                 />
 
-                {/* Dynamic field based on identification type */}
+                {/* Dynamic Identification Number Input with Verify Button */}
                 <div className="transition-all duration-300 ease-in-out">
-                  {/* Show identification number for CAC and NIN */}
-                  {(selectedIdentificationType === "CAC" || selectedIdentificationType === "NIN") && (
-                    <FormField
-                      control={form.control}
-                      name="identificationTypeNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <FormInputTopLabel
-                              control={form.control}
-                              name="identificationTypeNumber"
-                              label="CAC Identification Number"
-                              placeholder="Enter identification number"
-                              required
-                              transform={(value) => value?.toUpperCase()}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
-                  {/* Show TIN number for TIN */}
-                  {selectedIdentificationType === "TIN" && (
-                    <FormField
-                      control={form.control}
-                      name="tinNo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <FormInputTopLabel
-                              control={form.control}
-                              name="tinNo"
-                              label="TIN Number"
-                              placeholder="Enter TIN number"
-                              required
-                              transform={(value) => value?.toUpperCase()}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
+                  {(selectedIdentificationType === "CAC" ||
+                    selectedIdentificationType === "NIN" ||
+                    selectedIdentificationType === "TIN") && (
+                      <KycIdentificationInput
+                        control={form.control}
+                        identificationType={
+                          selectedIdentificationType as "CAC" | "TIN" | "NIN"
+                        }
+                        identificationNumber={identificationTypeNumber || ""}
+                        tinNo={tinNo}
+                        onVerifyCac={handleVerifyCac}
+                        onVerifyTin={handleVerifyTin}
+                        onVerifyNin={handleVerifyNin}
+                        isVerifyingCac={isVerifyingCac}
+                        isVerifyingTin={isVerifyingTin}
+                        isVerifyingNin={isVerifyingNin}
+                      />
+                    )}
                 </div>
               </div>
 
-              {/* Business Registration Number - full width with animation */}
+              {/* Business Registration Number Input */}
               <div className="w-full transition-all duration-300 ease-in-out">
-                <FormField
+                <FormInputTopLabel
                   control={form.control}
                   name="businessRegNo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FormInputTopLabel
-                          control={form.control}
-                          name="businessRegNo"
-                          label="Business Registration Number"
-                          placeholder="Enter business registration number"
-                          required
-                          transform={(value) => value?.toUpperCase()}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Business Registration Number"
+                  placeholder="Enter business registration number"
+                  required
+                  transform={(value) => value?.toUpperCase()}
                 />
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-900">Document Uploads</h4>
-              <p className="text-xs text-gray-500">Upload PDF documents (Max 500KB each)</p>
+            {/* Document Upload Section */}
+            <KycDocumentUploadSection
+              control={form.control}
+              selectedIdentificationType={selectedIdentificationType}
+              formErrors={form.formState.errors}
+            />
 
-              {/* Show CAC document only for CAC */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "CAC"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "CAC" && (
-                  <FormField
-                    control={form.control}
-                    name="cacDocumentPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="CAC Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.cacDocumentPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-
-              {/* Show TIN document only for TIN */}
-              <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TIN"
-                ? 'opacity-100 max-h-96 translate-y-0'
-                : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                }`}>
-                {selectedIdentificationType === "TIN" && (
-                  <FormField
-                    control={form.control}
-                    name="tinPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="TIN Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.tinPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-
-              {/* Required Certificate - only show if not already uploaded */}
-              {!existingKycData?.reqCertificatePath && (
-                <div className="transition-all duration-300 ease-in-out">
-                  <FormField
-                    control={form.control}
-                    name="reqCertificatePath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="Required Certificate"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.reqCertificatePath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Menu Document - only show if not already uploaded */}
-              {!existingKycData?.menuPath && (
-                <div className="transition-all duration-300 ease-in-out">
-                  <FormField
-                    control={form.control}
-                    name="menuPath"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FormPdfUpload
-                            label="Menu Document"
-                            onPdfChange={field.onChange}
-                            currentValue={field.value}
-                            required
-                            maxSize="500kb"
-                            error={form.formState.errors.menuPath?.message}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-900">Verification Status</h4>
-
-              <div className="space-y-3">
-                {/* Show NIN verification only for NIN */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "NIN"
-                  ? 'opacity-100 max-h-96 translate-y-0'
-                  : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                  }`}>
-                  {selectedIdentificationType === "NIN" && (
-                    <FormField
-                      control={form.control}
-                      name="verifiedNin"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>NIN Verified</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
-
-                {/* Show TIN verification only for TIN */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "TIN"
-                  ? 'opacity-100 max-h-96 translate-y-0'
-                  : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                  }`}>
-                  {selectedIdentificationType === "TIN" && (
-                    <FormField
-                      control={form.control}
-                      name="verifiedTinNo"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>TIN Number Verified</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
-
-                {/* Show CAC verification only for CAC */}
-                <div className={`transition-all duration-300 ease-in-out ${selectedIdentificationType === "CAC"
-                  ? 'opacity-100 max-h-96 translate-y-0'
-                  : 'opacity-0 max-h-0 -translate-y-2 overflow-hidden'
-                  }`}>
-                  {selectedIdentificationType === "CAC" && (
-                    <FormField
-                      control={form.control}
-                      name="verifiedCac"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>CAC Verified</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-
+            {/* Dialog Footer with Action Buttons */}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} className="px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed "
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white px-8 py-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 isLoading={isPending}
                 loadingText="Creating..."
               >
@@ -424,6 +266,26 @@ export default function MerchantKycDialog({ isOpen, onClose, merchantId, busines
             </DialogFooter>
           </form>
         </Form>
+
+        {/* CAC Verification Sheet - Shows verification details on successful CAC verification */}
+        <CacVerificationSheet
+          isOpen={isCacSheetOpen}
+          onClose={() => {
+            setIsCacSheetOpen(false);
+            setCacVerificationCompleted(false); // Reset flag on close
+          }}
+          verificationData={cacVerificationData}
+        />
+
+        {/* NIN Verification Sheet - Shows verification details on successful NIN verification */}
+        <NinVerificationSheet
+          isOpen={isNinSheetOpen}
+          onClose={() => {
+            setIsNinSheetOpen(false);
+            setNinVerificationCompleted(false); // Reset flag on close
+          }}
+          verificationData={ninVerificationData}
+        />
       </DialogContent>
     </Dialog>
   );

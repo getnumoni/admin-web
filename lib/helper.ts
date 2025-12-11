@@ -200,25 +200,46 @@ export const getIndicatorColor = (indicatorColor: string): string => {
   }
 };
 
-/**
- * Formats a number value with proper locale formatting and decimal places
- * @param value - The numeric value to format
- * @returns A formatted string with commas and 2 decimal places (e.g., "12,345.67")
- */
-export const formatValue = (value: number): string => {
-  return value?.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-};
-
-
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: 'NGN',
     minimumFractionDigits: 2,
   }).format(amount).replace('NGN', '₦');
+};
+
+/**
+ * Formats a numeric value for display, supporting both currency and number formatting.
+ * 
+ * This function provides a unified way to format values from API responses, handling
+ * null/undefined values gracefully and supporting two formatting modes:
+ * - Currency formatting: Uses `formatCurrency` to display values with ₦ symbol (e.g., "₦38,800.00")
+ * - Number formatting: Uses `formatNumberWithCommas` to display values with thousand separators (e.g., "1,234" or "47")
+ * 
+ * @param value - The numeric value to format. Can be a number, null, or undefined.
+ * @param isCurrency - Optional. If `true`, formats as currency (₦). If `false` or omitted, formats as a number with commas.
+ * @returns A formatted string representation of the value. Returns "0" if value is null or undefined.
+ * 
+ * @example
+ * ```typescript
+ * formatValue(38800, true);  // Returns: "₦38,800.00"
+ * formatValue(47, false);    // Returns: "47"
+ * formatValue(1234.56);      // Returns: "1,234.56"
+ * formatValue(null);         // Returns: "0"
+ * formatValue(undefined);    // Returns: "0"
+ * ```
+ * 
+ * @remarks
+ * This function is commonly used in dashboard components to format metric values
+ * consistently across different metric cards. Currency values (points, amounts) use
+ * currency formatting, while counts (customers, merchants, tickets) use number formatting.
+ */
+export const formatValue = (value: number | null | undefined, isCurrency: boolean = false): string => {
+  if (value === null || value === undefined) return '0';
+  if (isCurrency) {
+    return formatCurrency(value);
+  }
+  return formatNumberWithCommas(value);
 };
 
 export const getStatusColor = (status: string) => {
@@ -236,6 +257,39 @@ export const getStatusColor = (status: string) => {
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+/**
+ * Gets the badge color class for account status values (KYC Status, Account Status, etc.).
+ * 
+ * This function is specifically designed for merchant account information badges,
+ * handling statuses like "approved", "active", "verified", "pending", and "suspended".
+ * 
+ * @param status - The status string to get the color for (case-insensitive)
+ * @returns Tailwind CSS classes for badge styling
+ * 
+ * @example
+ * ```typescript
+ * getAccountStatusColor("approved");  // Returns: "bg-green-100 text-green-800"
+ * getAccountStatusColor("active");   // Returns: "bg-green-100 text-green-800"
+ * getAccountStatusColor("pending");   // Returns: "bg-yellow-100 text-yellow-800"
+ * getAccountStatusColor("suspended"); // Returns: "bg-red-100 text-red-800"
+ * ```
+ */
+export const getAccountStatusColor = (status: string): string => {
+  const normalizedStatus = status?.toLowerCase();
+  switch (normalizedStatus) {
+    case "verified":
+    case "approved":
+    case "active":
+      return "bg-green-100 text-green-800";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "suspended":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
   }
 };
 
@@ -870,6 +924,82 @@ export const getTimelineDates = (
   }
 };
 
+/**
+ * Gets the date range for dashboard period filters (daily, weekly, monthly, yearly).
+ * 
+ * This function calculates the start and end dates based on the selected period filter.
+ * The dates are formatted in DD-MM-YYYY format suitable for API requests.
+ * 
+ * @param period - The period filter type ('daily', 'weekly', 'monthly', 'yearly')
+ * @returns An object containing `fromDate` and `toDate` in DD-MM-YYYY format
+ * 
+ * @example
+ * ```typescript
+ * // Daily: Last 7 days
+ * getDateRange('daily') 
+ * // Returns: { fromDate: '08-01-2024', toDate: '15-01-2024' }
+ * 
+ * // Weekly: Last 4 weeks (28 days)
+ * getDateRange('weekly')
+ * // Returns: { fromDate: '19-12-2023', toDate: '15-01-2024' }
+ * 
+ * // Monthly: Last 6 months
+ * getDateRange('monthly')
+ * // Returns: { fromDate: '15-07-2023', toDate: '15-01-2024' }
+ * 
+ * // Yearly: Last 4 years
+ * getDateRange('yearly')
+ * // Returns: { fromDate: '15-01-2020', toDate: '15-01-2024' }
+ * 
+ * // Default: Today only
+ * getDateRange('unknown')
+ * // Returns: { fromDate: '15-01-2024', toDate: '15-01-2024' }
+ * ```
+ * 
+ * @remarks
+ * - All periods use the current date as the end date
+ * - Daily period includes the last 7 days (including today)
+ * - Weekly period includes the last 4 weeks (28 days)
+ * - Monthly period includes the last 6 months
+ * - Yearly period includes the last 4 years
+ * - Dates are formatted as DD-MM-YYYY (e.g., "15-01-2024")
+ * - Invalid period values default to today's date for both fromDate and toDate
+ */
+export const getDateRange = (period: string): { fromDate: string; toDate: string } => {
+  const now = new Date();
+  const formatDate = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  switch (period) {
+    case 'daily': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 6); // Last 7 days
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'weekly': {
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 27); // Last 4 weeks
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'monthly': {
+      const startDate = new Date(now);
+      startDate.setMonth(startDate.getMonth() - 5); // Last 6 months
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    case 'yearly': {
+      const startDate = new Date(now);
+      startDate.setFullYear(startDate.getFullYear() - 3); // Last 4 years
+      return { fromDate: formatDate(startDate), toDate: formatDate(now) };
+    }
+    default:
+      return { fromDate: formatDate(now), toDate: formatDate(now) };
+  }
+};
+
 // File size validation utilities
 export const parseFileSize = (sizeString: string): number => {
   const units: { [key: string]: number } = {
@@ -1177,8 +1307,14 @@ export const convertDateFormat = (dateStr: string): string => {
 // Helper function to get deal status color
 export const getDealStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'hidden':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
+    case 'inactive':
+      return 'bg-red-100 text-red-800 border-red-200';
     case 'expired':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     case 'paused':
@@ -1193,6 +1329,10 @@ export const getDealStatusColor = (status: string) => {
 // Helper function to get deal status text
 export const getDealStatusText = (status: string) => {
   switch (status.toLowerCase()) {
+    case 'open':
+      return 'Open';
+    case 'hidden':
+      return 'Hidden';
     case 'active':
       return 'Active';
     case 'expired':
@@ -1203,6 +1343,40 @@ export const getDealStatusText = (status: string) => {
       return 'Pending';
     default:
       return 'Unknown';
+  }
+};
+
+// Helper function to get approval status color
+export const getApproveStatusColor = (status: string | null | undefined): string => {
+  if (!status) return 'bg-gray-100 text-gray-800 border-gray-200';
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case 'approved':
+    case 'open':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'rejected':
+    case 'hidden':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+// Helper function to get approval status text
+export const getApproveStatusText = (status: string | null | undefined): string => {
+  if (!status) return 'Not Set';
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case 'approved':
+      return 'Approved';
+    case 'rejected':
+      return 'Rejected';
+    case 'pending':
+      return 'Pending';
+    default:
+      return status;
   }
 };
 
@@ -1346,5 +1520,96 @@ export const mapApiActivityToActivityLog = (apiData: ApiActivityLog[]): Activity
     details: item.changeLog || 'No details available',
     ipAddress: item.systemIp || 'N/A',
   }));
+};
+
+/**
+ * Checks if a pathname matches a route path, handling dynamic routes and nested paths.
+ * 
+ * This function is designed to handle Next.js dynamic routes (e.g., `/dashboard/merchants/[id]`)
+ * by checking if the current pathname matches a base route path exactly or is a child of that route.
+ * 
+ * @param pathname - Current pathname from the URL (e.g., '/dashboard/merchants/123')
+ * @param routePath - Route path to match against (e.g., '/dashboard/merchants')
+ * @returns `true` if pathname matches the route (exact match or is a child route), `false` otherwise
+ * 
+ * @example
+ * ```typescript
+ * // Exact match
+ * isPathMatch('/dashboard/merchants', '/dashboard/merchants'); // true
+ * 
+ * // Dynamic route match
+ * isPathMatch('/dashboard/merchants/123', '/dashboard/merchants'); // true
+ * isPathMatch('/dashboard/customers/456', '/dashboard/customers'); // true
+ * isPathMatch('/dashboard/charity/789', '/dashboard/charity'); // true
+ * 
+ * // Special case: '/dashboard' only matches exactly
+ * isPathMatch('/dashboard', '/dashboard'); // true
+ * isPathMatch('/dashboard/merchants/123', '/dashboard'); // false
+ * 
+ * // No match
+ * isPathMatch('/dashboard/merchants', '/dashboard/customers'); // false
+ * isPathMatch('/profile', '/dashboard'); // false
+ * ```
+ * 
+ * @remarks
+ * - Exact matches always return `true`
+ * - The base route `/dashboard` has special handling to prevent it from matching child routes
+ *   (e.g., `/dashboard/merchants/123` will not match `/dashboard`)
+ * - For other routes, the function checks if the pathname starts with the route path followed by '/'
+ *   to determine if it's a child route (handles dynamic segments like `[id]`)
+ * 
+ * This is particularly useful for navigation sidebars where you want to highlight parent navigation
+ * items when viewing their child pages (e.g., highlight "Merchants" when viewing a specific merchant detail page).
+ */
+export const isPathMatch = (pathname: string, routePath: string): boolean => {
+  // Exact match
+  if (pathname === routePath) return true;
+
+  // Special case: '/dashboard' should only match exactly, not child routes
+  // This prevents '/dashboard' from matching '/dashboard/merchants/123'
+  if (routePath === '/dashboard') {
+    return false;
+  }
+
+  // Check if pathname is a child of routePath (handles dynamic routes like /merchants/[id])
+  // Only match if pathname starts with routePath + '/' to avoid matching siblings
+  // e.g., '/dashboard/merchants/123' matches '/dashboard/merchants' but not '/dashboard'
+  if (pathname.startsWith(routePath + '/')) {
+    // Get the segment after the route path
+    const remainingPath = pathname.slice(routePath.length + 1);
+    // Match if there's a path segment after (handles dynamic IDs and child routes)
+    return remainingPath.length > 0;
+  }
+
+  return false;
+};
+
+/**
+ * Formats deal date from DD-MM-YYYY to readable format
+ * @param dateStr - Date string in DD-MM-YYYY format
+ * @returns Formatted readable date string or "N/A" if invalid
+ */
+export const formatDealDate = (dateStr: string): string => {
+  if (!dateStr) return "N/A";
+  const convertedDate = convertDateFormat(dateStr);
+  return formatDateReadable(convertedDate);
+};
+
+/**
+ * Gets default date range for reports (last 30 days)
+ * @returns Object with start and end dates for the last month
+ * 
+ * @example
+ * const { start, end } = getDefaultReportDates();
+ * // Returns: { start: Date (30 days ago), end: Date (today) }
+ */
+export const getDefaultReportDates = (): { start: Date; end: Date } => {
+  const today = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+  return {
+    start: thirtyDaysAgo,
+    end: today,
+  };
 };
 

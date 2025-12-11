@@ -12,7 +12,7 @@ const useGetDashboardInfo = ({ fromDate, toDate }: DashboardInfoParams = {}) => 
   const defaultToDate = toDate || getCurrentDate('dd-mm-yyyy');
 
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["dashboard", "info", defaultFromDate, defaultToDate],
+    queryKey: ["dashboard", defaultFromDate, defaultToDate],
     queryFn: () => api.get(`/admin/dashboard?fromDate=${defaultFromDate}&toDate=${defaultToDate}`),
   });
 

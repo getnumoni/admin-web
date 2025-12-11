@@ -108,19 +108,19 @@ export const useBranchStore = create<BranchStore>((set, get) => ({
     managerId: null
   }),
 
-  submitForm: (data) => {
-    console.log('=== BRANCH FORM SUBMISSION ===')
-    console.log('Complete Payload:', JSON.stringify(data, null, 2))
-    console.log('Form Data Keys:', Object.keys(data))
-    console.log('Total Fields:', Object.keys(data).length)
-    console.log('==============================')
+  submitForm: (_data) => {
+    // console.log('=== BRANCH FORM SUBMISSION ===')
+    // console.log('Complete Payload:', JSON.stringify(_data, null, 2))
+    // console.log('Form Data Keys:', Object.keys(_data))
+    // console.log('Total Fields:', Object.keys(_data).length)
+    // console.log('==============================')
 
     // Here you would typically send the data to your API
     // Example API call:
     // fetch('/api/branches', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
+    //   body: JSON.stringify(_data)
     // })
 
     get().resetForm()

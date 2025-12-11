@@ -1,17 +1,12 @@
 'use client';
 
 import { CardContent } from "@/components/ui/card";
+import { ChartConfig } from "@/components/ui/chart";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { ChartConfig } from "@/components/ui/chart";
+import { PointFlowData } from "@/lib/types";
 import { PointsFlowChart } from "./points-flow-chart";
-
-type PointFlowData = {
-  percentage: { redeemed: number; earned: number };
-  totalPoints: number;
-  distribution: { redeemed: number; earned: number; expired: number; donated: number };
-};
 
 interface PointsFlowContentProps {
   hasAttemptedFetch: boolean;
@@ -27,6 +22,8 @@ const chartConfig: ChartConfig = {
   redeemed: { label: "Redeemed Points", color: "#3b82f6" },
   donated: { label: "Donated Points", color: "#f97316" },
   expired: { label: "Expired Points", color: "#f59e0b" },
+  redeemedPercentage: { label: "Redeemed Percentage", color: "#8b5cf6" },
+  earnedPercentage: { label: "Earned Percentage", color: "#ec4899" },
 };
 
 export function PointsFlowContent({
@@ -72,7 +69,7 @@ export function PointsFlowContent({
   }
 
   // Show empty state if data was fetched but is empty
-  if (!pointFlowData || !pointFlowData.distribution) {
+  if (!pointFlowData) {
     return (
       <CardContent className="flex-1 pb-0">
         <EmptyState
@@ -84,11 +81,16 @@ export function PointsFlowContent({
   }
 
   // Transform data for chart
+  const redeemedPercentageValue = pointFlowData.redeemedPercentage ? parseFloat(pointFlowData.redeemedPercentage) : 0;
+  const earnedPercentageValue = pointFlowData.earnedPercentage ? parseFloat(pointFlowData.earnedPercentage) : 0;
+
   const chartData = [
-    { key: "earned", label: "Earned Points", value: pointFlowData.distribution.earned ?? 0, fill: "var(--color-earned)" },
-    { key: "redeemed", label: "Redeemed Points", value: pointFlowData.distribution.redeemed ?? 0, fill: "var(--color-redeemed)" },
-    { key: "donated", label: "Donated Points", value: pointFlowData.distribution.donated ?? 0, fill: "var(--color-donated)" },
-    { key: "expired", label: "Expired Points", value: pointFlowData.distribution.expired ?? 0, fill: "var(--color-expired)" },
+    { key: "earned", label: "Earned Points", value: pointFlowData.earnedPoints ?? 0, fill: "var(--color-earned)" },
+    { key: "redeemed", label: "Redeemed Points", value: pointFlowData.redeemedPoints ?? 0, fill: "var(--color-redeemed)" },
+    { key: "donated", label: "Donated Points", value: pointFlowData.donatedPoints ?? 0, fill: "var(--color-donated)" },
+    { key: "expired", label: "Expired Points", value: pointFlowData.expiredPoints ?? 0, fill: "var(--color-expired)" },
+    { key: "redeemedPercentage", label: "Redeemed Percentage", value: redeemedPercentageValue, fill: "var(--color-redeemedPercentage)" },
+    { key: "earnedPercentage", label: "Earned Percentage", value: earnedPercentageValue, fill: "var(--color-earnedPercentage)" },
   ];
 
   const total = pointFlowData.totalPoints ?? 0;

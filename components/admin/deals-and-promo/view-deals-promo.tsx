@@ -4,20 +4,14 @@ import { GiftIcon, PeopleIcon, StoreIcon, WarningIcon } from "@/components/commo
 import { MetricCard } from "@/components/common/metric-card";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import useGetDealList from "@/hooks/query/useGetDealList";
 import useGetDealsStatistics from "@/hooks/query/useGetDealsStatistics";
 import { PauseIcon } from "lucide-react";
 import AllDealsData from "./all-deals-data";
 
 export default function ViewDealsPromo() {
-  const { data, isPending, error, isError, refetch } = useGetDealList();
   const { data: dealsStatisticsData, isPending: isDealsStatisticsPending, error: dealsStatisticsError, isError: isDealsStatisticsError, refetch: refetchDealsStatistics } = useGetDealsStatistics();
-  // console.log(dealsStatisticsData?.data?.data);
 
   const deals = dealsStatisticsData?.data?.data;
-
-
-  const dealsData = data?.data?.data?.pageData;
   // Mock data for deals and promo metrics
   const dealsMetrics = [
     {
@@ -118,13 +112,7 @@ export default function ViewDealsPromo() {
             ))}
           </div>
         )}
-        <AllDealsData
-          dealsData={dealsData}
-          isPending={isPending}
-          isError={isError}
-          error={error || undefined}
-          refetch={refetch}
-        />
+        <AllDealsData />
       </div>
     </div>
   );

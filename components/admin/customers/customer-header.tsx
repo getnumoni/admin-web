@@ -1,13 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
 
 interface CustomerHeaderProps {
   customerName: string;
@@ -26,7 +18,7 @@ export default function CustomerHeader({ customerName, customerId }: CustomerHea
 
       </div>
 
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="bg-green-600 hover:bg-green-700 text-white">
             Select Action
@@ -39,7 +31,7 @@ export default function CustomerHeader({ customerName, customerId }: CustomerHea
           <DropdownMenuItem>Send Notification</DropdownMenuItem>
           <DropdownMenuItem>Export Data</DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
     </div>
   );
 }

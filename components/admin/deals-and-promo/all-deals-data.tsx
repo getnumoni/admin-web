@@ -1,42 +1,73 @@
 "use client";
 
-
 import SearchInput from "@/components/common/search-input";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { Calendar } from "@/components/ui/calendar";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
-import { AxiosError, DealData } from "@/lib/types";
-import { RotateCcw } from "lucide-react";
-import { useState } from "react";
-import { dealsColumns } from "./deals-columns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import useGetDealList from "@/hooks/query/useGetDealList";
+import { useDealsPagination } from "@/hooks/utils/useDealsPagination";
+import { useDebounce } from "@/hooks/utils/useDebounce";
+import { DealData } from "@/lib/types";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import DealsPagination from "./deals-pagination";
+import DealsTableContent from "./deals-table-content";
 
-interface AllDealsDataProps {
-  dealsData: DealData[] | undefined;
-  isPending: boolean;
-  isError: boolean;
-  error: AxiosError | undefined;
-  refetch: () => void;
-}
-
-export default function AllDealsData({ dealsData, isPending, isError, error, refetch }: AllDealsDataProps) {
+export default function AllDealsData() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [page, setPage] = useState(0);
+  const [size] = useState(20);
 
-  // Filter data based on search term and status
-  const filteredData = dealsData?.filter((deal) => {
-    const matchesSearch = deal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      deal.merchantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      deal.category.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Debounce search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    const matchesStatus = statusFilter === "all" || deal.dealStatus.toLowerCase() === statusFilter.toLowerCase();
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearchTerm, statusFilter, startDate, endDate]);
 
-    return matchesSearch && matchesStatus;
-  }) || [];
+  // Map status filter to API format
+  const apiStatus = statusFilter === "all" ? undefined : statusFilter.toUpperCase();
+
+  // Format dates to dd-MM-yyyy for API
+  const formattedStartDate = startDate ? format(startDate, "dd-MM-yyyy") : undefined;
+  const formattedEndDate = endDate ? format(endDate, "dd-MM-yyyy") : undefined;
+
+  const { data, isPending, isError, error, refetch } = useGetDealList({
+    page,
+    size,
+    dealName: debouncedSearchTerm || undefined,
+    status: apiStatus,
+    startDate: formattedStartDate,
+    endDate: formattedEndDate,
+  });
+
+  // Extract pagination data from API response
+  const apiResponse = data?.data?.data;
+  const dealsData = apiResponse?.pageData as DealData[] | undefined;
+  const totalRows = apiResponse?.totalRows || 0;
+  const totalPages = apiResponse?.totalPages || 0;
+
+  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = useDealsPagination(
+    page,
+    totalRows,
+    size,
+    totalPages,
+    setPage
+  );
 
   const handleResetFilter = () => {
     setSearchTerm("");
     setStatusFilter("all");
+    setStartDate(null);
+    setEndDate(null);
+    setPage(0);
   };
 
   // Show loading state
@@ -61,67 +92,119 @@ export default function AllDealsData({ dealsData, isPending, isError, error, ref
   }
 
   return (
-    <div className="bg-white rounded-lg ">
+    <div className="bg-white rounded-lg">
       {/* Header with search and filters */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex-1 max-w-md">
-            <SearchInput
-              placeholder="Search deals, merchants, or categories..."
-              value={searchTerm}
-              onChange={setSearchTerm}
-            />
+        <div className="flex flex-col gap-4">
+          {/* First Row: Search and Status Filter */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex-1 max-w-md">
+              <SearchInput
+                placeholder="Search deals, merchants, or categories..."
+                value={searchTerm}
+                onChange={setSearchTerm}
+              />
+            </div>
+
+            {/* Second Row: Date Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              {/* Date Range Filters */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-[180px] justify-start text-left font-normal h-10"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : "Select start date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate || undefined}
+                        onSelect={(date) => setStartDate(date || null)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-[180px] justify-start text-left font-normal h-10"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : "Select end date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate || undefined}
+                        onSelect={(date) => setEndDate(date || null)}
+                        disabled={(date) => startDate ? date < startDate : false}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="expired">Expired</option>
+                <option value="hidden">Hidden</option>
+                <option value="pending">Pending</option>
+                <option value="open">Open</option>
+              </select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetFilter}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset Filter
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
 
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="expired">Expired</option>
-              <option value="paused">Paused</option>
-              <option value="pending">Pending</option>
-            </select>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleResetFilter}
-              className="flex items-center gap-2"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset Filter
-            </Button>
-          </div>
         </div>
       </div>
 
       {/* Data Table */}
-      <div className="p-6">
-        {filteredData.length > 0 ? (
-          <DataTable
-            columns={dealsColumns}
-            data={filteredData}
-          />
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-lg font-medium mb-2">
-              {searchTerm || statusFilter !== "all" ? "No deals found matching your criteria" : "No deals available"}
-            </div>
-            <div className="text-gray-400 text-sm">
-              {searchTerm || statusFilter !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "Deals will appear here once they are created"
-              }
-            </div>
-          </div>
-        )}
-      </div>
+      <DealsTableContent
+        dealsData={dealsData}
+        searchTerm={searchTerm}
+        statusFilter={statusFilter}
+      />
+
+      {/* Pagination Controls */}
+      {dealsData && dealsData.length > 0 && (
+        <DealsPagination
+          startIndex={startIndex}
+          endIndex={endIndex}
+          totalItems={totalRows}
+          currentPage={page + 1}
+          totalPages={totalPages}
+          onPreviousPage={handlePreviousPage}
+          onNextPage={handleNextPage}
+        />
+      )}
     </div>
   );
 }

@@ -3,9 +3,10 @@
 import { FormCombobox } from '@/components/ui/form-combobox';
 import { FormInputTopLabel } from '@/components/ui/form-input';
 import { LoadingModal } from '@/components/ui/loading-modal';
-import { useVerifyPayOnUsBank } from '@/hooks/mutation/useVerifyPayOnUsBank';
-import useGeneratePayOnUsBankList from '@/hooks/query/useGeneratePayOnUsBankList';
+import { useVerifyBankName } from '@/hooks/mutation/useVerifyBankName';
+import useGetBanks from '@/hooks/query/useGetBanks';
 import { MerchantFormData } from '@/lib/schemas/merchant-schema';
+import { Bank } from '@/lib/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
 
@@ -15,13 +16,10 @@ interface PayoutInformationProps {
 }
 
 export default function PayoutInformation({ control, setValue }: PayoutInformationProps) {
-  // const { data, isPending } = useGetAllBanks();
-  const { data: payOnUsBankList, isPending: isPayOnUsBankListPending } = useGeneratePayOnUsBankList();
 
-  // console.log("payOnUsBankList", payOnUsBankList?.data?.data);
-  // const payOnUsBank = payOnUsBankList?.data?.data
-  const { handleVerifyPayOnUsBank, isPending: isVerifyingPayOnUsBank, isSuccess: isVerifiedPayOnUsBank, accountName: accountNamePayOnUs } = useVerifyPayOnUsBank();
-  // const { handleVerifyBank, isPending: isVerifying, isSuccess: isVerified, accountName } = useVerifyBank();
+  const { data: banks, isPending: isBanksPending } = useGetBanks();
+
+  const { handleVerifyBankName, isPending: isVerifyingBankName, isSuccess: isVerifiedBankName, accountName: accountNameBankName } = useVerifyBankName();
 
   // State for account verification
   const [isAccountValid, setIsAccountValid] = useState<boolean>(false);
@@ -30,15 +28,21 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
 
   // Transform PayOnUs bank data to options format (using code as value, name as label)
   const bankOptions = React.useMemo(() => {
-    const bankData = payOnUsBankList?.data?.data || payOnUsBankList?.data;
-    if (bankData && typeof bankData === 'object') {
-      return Object.entries(bankData).map(([code, name]) => ({
-        value: code,
-        label: String(name)
-      }));
+    // Handle different possible response structures
+    // banks.data could be the array directly, or banks.data.data if wrapped
+    const allBanks = Array.isArray(banks?.data)
+      ? banks.data
+      : banks?.data?.data;
+
+    if (!allBanks || !Array.isArray(allBanks)) {
+      return [];
     }
-    return [];
-  }, [payOnUsBankList]);
+
+    return allBanks.map((bank: Bank) => ({
+      value: bank.code,
+      label: bank.name
+    }));
+  }, [banks]);
 
   // Watch form values
   const selectedBank = useWatch({
@@ -62,17 +66,16 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
       const verificationKey = `${selectedBank}-${accountNumber}`;
 
       // Only verify if we haven't already verified this combination
-      if (hasVerified.current !== verificationKey && !isVerifyingPayOnUsBank) {
+      if (hasVerified.current !== verificationKey && !isVerifyingBankName) {
         // Add a small delay to prevent rapid API calls while typing
         verificationTimeout.current = setTimeout(() => {
           const verifyPayload = {
             institutionCode: selectedBank,
-            accountNumber: accountNumber,
-            businessId: "8a86b73d-4cc9-42d6-ba8a-7c099335d62d"
+            accountNumber: accountNumber
           };
 
           hasVerified.current = verificationKey;
-          handleVerifyPayOnUsBank(verifyPayload);
+          handleVerifyBankName(verifyPayload);
         }, 500); // 500ms delay
       }
     } else {
@@ -87,22 +90,22 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
         clearTimeout(verificationTimeout.current);
       }
     };
-  }, [selectedBank, accountNumber, handleVerifyPayOnUsBank, isVerifyingPayOnUsBank]);
+  }, [selectedBank, accountNumber, handleVerifyBankName, isVerifyingBankName]);
 
   // Handle verification success
   useEffect(() => {
-    if (isVerifiedPayOnUsBank && accountNamePayOnUs) {
+    if (isVerifiedBankName && accountNameBankName) {
       setIsAccountValid(true);
       // Save the verified account name to the form
-      setValue("accountName", accountNamePayOnUs);
-      setValue("verifiedAccountName", accountNamePayOnUs);
-    } else if (!isVerifyingPayOnUsBank && accountNumber && accountNumber.length >= 10) {
+      setValue("accountName", accountNameBankName);
+      setValue("verifiedAccountName", accountNameBankName);
+    } else if (!isVerifyingBankName && accountNumber && accountNumber.length >= 10) {
       setIsAccountValid(false);
       // Clear the account name if verification fails
       setValue("accountName", "");
       setValue("verifiedAccountName", "");
     }
-  }, [isVerifiedPayOnUsBank, accountNamePayOnUs, isVerifyingPayOnUsBank, accountNumber, setValue]);
+  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, setValue]);
 
   return (
     <>
@@ -113,10 +116,10 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
           <FormCombobox
             control={control}
             name="bankCode"
-            disabled={isPayOnUsBankListPending}
+            disabled={isBanksPending}
             label="Bank"
             options={bankOptions}
-            placeholder={isPayOnUsBankListPending ? "Loading banks..." : "Search and select a bank..."}
+            placeholder={isBanksPending ? "Loading banks..." : "Search and select a bank..."}
             searchPlaceholder="Search banks..."
             emptyMessage="No bank found."
             required
@@ -141,16 +144,16 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
         </div>
 
         {/* Account Verification Status */}
-        {accountNumber && accountNumber.length >= 10 && !isVerifyingPayOnUsBank && (
+        {accountNumber && accountNumber.length >= 10 && !isVerifyingBankName && (
           <div className="mt-4">
-            {isAccountValid && accountNamePayOnUs && (
+            {isAccountValid && accountNameBankName && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-sm font-medium text-green-800">Account Verified</span>
                 </div>
                 <p className="text-sm text-green-700 mt-1">
-                  Account Name: <span className="font-semibold">{accountNamePayOnUs}</span>
+                  Account Name: <span className="font-semibold">{accountNameBankName}</span>
                 </p>
               </div>
             )}
@@ -172,7 +175,7 @@ export default function PayoutInformation({ control, setValue }: PayoutInformati
 
       {/* Loading Modal for Bank Verification */}
       <LoadingModal
-        isOpen={isVerifyingPayOnUsBank}
+        isOpen={isVerifyingBankName}
         title="Verifying Account"
         message="We're verifying your bank account details. This may take a few seconds."
         description="Please do not close this window while verification is in progress."

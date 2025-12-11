@@ -1,8 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 interface CharityHeaderProps {
@@ -57,10 +55,10 @@ export default function CharityHeader({
         </div>
 
         {/* Action Button */}
-        <Button className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white">
+        {/* <Button className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white">
           Select Action
           <ChevronDown className="ml-2 h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

@@ -96,7 +96,7 @@ export default function AddDealAndPromo() {
     // Add deal type specific fields
     if (data.dealType === 'Discount') {
       payload.initialPrice = data.oldPrice?.toString();
-      payload.discount = data.discountPercent;
+      payload.discount = `${data.discountPercent}%`;
       payload.newPrice = data.newPrice?.toString();
     } else if (data.dealType === 'Bundle') {
       payload.qualifyingPurchase = data.qualifyingPurchase;

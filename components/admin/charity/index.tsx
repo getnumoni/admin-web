@@ -3,7 +3,7 @@
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import useGetAllCharity from '@/hooks/query/useGetAllCharity';
 import { CharityData } from '@/lib/types';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { charityColumns } from './charity-columns';
 import CharityDataSection from './charity-data-section';
 import CharityErrorDisplay from './charity-error-display';
@@ -12,36 +12,56 @@ import CharityPagination from './charity-pagination';
 
 
 export default function Charity() {
-  const { data, isPending, error, isError, refetch } = useGetAllCharity();
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const [showFilters, setShowFilters] = useState(false);
 
-  const itemsPerPage = 12;
+  const itemsPerPage = 20;
 
-  const filteredCharity = useMemo(() => {
-    const charityData: CharityData[] = data?.data?.charities || [];
+  // Debounce search term - wait 1 second after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000);
 
-    if (!searchTerm.trim()) return charityData;
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
 
-    const searchLower = searchTerm.toLowerCase().trim();
-    return charityData.filter((charity: CharityData) =>
-      charity.charityName.toLowerCase().includes(searchLower) ||
-      charity.contactEmail.toLowerCase().includes(searchLower) ||
-      charity.charityRegNumber.toLowerCase().includes(searchLower) ||
-      charity.charityAddress.toLowerCase().includes(searchLower)
-    );
-  }, [searchTerm, data?.data?.charities]);
+  // Use debouncedSearchTerm as charityName filter, pass page (0-based) and size
+  const { data, isPending, error, isError, refetch } = useGetAllCharity({
+    page: currentPage,
+    size: itemsPerPage,
+    charityName: debouncedSearchTerm.trim() || undefined, // Send debounced search term as charityName filter
+  });
 
-  const totalPages = Math.ceil(filteredCharity.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentCharity = filteredCharity.slice(startIndex, endIndex);
 
-  const handlePreviousPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
-  const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
-  const handleResetFilter = () => setSearchTerm('');
+
+  // Extract charity data from API response
+  const apiData = data?.data;
+  const charities: CharityData[] = apiData?.charities || [];
+  const totalRows = apiData?.totalRows || 0;
+  const totalPages = apiData?.totalPages || 0;
+
+  // Calculate pagination display values
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalRows);
+
+  const handlePreviousPage = () => setCurrentPage(prev => Math.max(prev - 1, 0));
+  const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
+  const handleResetFilter = () => {
+    setSearchTerm('');
+    setDebouncedSearchTerm('');
+    setCurrentPage(0);
+  };
   const handleToggleFilters = () => setShowFilters(!showFilters);
+
+  // Reset to first page when debounced search term changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [debouncedSearchTerm]);
 
   if (isPending) {
     return <LoadingSpinner message="Loading charity organizations..." />;
@@ -61,14 +81,14 @@ export default function Charity() {
         onToggleFilters={handleToggleFilters}
       />
 
-      <CharityDataSection data={currentCharity} columns={charityColumns} />
+      <CharityDataSection data={charities} columns={charityColumns} />
 
-      {currentCharity.length > 0 && (
+      {charities?.length > 0 && (
         <CharityPagination
           startIndex={startIndex}
           endIndex={endIndex}
-          totalItems={filteredCharity.length}
-          currentPage={currentPage}
+          totalItems={totalRows}
+          currentPage={currentPage + 1} // Display as 1-based for UI
           totalPages={totalPages}
           onPreviousPage={handlePreviousPage}
           onNextPage={handleNextPage}

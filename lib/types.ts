@@ -524,6 +524,11 @@ type VerifyPayOnUsBankPayload = {
   businessId: string;
 }
 
+type VerifyBankNamePayload = {
+  institutionCode: string;
+  accountNumber: string;
+}
+
 
 type CustomerTransaction = {
   customerName: string | null;
@@ -585,6 +590,8 @@ type MerchantDetailsResponse = {
   reqCertificatePath: string | null,
   tinNo: string | null,
   tinPath: string | null,
+  ninNo: string | null,
+  cacNo: string | null,
   menuPath: string | null,
   userInformation: string | null,
   menu: string | null,
@@ -643,6 +650,12 @@ type MerchantDetailsResponse = {
   website: string | null,
   tiktok: string | null,
   wallet: string | null
+  lastLogin: string;
+  kycStatus: string;
+  reviewAvg: number | null;
+  reviewCount: number | null;
+  registrationDate: string | null;
+  nin: string | null;
 }
 
 type CustomerDetailsResponse = {
@@ -664,6 +677,7 @@ type CustomerDetailsResponse = {
   membershipTier: string | null;
   totalSpent: string | null;
   lastPurchaseDate: string | null;
+  lastLogin: string;
   globalWalletBalance: string | null;
   level2WalletBalance: string | null;
   savedCharities: string | null;
@@ -697,6 +711,18 @@ type CustomerDetailsResponse = {
       default: boolean;
     }
   ],
+  financialOverview: {
+    brandPointBalance: {
+      totalBrandPoint: number;
+      allBrandPointsEarned: number;
+      allBrandPointsRedeemed: number;
+      allBrandPointsDonated: number;
+    },
+    walletPointBalance: {
+      totalPoint: number;
+      allTimeSpent: number;
+    },
+  },
   emailVerified: boolean;
   phoneVerified: boolean;
 }
@@ -846,6 +872,11 @@ type EditDealPayload = {
   sendNotification: 'yes' | 'no';
 }
 
+type UpdateDealStatusPayload = {
+  dealId: string;
+  status: string;
+}
+
 type CreateRolePayload = {
   name: string;
   description: string;
@@ -885,6 +916,18 @@ type CreateAdminPayload = {
   password?: string;
 }
 
+type UpdateKycStatusPayload = {
+  merchantId: string
+  documentType: string
+  status: string
+  reason?: string
+}
+
+
+type Bank = {
+  code: string;
+  name: string;
+}
 
 type AdjustPointPayload = {
   walletId: string;
@@ -919,5 +962,248 @@ type ApiActivityLog = {
   createdTime?: string;
 };
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, ChangeBranchStatusPayload, CharityData, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardProps, DateSectionProps, DealData, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, GetBranchesResponse, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantTransaction, MetricCardProps, MilestoneTargetSectionProps, PointAnalyticsProps, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardModalProps, RewardRule, RewardRulesSectionProps, Rewards, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankPayload, VerifyPayOnUsBankPayload };
+type IndividualMerchantTransactionDetails = {
+  transactionId: string;
+  transactionNo: string;
+  type: string;
+  trnType: string;
+  trnInAmount: number | null;
+  trnOutAmount: number | null;
+  fee: number | null;
+  status: string;
+  paymentDate: string | null;
+  merchantId: string;
+  merchantName: string;
+  branchId: string | null;
+  customerId: string;
+  payOnusAccountName: string | null;
+  payOnusAccountNumber: string | null;
+  payOnusBank: string | null;
+  paidFromAccount: string | null;
+  currency: string | null;
+  bonusDetails: string;
+  reportDetails: string | null;
+}
+
+interface DashboardMetrics {
+  merchants: {
+    serviceFee: number;
+    totalServiceFee: number;
+    payOnUsFee: number;
+    totalCredit: number;
+    newMerchants: number;
+    totalSales: number;
+    payOut: number;
+    totalPayOut: number;
+    totalMerchants: number;
+    credit: number;
+  };
+  customers: {
+    deactiveCustomers: number;
+    totalLoadMoney: number;
+    totalBonus: number;
+    totalCustomers: number;
+    shareMoneyDebit: number;
+    totalCredit: number;
+    shareMoneyCredit: number;
+    bonus: number;
+    activeCustomers: number;
+    purchase: number;
+    loadMoney: number;
+    totalDebit: number;
+    totalPurchase: number;
+    credit: number;
+    debit: number;
+    dateBetweenUsers: number;
+  };
+  tickets: {
+    pendingTickets: string;
+    processingTickets: string;
+    totalProcessingTickets: string | number;
+    totalPendingTickets: string | number;
+    totalCompletedTickets: string | number;
+    totalTickets: number;
+    completedTickets: string;
+  };
+}
+
+interface ChartDataPoint {
+  period: string;
+  value: number;
+}
+
+interface MetricItem {
+  label: string;
+  value: string;
+  icon: React.ComponentType<{ className?: string }>;
+  progress: number;
+}
+
+type PointFlowData = {
+  // percentage: { redeemed: number; earned: number };
+  totalPoints: number;
+  earnedPoints: number;
+  expiredPoints: number;
+  redeemedPercentage: string;
+  redeemedPoints: number;
+  donatedPoints: number;
+  earnedPercentage: string;
+  // distribution: { redeemed: number; earned: number; expired: number; donated: number };
+};
+
+type Funding = {
+  id: string;
+  amount: number;
+  transactionId: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type FundingReconciliation = {
+  dynamicAccountNumber: string;
+  collectionBank: string;
+  sessionId: string | null;
+  providerId: string;
+  fees: number;
+  transactionReference: string;
+  providerStatus: string;
+  customerId: string;
+  senderName: string | null;
+  senderBank: string | null;
+  amountPaid: number;
+  pointsIssued: number;
+  numoniStatus: string;
+  timestamp: string;
+};
+
+type PaginatedFundingReconciliationData = {
+  data: FundingReconciliation[];
+  totalRows?: number;
+  totalPages?: number;
+  total?: number;
+};
+
+type FundingReconciliationApiResponse = {
+  success: boolean;
+  message: string;
+  data: FundingReconciliation[] | PaginatedFundingReconciliationData;
+};
+
+type Payout = {
+  merchantName: string;
+  merchantBankName: string | null;
+  accountNumber: string | null;
+  branchName: string | null;
+  merchantId: string;
+  payoutAmount: number;
+  payoutDate: string;
+  merchantBalanceBefore: number | null;
+  merchantBalanceAfter: number | null;
+  providerFee: number | null;
+  salesStartDateTime: string | null;
+  salesEndDateTime: string | null;
+  settlementReference: string | null;
+  payonusReference: string | null;
+  payonusBalanceBefore: number | null;
+  payonusBalanceAfter: number | null;
+  status: string | null;
+};
+
+type PayoutPagination = {
+  totalPages: number;
+  pageSize: number;
+  currentPage: number;
+  totalElements: number;
+};
+
+type PaginatedPayoutData = {
+  pagination: PayoutPagination;
+  data: Payout[];
+  success: boolean;
+  message: string;
+};
+
+type PayoutApiResponse = {
+  pagination: PayoutPagination;
+  data: Payout[];
+  success: boolean;
+  message: string;
+};
+
+interface MerchantRewardRule {
+  id: string;
+  minSpend: number;
+  maxSpend: number;
+  rewardValue: number;
+}
+
+interface RewardRuleApiItem {
+  minSpend: number;
+  maxSpend: number;
+  rewardValue: number;
+}
+
+interface RewardData {
+  distributionType: string;
+  rewardCap: number;
+  rewardType: string;
+  rules: RewardRuleApiItem[];
+  milestoneTarget: number;
+  PercentageDeductionpertransaction: number;
+}
+
+interface RewardRuleApiResponse {
+  data: RewardData;
+  message: string;
+  status: boolean;
+}
+
+interface RuleCardProps {
+  title: string;
+  value: string | number;
+  tooltip?: string;
+}
+
+interface CacVerificationResponse {
+  data: {
+    headOfficeAddress: string;
+    companyEmail: string;
+    city: string;
+    rcNumber: string;
+    companyName: string;
+    cac_status: string;
+    id: number;
+    state: string;
+    cac_check: string;
+    status: string;
+  };
+  message: string;
+  status: number;
+}
+
+type DealInformationProps = {
+  name: string;
+  description: string;
+  dealType: string;
+  initialPrice?: string;
+  discount?: string;
+  newPrice?: string;
+  category: string[];
+  availableStock: string;
+  startDate: string;
+  endDate: string;
+  dealStatus: string;
+  approveStatus?: string | null;
+  merchantName?: string;
+  merchantId?: string | null;
+  usageLimit?: string | null;
+  qualifyingPurchase?: string | null;
+  rewardItemQuantity?: string | null;
+  pricePerItem?: string | null;
+  isBranchDeal?: boolean;
+  branchId?: string | null;
+}
+export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, Bank, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, CacVerificationResponse, ChangeBranchStatusPayload, CharityData, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateSectionProps, DealData, DealInformationProps, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, Funding, FundingReconciliation, FundingReconciliationApiResponse, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantRewardRule, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PaginatedFundingReconciliationData, PaginatedPayoutData, Payout, PayoutApiResponse, PayoutPagination, PointAnalyticsProps, PointFlowData, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardData, RewardModalProps, RewardRule, RewardRuleApiItem, RewardRuleApiResponse, RewardRulesSectionProps, Rewards, RuleCardProps, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateDealStatusPayload, UpdateKycStatusPayload, UpdateMerchantPayload, UpdateRewardRuleModalProps, VerifyBankNamePayload, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
