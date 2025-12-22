@@ -10,8 +10,10 @@ import { Bank, CreateMerchantsPayload } from '@/lib/types';
 import { useUserAuthStore } from '@/stores/user-auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import BusinessImagesSection from "./business-images-section";
 import BusinessInformation from "./business-information";
 import ContactInformation from "./contact-information";
+import { KycPdfUpload } from "./kyc-pdf-upload";
 import PayoutInformation from "./payout-information";
 import ProfileUploadSection from "./profile-upload-section";
 
@@ -44,6 +46,10 @@ export default function AddMerchants() {
       state: '',
       lga: '',
       businessDescription: '',
+      businessImagePath: [],
+      businessOpenHours: '',
+      businessClosingHours: '',
+      cacDocumentPath: '',
       password: '',
       confirmPassword: '',
       contactPersonName: '',
@@ -77,6 +83,14 @@ export default function AddMerchants() {
     setValue('profileImage', imageUrl || '');
   };
 
+  const handleBusinessImagesChange = (imageUrls: string[]) => {
+    setValue('businessImagePath', imageUrls);
+  };
+
+  const handleCacDocumentChange = (documentUrl: string | null) => {
+    setValue('cacDocumentPath', documentUrl || '');
+  };
+
   const onSubmit = async (data: MerchantFormData) => {
     // console.log('Form submitted with data:', data);
     // console.log('Form errors:', form.formState.errors);
@@ -94,7 +108,7 @@ export default function AddMerchants() {
       emailAddress: data.emailAddress,
       phoneNumber: formatPhoneWithPlus234(data.phoneNumber),
       businessCategory: data.businessCategory,
-      rcNumber: data.rcNumber,
+      rcNumber: data.rcNumber || '',
       userId: user?.id || '',
       businessType: data.businessType,
       headquartersAddress: data.headquarterAddress,
@@ -102,6 +116,10 @@ export default function AddMerchants() {
       state: data.state,
       lga: data.lga,
       businessDescription: data.businessDescription,
+      businessImagePath: data.businessImagePath,
+      businessOpenHours: data.businessOpenHours,
+      businessClosingHours: data.businessClosingHours,
+      cacDocumentPath: data.cacDocumentPath,
       password: data.password,
       confirmPassword: data.confirmPassword,
       contactPersonName: data.contactPersonName,
@@ -138,6 +156,25 @@ export default function AddMerchants() {
           control={control}
           setValue={setValue}
         />
+
+        {/* Business Images Section */}
+        <BusinessImagesSection
+          onImagesChange={handleBusinessImagesChange}
+          imageUrls={watch('businessImagePath')}
+        />
+
+        {/* CAC Document Upload Section */}
+        <div className="m-6 border border-gray-100 rounded-xl p-6">
+          <KycPdfUpload
+            label="CAC Document"
+            description="Upload your Corporate Affairs Commission (CAC) registration document"
+            required={false}
+            onPdfChange={handleCacDocumentChange}
+            maxSize="5mb"
+            currentValue={watch('cacDocumentPath')}
+            fieldName="cacDocumentPath"
+          />
+        </div>
 
         {/* Contact Information Section */}
         <ContactInformation

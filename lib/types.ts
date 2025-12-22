@@ -491,6 +491,10 @@ type CreateMerchantsPayload = {
   state: string;
   lga: string;
   businessDescription: string;
+  businessImagePath?: string[];
+  businessOpenHours?: string;
+  businessClosingHours?: string;
+  cacDocumentPath?: string;
   password: string;
   confirmPassword: string;
   contactPersonName: string;
