@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetFundingReconciliation from "@/hooks/query/useGetFundingReconciliation";
 import { useFundingFilters } from "@/hooks/utils/useFundingFilters";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
-import { FundingReconciliation, PaginatedFundingReconciliationData } from "@/lib/types";
+import { FundingReconciliation } from "@/lib/types";
 import { fundingColumns } from './funding-column';
 import FundingDataSection from './funding-data-section';
 import FundingHeaderSection from './funding-header-section';
@@ -37,39 +37,17 @@ export default function FundingTable() {
   });
 
   // Extract funding data from API response
-  // API response structure can be:
-  // 1. Paginated: { data: { data: [], totalRows: number, totalPages: number }, success: boolean }
-  // 2. Non-paginated: { data: [], success: boolean }
-  const apiData = data?.data;
+  // New API response structure:
+  // { pagination: { totalPages, pageSize, currentPage, totalElements }, data: [], success: boolean, message: string }
+  const apiResponse = data?.data;
 
-  // Check if response is paginated (has nested data structure)
-  // isPaginated is true if apiData exists, is NOT an array, and has a 'data' property
-  const isPaginated = apiData && !Array.isArray(apiData) && 'data' in apiData;
+  // Extract pagination info
+  const pagination = apiResponse?.pagination;
+  const funding: FundingReconciliation[] = apiResponse?.data || [];
 
-  // Type guard to check if apiData is paginated
-  const paginatedData = isPaginated ? apiData as PaginatedFundingReconciliationData : null;
-
-  // Get all funding records
-  // If paginated, extract from paginatedData.data
-  // Otherwise, apiData is the array directly (since isPaginated already checked !Array.isArray)
-  const allFunding: FundingReconciliation[] = isPaginated
-    ? paginatedData?.data || []
-    : (apiData as FundingReconciliation[]) || [];
-
-  // Get totalRows from API if paginated, otherwise use array length
-  const totalRows = isPaginated
-    ? paginatedData?.totalRows || paginatedData?.total || allFunding.length
-    : allFunding.length;
-
-  // Get totalPages from API if paginated, otherwise calculate
-  const totalPages = isPaginated
-    ? paginatedData?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE)
-    : Math.ceil(totalRows / ITEMS_PER_PAGE);
-
-  // If API doesn't paginate, do client-side pagination
-  const funding: FundingReconciliation[] = isPaginated
-    ? allFunding // API already paginated
-    : allFunding.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE); // Client-side pagination
+  // Get pagination values from API response
+  const totalRows = pagination?.totalElements || funding.length;
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
 
   const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
     currentPage,
