@@ -194,7 +194,7 @@ export default function AllDealsData() {
       />
 
       {/* Pagination Controls */}
-      {dealsData && dealsData.length > 0 && (
+      {dealsData && dealsData?.length > 0 && (
         <DealsPagination
           startIndex={startIndex}
           endIndex={endIndex}
