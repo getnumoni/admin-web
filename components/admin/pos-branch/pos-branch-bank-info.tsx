@@ -1,6 +1,5 @@
 'use client';
 
-import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { FormCombobox } from '@/components/ui/form-combobox';
 import { FormInputTopLabel } from '@/components/ui/form-input';
 import { LoadingModal } from '@/components/ui/loading-modal';
@@ -87,46 +86,24 @@ export default function PosBranchBankInfo({ control, setValue }: PosBranchBankIn
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Bank Information</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
+          <FormCombobox
             control={control}
             name="bankCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FormCombobox
-                    control={control}
-                    name="bankCode"
-                    label="Select Bank"
-                    options={bankOptions}
-                    placeholder={isBanksPending ? "Loading banks..." : "Search and select a bank..."}
-                    searchPlaceholder="Search banks..."
-                    emptyMessage="No bank found."
-                    disabled={isBanksPending}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Select Bank"
+            options={bankOptions}
+            placeholder={isBanksPending ? "Loading banks..." : "Search and select a bank..."}
+            searchPlaceholder="Search banks..."
+            emptyMessage="No bank found."
+            disabled={isBanksPending}
+            required
           />
 
-          <FormField
+          <FormInputTopLabel
             control={control}
             name="bankAccountNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FormInputTopLabel
-                    control={control}
-                    name="bankAccountNumber"
-                    label="Account Information"
-                    placeholder="Enter account number"
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Account Information"
+            placeholder="Enter account number"
+            required
           />
         </div>
 

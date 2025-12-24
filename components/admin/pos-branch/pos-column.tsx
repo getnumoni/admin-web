@@ -1,6 +1,11 @@
-import { getDealStatusText, getStatusColor } from "@/lib/helper";
+'use client';
+
+import { Button } from "@/components/ui/button";
+import { downloadQRCodeWithLogo, getDealStatusText, getStatusColor } from "@/lib/helper";
 import { PosData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { Download } from "lucide-react";
+import Image from "next/image";
 
 
 export const posColumns: ColumnDef<PosData>[] = [
@@ -149,4 +154,60 @@ export const posColumns: ColumnDef<PosData>[] = [
       );
     },
   },
+  {
+    accessorKey: 'posQRCode',
+    header: "POS QR Code",
+    cell: ({ row }) => {
+      const qrCode = row.getValue("posQRCode") as string | null | undefined;
+      const posId = row.getValue("posId") as string;
+      const posName = row.getValue("posName") as string;
+
+      const handleDownloadQRCode = async () => {
+        if (!qrCode) return;
+
+        try {
+          const filename = posName || posId || 'pos';
+          await downloadQRCodeWithLogo(qrCode, filename, 'pdf');
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to download QR code';
+          console.error('Error downloading QR code:', errorMessage, error);
+          // You can add toast notification here if needed
+          // toast.error(errorMessage);
+        }
+      };
+
+      if (!qrCode) {
+        return (
+          <div className="text-gray-400 text-sm">
+            N/A
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex items-center gap-2">
+          <div className="relative w-12 h-12 rounded border border-gray-200 overflow-hidden bg-white">
+            <Image
+              src={qrCode}
+              alt={`QR Code for ${posName || posId}`}
+              width={48}
+              height={48}
+              className="object-contain"
+              unoptimized
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadQRCode}
+            className="h-8 w-8 p-0"
+            title="Download QR Code as PDF"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+        </div>
+      );
+    },
+  }
 ];
