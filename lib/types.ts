@@ -827,11 +827,14 @@ type PosData = {
   accountHolderName: string;
   bankCode: string;
   bankTransferCode: string;
-  location: string;
+  location: string | null;
+  address: string | null;
   status: string;
   posQRCode: string;
   createDate: string;
   updatedDate: string;
+  merchantLogo: string | null;
+  merchantName: string | null;
 }
 
 type Merchant = {

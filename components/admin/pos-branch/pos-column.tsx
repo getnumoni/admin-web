@@ -1,11 +1,12 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { downloadQRCodeWithLogo, getDealStatusText, getStatusColor } from "@/lib/helper";
+import { downloadQRCodeImageWithLogo, getDealStatusText, getStatusColor } from "@/lib/helper";
 import { PosData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 
 export const posColumns: ColumnDef<PosData>[] = [
@@ -161,18 +162,20 @@ export const posColumns: ColumnDef<PosData>[] = [
       const qrCode = row.getValue("posQRCode") as string | null | undefined;
       const posId = row.getValue("posId") as string;
       const posName = row.getValue("posName") as string;
+      const merchantLogo = row.original.merchantLogo as string | null | undefined;
+      const location = row.original.location as string | null | undefined;
+      const address = row.original.address as string | null | undefined;
 
       const handleDownloadQRCode = async () => {
         if (!qrCode) return;
 
         try {
           const filename = posName || posId || 'pos';
-          await downloadQRCodeWithLogo(qrCode, filename, 'pdf');
+          await downloadQRCodeImageWithLogo(qrCode, filename, merchantLogo, location, address);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to download QR code';
           console.error('Error downloading QR code:', errorMessage, error);
-          // You can add toast notification here if needed
-          // toast.error(errorMessage);
+          toast.error(errorMessage);
         }
       };
 
