@@ -3,10 +3,10 @@
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { FormCombobox } from '@/components/ui/form-combobox';
 import useGetAllMerchants from '@/hooks/query/useGetAllMerchants';
-import { Merchant } from '@/lib/types';
-import { Control } from 'react-hook-form';
-import { useEffect, useState } from 'react';
 import { PosBranchFormData } from '@/lib/schemas/pos-branch-schema';
+import { Merchant } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { Control } from 'react-hook-form';
 
 interface MerchantSelectionProps {
   control: Control<PosBranchFormData>;
@@ -29,10 +29,10 @@ export default function MerchantSelection({ control }: MerchantSelectionProps) {
     }
 
     const nextOptions = merchantsPageData.map((merchant: Merchant) => ({
-      value: merchant.userId,
+      value: merchant.id,
       label: merchant.businessName,
     }));
-    
+
     setMerchantOptions(prev => {
       const existing = new Set(prev.map(o => o.value));
       const merged = [...prev];
