@@ -25,6 +25,7 @@ import PosBranchFileUpload from './pos-branch-file-upload';
 const FORM_DEFAULT_VALUES: PosBranchFormData = {
   merchantId: '',
   singleUpload: false,
+  posName: '',
   posBranchFile: undefined,
   bankCode: '',
   bankAccountNumber: '',
@@ -112,6 +113,7 @@ export default function AddPosBranch() {
     if (checked) {
       setValue('posBranchFile', undefined);
     } else {
+      setValue('posName', '');
       setValue('location', '');
       setValue('address', '');
     }
@@ -125,7 +127,12 @@ export default function AddPosBranch() {
   };
 
   const handleSingleUpload = (data: PosBranchFormData) => {
-    const { location, address } = data;
+    const { location, address, posName } = data;
+
+    if (!posName || !posName.trim()) {
+      toast.error('Please provide POS name');
+      return;
+    }
 
     if (!location || !address) {
       toast.error('Please provide location and address');
@@ -133,7 +140,7 @@ export default function AddPosBranch() {
     }
 
     handleCreatePos({
-      posName: merchantName,
+      posName: posName.trim(),
       merchantId: data.merchantId,
       bankName,
       accountNo: data.bankAccountNumber,
@@ -218,7 +225,9 @@ export default function AddPosBranch() {
         </div>
 
         {/* Merchant Selection */}
-        <MerchantSelection control={control} />
+        <div className="mb-6">
+          <MerchantSelection control={control} />
+        </div>
 
         {/* Single Upload Toggle */}
         <div className="mb-6">
@@ -246,7 +255,6 @@ export default function AddPosBranch() {
             )}
           />
         </div>
-
         {/* File Upload Section - Show when singleUpload is false */}
         <div
           className={`${ANIMATION_CLASSES.transition} ${singleUpload ? ANIMATION_CLASSES.hidden : ANIMATION_CLASSES.visible
@@ -255,14 +263,21 @@ export default function AddPosBranch() {
           <PosBranchFileUpload control={control} setValue={setValue} />
         </div>
 
-        {/* Location Information Section - Show when singleUpload is true */}
+        {/* POS Name and Location Information Section - Show when singleUpload is true */}
         <div
           className={`${ANIMATION_CLASSES.transition} ${singleUpload ? ANIMATION_CLASSES.visible : ANIMATION_CLASSES.hidden
             }`}
         >
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Location Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">POS Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <FormInputTopLabel
+                control={control}
+                name="posName"
+                label="POS Name"
+                placeholder="Enter POS name"
+                required
+              />
               <FormInputTopLabel
                 control={control}
                 name="location"
@@ -270,6 +285,8 @@ export default function AddPosBranch() {
                 placeholder="Enter location"
                 required
               />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInputTopLabel
                 control={control}
                 name="address"
