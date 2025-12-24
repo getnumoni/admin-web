@@ -1,6 +1,8 @@
+import { ADMIN_MERCHANTS_POS_BRANCH_LIST_URL } from "@/constant/routes";
 import api from "@/lib/api";
 import { PosBranchFormData } from "@/lib/schemas/pos-branch-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type UploadPosCsvPayload = {
@@ -11,7 +13,7 @@ type UploadPosCsvPayload = {
 
 export const useUploadPosCsv = () => {
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
     mutationFn: async (payload: UploadPosCsvPayload) => {
       const { formData, file, bankName } = payload;
@@ -52,6 +54,7 @@ export const useUploadPosCsv = () => {
     onSuccess: (data) => {
       if (data) {
         toast.success(data?.data?.message ?? "POS CSV uploaded successfully");
+        router.push(ADMIN_MERCHANTS_POS_BRANCH_LIST_URL);
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {

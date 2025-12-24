@@ -2,6 +2,21 @@
 import React from 'react';
 import { RewardRule } from './types';
 
+// Extend Window interface for html2canvas
+declare global {
+  interface Window {
+    html2canvas?: (
+      element: HTMLElement,
+      options?: {
+        backgroundColor?: string;
+        scale?: number;
+        useCORS?: boolean;
+        logging?: boolean;
+      }
+    ) => Promise<HTMLCanvasElement>;
+  }
+}
+
 /**
  * Determines if a navigation item should be marked as active based on the current path.
  * 
@@ -701,6 +716,400 @@ export const downloadQRCodeAsImage = async (printRef: React.RefObject<HTMLDivEle
   }
 };
 
+
+/**
+ * Fetches an image and converts it to a data URL to avoid CORS issues
+ * Falls back to direct image loading if fetch fails
+ */
+const fetchImageAsDataUrl = async (src: string): Promise<string> => {
+  // If it's already a data URL, return it
+  if (src.startsWith('data:')) {
+    return src;
+  }
+
+  try {
+    // Try fetching with CORS
+    const response = await fetch(src, {
+      mode: 'cors',
+      credentials: 'omit'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          resolve(reader.result as string);
+        } else {
+          reject(new Error('FileReader returned no result'));
+        }
+      };
+      reader.onerror = () => reject(new Error('FileReader error'));
+      reader.readAsDataURL(blob);
+    });
+  } catch (fetchError) {
+    // Fallback: return the original URL and let the image load handle it
+    // This will work if the image can be loaded directly (same origin or CORS-enabled)
+    console.warn('Fetch failed, using direct image load:', fetchError);
+    return src;
+  }
+};
+
+/**
+ * Loads an image with proper error handling and timeout
+ * Sets crossOrigin for external URLs to allow canvas access
+ */
+const loadImage = (src: string, isExternal: boolean = false): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const timeout = setTimeout(() => {
+      reject(new Error(`Image load timeout: ${src}`));
+    }, 10000); // 10 second timeout
+
+    // Set crossOrigin for external URLs to allow canvas to read pixel data
+    if (isExternal && !src.startsWith('data:') && !src.startsWith('blob:')) {
+      img.crossOrigin = 'anonymous';
+    }
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve(img);
+    };
+    img.onerror = (error) => {
+      clearTimeout(timeout);
+      const errorMsg = isExternal
+        ? `Failed to load external image (CORS may be blocking): ${src}`
+        : `Failed to load image: ${src}`;
+      reject(new Error(errorMsg));
+    };
+
+    img.src = src;
+  });
+};
+
+/**
+ * Converts SVG file to data URL by fetching it
+ */
+const svgToDataUrl = async (svgPath: string): Promise<string> => {
+  try {
+    const response = await fetch(svgPath);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch SVG: ${response.statusText}`);
+    }
+    const svgText = await response.text();
+    const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+    return URL.createObjectURL(svgBlob);
+  } catch (error) {
+    throw new Error(`Failed to convert SVG to data URL: ${error}`);
+  }
+};
+
+/**
+ * Downloads a QR code image with Numoni logo at the top using HTML/CSS approach
+ * This avoids CORS issues by using DOM rendering instead of canvas
+ * @param qrCodeUrl - URL or base64 data URL of the QR code image
+ * @param filename - Name for the downloaded file
+ * @param format - Download format: 'image' (PNG) or 'pdf'
+ * @param logoPath - Path to the logo image (defaults to Numoni logo)
+ */
+export const downloadQRCodeWithLogo = async (
+  qrCodeUrl: string,
+  filename: string,
+  format: 'image' | 'pdf' = 'image',
+  logoPath: string = '/assets/icons/numoni-logo-dark.svg'
+): Promise<void> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Convert SVG logo to data URL for PDF to ensure it loads
+      let logoSrc = logoPath;
+      if (logoPath.endsWith('.svg')) {
+        try {
+          const response = await fetch(logoPath);
+          if (response.ok) {
+            const svgText = await response.text();
+            logoSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgText)}`;
+          }
+        } catch (error) {
+          console.warn('Failed to convert SVG to data URL, using original path:', error);
+        }
+      }
+
+      // Create a temporary container
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '-9999px';
+      container.style.left = '-9999px';
+      container.style.width = '440px';
+      container.style.height = '520px';
+      container.style.backgroundColor = '#ffffff';
+      container.style.padding = '20px';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.alignItems = 'center';
+      container.style.gap = '20px';
+
+      // Create logo element
+      const logoImg = document.createElement('img');
+      logoImg.src = logoSrc;
+      logoImg.style.height = '80px';
+      logoImg.style.width = 'auto';
+      logoImg.style.objectFit = 'contain';
+
+      // Create QR code element
+      const qrCodeImg = document.createElement('img');
+      qrCodeImg.src = qrCodeUrl;
+      qrCodeImg.style.width = '400px';
+      qrCodeImg.style.height = '400px';
+      qrCodeImg.style.objectFit = 'contain';
+
+      // Append elements
+      container.appendChild(logoImg);
+      container.appendChild(qrCodeImg);
+      document.body.appendChild(container);
+
+      // Wait for images to load
+      let imagesLoaded = 0;
+      const totalImages = 2;
+
+      const onImageLoad = () => {
+        imagesLoaded++;
+        if (imagesLoaded === totalImages) {
+          if (format === 'pdf') {
+            // PDF format: Open print window
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+              printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <title>${filename} - QR Code</title>
+                    <style>
+                      @media print {
+                        @page { 
+                          margin: 0; 
+                          size: A4;
+                        }
+                        body { 
+                          margin: 0; 
+                          padding: 20px; 
+                        }
+                      }
+                      body {
+                        margin: 0;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 20px;
+                        background: white;
+                        font-family: Arial, sans-serif;
+                        min-height: 100vh;
+                      }
+                      .logo {
+                        height: 80px;
+                        width: auto;
+                        max-width: 100%;
+                      }
+                      .qr-code {
+                        width: 400px;
+                        height: 400px;
+                        max-width: 100%;
+                        object-fit: contain;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <img src="${logoSrc}" class="logo" alt="Logo" />
+                    <img src="${qrCodeUrl}" class="qr-code" alt="QR Code" />
+                    <script>
+                      window.onload = function() {
+                        setTimeout(function() {
+                          window.print();
+                          setTimeout(function() {
+                            window.close();
+                          }, 500);
+                        }, 250);
+                      };
+                    </script>
+                  </body>
+                </html>
+              `);
+              printWindow.document.close();
+            }
+            document.body.removeChild(container);
+            resolve();
+          } else {
+            // Image format: Use html2canvas if available, otherwise use canvas fallback
+            if (typeof window !== 'undefined' && window.html2canvas) {
+              // Use html2canvas library if installed
+              window.html2canvas(container, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+              }).then((canvas: HTMLCanvasElement) => {
+                canvas.toBlob((blob) => {
+                  if (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${filename.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  }
+                  document.body.removeChild(container);
+                  resolve();
+                }, 'image/png');
+              }).catch((error: Error) => {
+                document.body.removeChild(container);
+                reject(error);
+              });
+            } else {
+              // Fallback: Try to use the container's images directly with canvas
+              // Since images are already loaded in DOM, we can try to draw them
+              // But if CORS fails, we'll open a new window as last resort
+              try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                  throw new Error('Could not get canvas context');
+                }
+
+                canvas.width = 440;
+                canvas.height = 520;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Try to draw the already-loaded images from the container
+                const logoElement = container.querySelector('img:first-child') as HTMLImageElement;
+                const qrElement = container.querySelector('img:last-child') as HTMLImageElement;
+
+                if (logoElement && qrElement && logoElement.complete && qrElement.complete) {
+                  // Images are already loaded, try to draw them
+                  try {
+                    // Draw logo (centered)
+                    const logoHeight = 80;
+                    const logoWidth = logoElement.naturalWidth * (logoHeight / logoElement.naturalHeight);
+                    const logoX = (canvas.width - logoWidth) / 2;
+                    ctx.drawImage(logoElement, logoX, 20, logoWidth, logoHeight);
+
+                    // Draw QR code
+                    ctx.drawImage(qrElement, 20, 120, 400, 400);
+
+                    // Convert to blob and download
+                    canvas.toBlob((blob) => {
+                      if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${filename.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                      }
+                      document.body.removeChild(container);
+                      resolve();
+                    }, 'image/png');
+                  } catch (drawError) {
+                    // If drawing fails (CORS), fall back to opening window
+                    throw drawError;
+                  }
+                } else {
+                  throw new Error('Images not fully loaded');
+                }
+              } catch (error) {
+                // Final fallback: Open a new window with the images
+                // User can right-click to save, or browser print to PDF
+                const tempWindow = window.open('', '_blank');
+                if (tempWindow) {
+                  tempWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                      <head>
+                        <title>${filename} - QR Code</title>
+                        <style>
+                          body {
+                            margin: 0;
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 20px;
+                            background: white;
+                            font-family: Arial, sans-serif;
+                          }
+                          .logo {
+                            height: 80px;
+                            width: auto;
+                          }
+                          .qr-code {
+                            width: 400px;
+                            height: 400px;
+                            object-fit: contain;
+                          }
+                          .instructions {
+                            text-align: center;
+                            color: #666;
+                            font-size: 14px;
+                            margin-top: 20px;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        <img src="${logoPath}" class="logo" alt="Logo" />
+                        <img src="${qrCodeUrl}" class="qr-code" alt="QR Code" />
+                        <div class="instructions">
+                          Right-click on the image and select "Save image as..." to download,<br/>
+                          or use your browser's print function (Ctrl/Cmd+P) to save as PDF.
+                        </div>
+                      </body>
+                    </html>
+                  `);
+                  tempWindow.document.close();
+                  document.body.removeChild(container);
+                  resolve();
+                } else {
+                  document.body.removeChild(container);
+                  reject(new Error('Popup blocked. Please allow popups and try again, or install html2canvas library.'));
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const onImageError = (error: string | Event) => {
+        document.body.removeChild(container);
+        reject(new Error('Failed to load image'));
+      };
+
+      logoImg.onload = onImageLoad;
+      logoImg.onerror = onImageError;
+      qrCodeImg.onload = onImageLoad;
+      qrCodeImg.onerror = onImageError;
+
+      // Timeout fallback
+      setTimeout(() => {
+        if (imagesLoaded < totalImages) {
+          document.body.removeChild(container);
+          reject(new Error('Image load timeout'));
+        }
+      }, 10000);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      reject(new Error(`Failed to download QR code: ${errorMessage}`));
+    }
+  });
+};
 
 export const mapPointExpirationToForm = (pointExpirationDays: number): string => {
   if (pointExpirationDays === 1) return "1-day";
