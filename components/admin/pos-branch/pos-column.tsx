@@ -171,7 +171,7 @@ export const posColumns: ColumnDef<PosData>[] = [
 
         try {
           const filename = posName || posId || 'pos';
-          await downloadQRCodeImageWithLogo(qrCode, filename, merchantLogo, location, address);
+          await downloadQRCodeImageWithLogo(qrCode, filename, merchantLogo, location, address, posId);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to download QR code';
           console.error('Error downloading QR code:', errorMessage, error);
