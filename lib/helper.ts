@@ -847,7 +847,8 @@ export const downloadQRCodeImageWithLogo = async (
   title: string,
   merchantLogo?: string | null,
   location?: string | null,
-  address?: string | null
+  address?: string | null,
+  posId?: string | null
 ): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -960,6 +961,13 @@ export const downloadQRCodeImageWithLogo = async (
           ctx.fillText(location.toLowerCase(), canvas.width / 2, textY);
           textY += 16;
         }
+        // Draw pos ID
+        if (posId) {
+          ctx.font = '11px Arial, sans-serif';
+          ctx.fillStyle = '#666666';
+          ctx.fillText('POS ID: ' + posId.toLowerCase(), canvas.width / 2, textY);
+          textY += 16;
+        }
 
         // Draw address
         if (address) {
@@ -987,7 +995,7 @@ export const downloadQRCodeImageWithLogo = async (
               const url = URL.createObjectURL(blob);
               const link = document.createElement('a');
               link.href = url;
-              link.download = `${title.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
+              link.download = `${posId ? `${posId}-` : ''}${title.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
               link.style.display = 'none';
               document.body.appendChild(link);
 
@@ -1039,6 +1047,14 @@ export const downloadQRCodeImageWithLogo = async (
             textY += 16;
           }
 
+          // Draw pos ID
+          if (posId) {
+            ctx.font = '11px Arial, sans-serif';
+            ctx.fillStyle = '#666666';
+            ctx.fillText('POS ID: ' + posId.toLowerCase(), canvas.width / 2, textY);
+            textY += 16;
+          }
+
           // Draw address
           if (address) {
             ctx.font = '11px Arial, sans-serif';
@@ -1068,7 +1084,7 @@ export const downloadQRCodeImageWithLogo = async (
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${title.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
+                link.download = `${posId ? `${posId}-` : ''}${title.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
                 link.style.display = 'none';
                 document.body.appendChild(link);
 
