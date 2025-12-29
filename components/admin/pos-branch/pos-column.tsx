@@ -1,12 +1,17 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useDeletePos } from "@/hooks/mutation/useDeletePos";
 import { downloadQRCodeImageWithLogo, getDealStatusText, getStatusColor } from "@/lib/helper";
 import { PosData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Download } from "lucide-react";
+import { Download, Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import DeletePOSDialog from "./delete-pos-dialog";
+import UpdatePOSDialog from "./update-pos-dialog";
 
 
 export const posColumns: ColumnDef<PosData>[] = [
@@ -212,5 +217,85 @@ export const posColumns: ColumnDef<PosData>[] = [
         </div>
       );
     },
-  }
+  },
+  {
+    id: "actions",
+    header: "Action",
+    cell: ({ row }) => {
+      return <ActionCell pos={row.original} />;
+    },
+  },
 ];
+
+
+
+
+// Action Cell Component
+function ActionCell({ pos }: { pos: PosData }) {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const { handleDeletePos, isPending: isDeletePending, isSuccess: isDeleteSuccess } = useDeletePos();
+
+  const handleDeletePOSClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    handleDeletePos(pos.id);
+  };
+
+  const handleUpdatePOSClick = () => {
+    setIsUpdateDialogOpen(true);
+  };
+
+  useEffect(() => {
+    if (isDeleteSuccess) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isDeleteSuccess]);
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={handleUpdatePOSClick}
+              className="cursor-pointer"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit POS
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDeletePOSClick}
+              className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete POS
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <UpdatePOSDialog
+        isOpen={isUpdateDialogOpen}
+        onClose={() => setIsUpdateDialogOpen(false)}
+        pos={pos}
+      />
+
+      <DeletePOSDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        posName={pos.posName}
+        posId={pos.posId}
+        isLoading={isDeletePending}
+      />
+    </>
+  );
+}
