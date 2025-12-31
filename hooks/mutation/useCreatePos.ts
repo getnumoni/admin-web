@@ -33,7 +33,7 @@ export const useCreatePos = () => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      console.log("Failed to create POS", error);
+      // console.log("Failed to create POS", error);
       toast.error(error?.response?.data?.message ?? "Failed to create POS");
     },
     onSettled: () => {
