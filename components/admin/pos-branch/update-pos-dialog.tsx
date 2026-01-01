@@ -331,11 +331,37 @@ export default function UpdatePOSDialog({
       setIsAccountValid(true);
       // Auto-fill account holder name from verification response
       setValue("accountHolderName", accountNameBankName);
+
+      // Log verified bank data
+      // const currentFormData = form.getValues();
+      // console.log("✅ Bank Verification Success - Verified Data:", {
+      //   bankCode: selectedBank,
+      //   accountNumber: accountNumber,
+      //   accountName: accountNameBankName,
+      //   bankName: bankOptions.find(b => b.value === selectedBank)?.label || "Unknown",
+      //   formData: {
+      //     bankCode: currentFormData.bankCode,
+      //     accountNo: currentFormData.accountNo,
+      //     accountHolderName: currentFormData.accountHolderName,
+      //   },
+      //   originalData: {
+      //     bankCode: pos.bankCode,
+      //     accountNo: pos.accountNo,
+      //     accountHolderName: pos.accountHolderName,
+      //   },
+      // });
     }
     // Failure case: Verification completed but failed
     else if (!isVerifyingBankName && verificationAttempted && accountNumber && accountNumber.length >= 10) {
       // Only mark as invalid if verification was attempted and completed without success
       setIsAccountValid(false);
+
+      // Log verification failure
+      // console.log("❌ Bank Verification Failed:", {
+      //   bankCode: selectedBank,
+      //   accountNumber: accountNumber,
+      //   accountName: accountNameBankName,
+      // });
 
       // Only clear account name if verification failed (no account name returned)
       // Don't clear if user manually entered a name
@@ -348,7 +374,7 @@ export default function UpdatePOSDialog({
         }
       }
     }
-  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, verificationAttempted, setValue, form]);
+  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, verificationAttempted, setValue, form, selectedBank, bankOptions, pos]);
 
   // ============================================================================
   // EVENT HANDLERS
@@ -383,6 +409,15 @@ export default function UpdatePOSDialog({
         location: data.location || "",
         address: data.address || "",
       };
+
+      // Log the update payload for debugging
+      // console.log("📤 Update POS Payload:", {
+      //   ...updatePayload,
+      //   bankCode: data.bankCode,
+      //   bankName: bankName,
+      //   originalBankCode: pos.bankCode,
+      //   originalBankName: pos.bankName,
+      // });
 
       // Call update mutation
       handleUpdatePos(updatePayload);
