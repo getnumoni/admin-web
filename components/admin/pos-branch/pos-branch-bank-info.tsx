@@ -5,10 +5,10 @@ import { FormInputTopLabel } from '@/components/ui/form-input';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import { useVerifyBankName } from '@/hooks/mutation/useVerifyBankName';
 import useGetBanks from '@/hooks/query/useGetBanks';
-import { Bank } from '@/lib/types';
-import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { PosBranchFormData } from '@/lib/schemas/pos-branch-schema';
+import { Bank } from '@/lib/types';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
 
 interface PosBranchBankInfoProps {
   control: Control<PosBranchFormData>;
@@ -17,7 +17,7 @@ interface PosBranchBankInfoProps {
 
 export default function PosBranchBankInfo({ control, setValue }: PosBranchBankInfoProps) {
   const { data: banks, isPending: isBanksPending } = useGetBanks();
-  const { handleVerifyBankName, isPending: isVerifyingBankName, isSuccess: isVerifiedBankName, accountName: accountNameBankName } = useVerifyBankName();
+  const { handleVerifyBankName, isPending: isVerifyingBankName, isSuccess: isVerifiedBankName, accountName: accountNameBankName, data: verifiedBankData } = useVerifyBankName();
 
   const [isAccountValid, setIsAccountValid] = useState<boolean>(false);
   const hasVerified = useRef<string>("");
@@ -72,13 +72,14 @@ export default function PosBranchBankInfo({ control, setValue }: PosBranchBankIn
   // Handle verification success
   useEffect(() => {
     if (isVerifiedBankName && accountNameBankName) {
+      // console.log("Verified Bank Result:", verifiedBankData);
       setIsAccountValid(true);
       setValue("accountName", accountNameBankName);
     } else if (!isVerifyingBankName && accountNumber && accountNumber.length >= 10) {
       setIsAccountValid(false);
       setValue("accountName", "");
     }
-  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, setValue]);
+  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, setValue, verifiedBankData]);
 
   return (
     <>
