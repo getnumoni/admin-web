@@ -66,6 +66,18 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     },
   },
   {
+    accessorKey: "customerId",
+    header: "Customer ID",
+    cell: ({ row }) => {
+      const customerId = row.getValue("customerId") as string;
+      return (
+        <div className="text-gray-600 text-sm">
+          {customerId}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "type",
     header: "Type",
     cell: ({ row }) => {
