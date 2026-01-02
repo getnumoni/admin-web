@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { FormCombobox } from "@/components/ui/form-combobox";
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { LoadingModal } from "@/components/ui/loading-modal";
@@ -140,12 +140,6 @@ export default function UpdatePOSDialog({
    */
   const isInitializing = useRef<boolean>(true);
 
-  /**
-   * Tracks if the account number field has been manually edited by the user
-   * Prevents verification from triggering on initial mount/page load
-   */
-  const accountNumberFieldTouched = useRef<boolean>(false);
-
   // ============================================================================
   // DATA TRANSFORMATION
   // ============================================================================
@@ -182,7 +176,7 @@ export default function UpdatePOSDialog({
       bankCode: pos.bankCode || "",
       accountNo: pos.accountNo || "",
       accountHolderName: pos.accountHolderName || "",
-      bankTransferCode: pos.bankTransferCode || "",
+      bankTransferCode: pos.bankCode || "",
     },
   });
 
@@ -217,7 +211,6 @@ export default function UpdatePOSDialog({
 
       // Set initialization flags
       isInitializing.current = true;
-      accountNumberFieldTouched.current = false;
 
       // Reset form with POS data
       form.reset({
@@ -227,7 +220,7 @@ export default function UpdatePOSDialog({
         bankCode: initialBank,
         accountNo: initialAccount,
         accountHolderName: pos.accountHolderName || "",
-        bankTransferCode: pos.bankTransferCode || "",
+        bankTransferCode: initialBank || "",
       });
 
       // Reset verification state when dialog opens
@@ -248,21 +241,20 @@ export default function UpdatePOSDialog({
   // ============================================================================
 
   /**
-   * Triggers bank account verification when user edits account number
+   * Triggers bank account verification when there's any change on the modal
    * 
    * Conditions for verification:
    * 1. Form initialization is complete
-   * 2. User has manually touched/edited the account number field
-   * 3. Account number has changed from initial value
-   * 4. Account number is at least 10 digits
-   * 5. Bank is selected
-   * 6. Not already verifying the same bank-account combination
+   * 2. Account number is at least 10 digits
+   * 3. Bank is selected
+   * 4. Not already verifying the same bank-account combination
    * 
    * Uses debouncing (500ms) to prevent excessive API calls while typing
+   * Always triggers verification when bank code or account number changes
    */
   useEffect(() => {
-    // Early return: Don't verify during initialization or if field hasn't been touched
-    if (isInitializing.current || !accountNumberFieldTouched.current) {
+    // Early return: Don't verify during initialization
+    if (isInitializing.current) {
       return;
     }
 
@@ -271,11 +263,16 @@ export default function UpdatePOSDialog({
       clearTimeout(verificationTimeout.current);
     }
 
-    // Check if account number has changed from initial value
-    const accountNumberChanged = accountNumber !== initialAccountNo.current;
+    // Reset verification state when bank code changes (to allow re-verification with new bank)
+    const currentVerificationKey = `${selectedBank}-${accountNumber}`;
+    if (hasVerified.current && hasVerified.current !== currentVerificationKey) {
+      setIsAccountValid(false);
+      setVerificationAttempted(false);
+      hasVerified.current = "";
+    }
 
     // Verify account if all conditions are met
-    if (selectedBank && accountNumber && accountNumber.length >= 10 && accountNumberChanged) {
+    if (selectedBank && accountNumber && accountNumber.length >= 10) {
       const verificationKey = `${selectedBank}-${accountNumber}`;
 
       // Only verify if we haven't verified this combination yet and not currently verifying
@@ -295,11 +292,6 @@ export default function UpdatePOSDialog({
           handleVerifyBankName(verifyPayload);
         }, 500);
       }
-    } else if (!accountNumberChanged) {
-      // If account number hasn't changed, reset verification state
-      setIsAccountValid(false);
-      setVerificationAttempted(false);
-      hasVerified.current = "";
     } else if (!selectedBank || !accountNumber || accountNumber.length < 10) {
       // If required fields are missing, reset verification state
       setIsAccountValid(false);
@@ -331,11 +323,41 @@ export default function UpdatePOSDialog({
       setIsAccountValid(true);
       // Auto-fill account holder name from verification response
       setValue("accountHolderName", accountNameBankName);
+      // Update bankTransferCode with the bankCode value
+      if (selectedBank) {
+        setValue("bankTransferCode", selectedBank);
+      }
+
+      // Log verified bank data
+      // const currentFormData = form.getValues();
+      // console.log("✅ Bank Verification Success - Verified Data:", {
+      //   bankCode: selectedBank,
+      //   accountNumber: accountNumber,
+      //   accountName: accountNameBankName,
+      //   bankName: bankOptions.find(b => b.value === selectedBank)?.label || "Unknown",
+      //   formData: {
+      //     bankCode: currentFormData.bankCode,
+      //     accountNo: currentFormData.accountNo,
+      //     accountHolderName: currentFormData.accountHolderName,
+      //   },
+      //   originalData: {
+      //     bankCode: pos.bankCode,
+      //     accountNo: pos.accountNo,
+      //     accountHolderName: pos.accountHolderName,
+      //   },
+      // });
     }
     // Failure case: Verification completed but failed
     else if (!isVerifyingBankName && verificationAttempted && accountNumber && accountNumber.length >= 10) {
       // Only mark as invalid if verification was attempted and completed without success
       setIsAccountValid(false);
+
+      // Log verification failure
+      // console.log("❌ Bank Verification Failed:", {
+      //   bankCode: selectedBank,
+      //   accountNumber: accountNumber,
+      //   accountName: accountNameBankName,
+      // });
 
       // Only clear account name if verification failed (no account name returned)
       // Don't clear if user manually entered a name
@@ -348,7 +370,7 @@ export default function UpdatePOSDialog({
         }
       }
     }
-  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, verificationAttempted, setValue, form]);
+  }, [isVerifiedBankName, accountNameBankName, isVerifyingBankName, accountNumber, verificationAttempted, setValue, form, selectedBank, bankOptions, pos]);
 
   // ============================================================================
   // EVENT HANDLERS
@@ -379,10 +401,19 @@ export default function UpdatePOSDialog({
         accountNo: data.accountNo,
         accountHolderName: data.accountHolderName,
         bankCode: data.bankCode,
-        bankTransferCode: data.bankTransferCode || "",
+        bankTransferCode: data.bankCode || "",
         location: data.location || "",
         address: data.address || "",
       };
+
+      // Log the update payload for debugging
+      // console.log("📤 Update POS Payload:", {
+      //   ...updatePayload,
+      //   bankCode: data.bankCode,
+      //   bankName: bankName,
+      //   originalBankCode: pos.bankCode,
+      //   originalBankName: pos.bankName,
+      // });
 
       // Call update mutation
       handleUpdatePos(updatePayload);
@@ -499,38 +530,13 @@ export default function UpdatePOSDialog({
                     required
                   />
 
-                  {/* Account Number Input - Custom field to track user edits */}
-                  <FormField
+                  {/* Account Number Input */}
+                  <FormInputTopLabel
                     control={form.control}
                     name="accountNo"
-                    render={({ field, fieldState: { error } }) => (
-                      <FormItem className="w-full">
-                        <label htmlFor="accountNo" className="mb-1 block text-sm font-medium text-[#838383]">
-                          Account Number <span className="text-red-500">*</span>
-                        </label>
-                        <FormControl>
-                          <input
-                            {...field}
-                            id="accountNo"
-                            type="text"
-                            placeholder="Enter account number"
-                            onChange={(e) => {
-                              // Mark field as touched when user types
-                              // This enables verification to trigger
-                              accountNumberFieldTouched.current = true;
-                              field.onChange(e.target.value);
-                            }}
-                            className={`w-full rounded-lg border px-4 py-3 text-base text-gray-900 placeholder-gray-400 disabled:cursor-not-allowed ${error
-                              ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500'
-                              : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-blue-500'
-                              }`}
-                          />
-                        </FormControl>
-                        <div className="min-h-[20px]">
-                          <FormMessage className="text-sm text-red-600" />
-                        </div>
-                      </FormItem>
-                    )}
+                    label="Account Number"
+                    placeholder="Enter account number"
+                    required
                   />
                 </div>
 
