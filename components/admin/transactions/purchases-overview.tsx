@@ -30,7 +30,7 @@ export function PurchaseOverview() {
     },
     {
       title: 'Number of Purchase',
-      value: formatValue(purchaseOverview?.numberofPurchase, true) ?? 0,
+      value: purchaseOverview?.numberofPurchase ?? 0,
       icon: <ShoppingCart className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#E3EAFD]',
       iconBgColor: 'bg-black'
@@ -57,8 +57,8 @@ export function PurchaseOverview() {
       iconBgColor: 'bg-black'
     },
     {
-      title: 'Settled',
-      value: formatValue(purchaseOverview?.Settled, true) ?? 0,
+      title: 'Number of Settled',
+      value: purchaseOverview?.Settled ?? 0,
       icon: <CheckCircle className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#E3EAFD]',
     }
