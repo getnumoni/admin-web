@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetTransactionListByCustomerId from "@/hooks/query/useGetTransactionListByCustomerId";
-import { formatDateReadable, getTransactionTypeColor } from "@/lib/helper";
+import { extractErrorMessage, formatDateReadable, getTransactionTypeColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
 
 type Transaction = {
@@ -164,7 +164,7 @@ export default function CustomerTransactionById({ customerId }: { customerId: st
     return <LoadingSpinner message="Loading transaction list..." />;
   }
   if (isError) {
-    return <ErrorState title="Error Loading Transaction List" message={error?.message || "Failed to load transaction list. Please try again."} onRetry={refetch} retryText="Retry" />;
+    return <ErrorState title="Error Loading Transaction List" message={extractErrorMessage(error) || "Failed to load transaction list. Please try again."} onRetry={refetch} retryText="Retry" />;
   }
 
   const transactions = data?.data?.data || [];

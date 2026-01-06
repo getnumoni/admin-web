@@ -5,6 +5,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAdminPurchases from "@/hooks/query/useGetAdminPurchases";
 import { usePurchasesFilters } from "@/hooks/utils/usePurchasesFilters";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
+import { extractErrorMessage } from "@/lib/helper";
 import { PurchaseData, purchasesColumns } from './purchases-columns';
 import PurchasesDataSection from './purchases-data-section';
 import PurchasesHeaderSection from './purchases-header-section';
@@ -53,7 +54,7 @@ export function PurchasesTable() {
   }
 
   if (isError) {
-    return <ErrorState title="Error Loading Purchases" message={error?.message || "Failed to load purchases. Please try again."} onRetry={refetch} retryText="Retry" />
+    return <ErrorState title="Error Loading Purchases" message={extractErrorMessage(error) || "Failed to load purchases. Please try again."} onRetry={refetch} retryText="Retry" />
   }
 
   return (

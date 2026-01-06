@@ -4,6 +4,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetCustomerSharedPoint from "@/hooks/query/useGetCustomerSharedPoint";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
+import { extractErrorMessage } from "@/lib/helper";
 import { useState } from "react";
 import { PointsTransactionData, pointsColumns } from './points-columns';
 import PointsDataSection from './points-data-section';
@@ -41,7 +42,7 @@ export default function PointsTable() {
     return (
       <ErrorState
         title="Error Loading Customer Shared Points"
-        message={error?.message || "Failed to load customer shared points. Please try again."}
+        message={extractErrorMessage(error) || "Failed to load customer shared points. Please try again."}
         onRetry={refetch}
         retryText="Retry"
       />

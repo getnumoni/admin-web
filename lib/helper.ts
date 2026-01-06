@@ -2421,3 +2421,69 @@ export const getDefaultReportDates = (): { start: Date; end: Date } => {
   };
 };
 
+function extractObjectErrorMessage(error: object): string | null {
+  // 1. Try "message" property
+  if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
+    return (error as { message: string }).message
+  }
+
+  // 2. Try JSON.stringify
+  try {
+    const jsonString = JSON.stringify(error)
+    if (jsonString !== '{}') {
+      return jsonString
+    }
+  } catch {
+    // Ignore stringify errors
+  }
+
+  // 3. If the object has a custom toString method
+  const stringified = String(error)
+  if (stringified !== '[object Object]') {
+    return stringified
+  }
+
+  return null
+}
+
+/**
+ * Safely extracts an error message from various error types
+ * (Axios errors, standard Errors, unknown, etc.)
+ */
+export function extractErrorMessage(error: unknown): string {
+  if (!error) {
+    return 'An error occurred'
+  }
+
+  // Axios-style errors (checking for "response")
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const axiosError = error as {
+      response?: { data?: { message?: string } }
+    }
+    if (axiosError.response?.data?.message) {
+      return axiosError.response.data.message
+    }
+    return 'An error occurred'
+  }
+
+  // Standard JS Error
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  // String errors
+  if (typeof error === 'string') {
+    return error
+  }
+
+  // Generic object errors
+  if (typeof error === 'object' && error !== null) {
+    const objMsg = extractObjectErrorMessage(error)
+    if (objMsg) {
+      return objMsg
+    }
+  }
+
+  // Fallback
+  return 'An error occurred'
+}

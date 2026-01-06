@@ -5,6 +5,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetPayoutList from "@/hooks/query/useGetPayoutList";
 import { usePayoutFilters } from "@/hooks/utils/usePayoutFilters";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
+import { extractErrorMessage } from "@/lib/helper";
 import { Payout } from "@/lib/types";
 import { payoutColumns } from './payout-column';
 import PayoutDataSection from './payout-data-section';
@@ -62,7 +63,7 @@ export default function PayoutList() {
   }
 
   if (isError) {
-    return <ErrorState title="Error Loading Payout Records" message={error?.message || "Failed to load payout records. Please try again."} onRetry={refetch} retryText="Retry" />
+    return <ErrorState title="Error Loading Payout Records" message={extractErrorMessage(error) || "Failed to load payout records. Please try again."} onRetry={refetch} retryText="Retry" />
   }
 
   return (
