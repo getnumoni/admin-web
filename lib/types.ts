@@ -552,9 +552,9 @@ type MetricCardProps = {
   value: string;
   change?: string;
   changeType?: 'positive' | 'negative';
-  icon: React.ReactNode;
-  bgColor: string;
-  iconBgColor: string;
+  icon?: React.ReactNode;
+  bgColor?: string;
+  iconBgColor?: string;
 }
 
 
