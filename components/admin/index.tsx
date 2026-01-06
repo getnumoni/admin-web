@@ -131,7 +131,7 @@ export default function Admin() {
             <MetricCard
               key={index}
               title={metric.title}
-              value={extractErrorMessage(dashboardDetailsError) || metric.value}
+              value={dashboardDetailsError ? extractErrorMessage(dashboardDetailsError) : metric.value}
               // change={metric.change}
               changeType={metric.changeType}
               icon={metric.icon}
