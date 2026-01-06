@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAllSignupBonusRequest from "@/hooks/query/useGetAllSignupBonusRequest";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
+import { extractErrorMessage } from "@/lib/helper";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import SignUpRequestDialog from "./sign-up-request-dialog";
@@ -48,7 +49,7 @@ export default function ViewAllSignUpRequest() {
     return (
       <ErrorState
         title="Error Loading Sign Up Bonus Requests"
-        message={error?.message || "Failed to load sign up bonus requests. Please try again."}
+        message={extractErrorMessage(error) || "Failed to load sign up bonus requests. Please try again."}
         onRetry={refetch}
         retryText="Retry"
       />

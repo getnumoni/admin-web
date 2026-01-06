@@ -4,7 +4,7 @@ import { MetricCard } from "@/components/common/metric-card";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetSharedPointsOverview from "@/hooks/query/useGetSharedPointsOverview";
-import { formatValue } from "@/lib/helper";
+import { extractErrorMessage, formatValue } from "@/lib/helper";
 import { Banknote, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
 
 export default function PointsCardOverview() {
@@ -62,7 +62,7 @@ export default function PointsCardOverview() {
       <div className="mb-8">
         <ErrorState
           title="Error Loading Shared Points Overview"
-          message={error?.message || "Failed to load shared points overview. Please try again."}
+          message={extractErrorMessage(error) || "Failed to load shared points overview. Please try again."}
           onRetry={refetch}
           retryText="Retry"
         />

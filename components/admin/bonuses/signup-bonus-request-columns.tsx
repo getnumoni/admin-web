@@ -40,43 +40,6 @@ export const signupBonusRequestColumns: ColumnDef<SignupBonusRequestData>[] = [
     ),
   },
   {
-    accessorKey: "errorTypeEnum",
-    header: "Error Type",
-    cell: ({ row }) => {
-      const errorType = row.getValue("errorTypeEnum") as string;
-      return (
-        <div className="text-gray-600 text-sm">
-          {errorType || "N/A"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "errorMessage",
-    header: "Error Message",
-    cell: ({ row }) => {
-      const errorMessage = row.getValue("errorMessage") as string;
-      return (
-        <div className="text-gray-600 text-sm max-w-xs truncate" title={errorMessage}>
-          {errorMessage || "N/A"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "retries",
-    header: "Retries",
-    cell: ({ row }) => {
-      const retries = row.getValue("retries") as number;
-      const maxRetries = row.original.maxRetries;
-      return (
-        <div className="text-gray-600 text-sm">
-          {retries} / {maxRetries}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "resolved",
     header: "Status",
     cell: ({ row }) => {

@@ -6,7 +6,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetMerchantPointsAllocatedById from "@/hooks/query/useGetMerchantPointsAllocatedById";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
-import { formatDateReadable } from "@/lib/helper";
+import { extractErrorMessage, formatDateReadable } from "@/lib/helper";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { createPointAllocationColumns, PointAllocation } from "./point-allocation-columns";
@@ -135,7 +135,7 @@ export default function PointAllocationCard({ merchantId }: { merchantId: string
     return (
       <ErrorState
         title="Error Loading Points Allocated"
-        message={pointsAllocatedError?.message || "Failed to load points allocated. Please try again."}
+        message={extractErrorMessage(pointsAllocatedError) || "Failed to load points allocated. Please try again."}
         onRetry={refetch}
         retryText="Retry"
       />

@@ -5,6 +5,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetFundingReconciliation from "@/hooks/query/useGetFundingReconciliation";
 import { useFundingFilters } from "@/hooks/utils/useFundingFilters";
 import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
+import { extractErrorMessage } from "@/lib/helper";
 import { FundingReconciliation } from "@/lib/types";
 import { fundingColumns } from './funding-column';
 import FundingDataSection from './funding-data-section';
@@ -62,7 +63,7 @@ export default function FundingTable() {
   }
 
   if (isError) {
-    return <ErrorState title="Error Loading Funding Records" message={error?.message || "Failed to load funding records. Please try again."} onRetry={refetch} retryText="Retry" />
+    return <ErrorState title="Error Loading Funding Records" message={extractErrorMessage(error) || "Failed to load funding records. Please try again."} onRetry={refetch} retryText="Retry" />
   }
 
   return (
