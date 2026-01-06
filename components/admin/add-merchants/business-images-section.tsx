@@ -1,9 +1,9 @@
 'use client';
 
+import { useUploadDealsFile } from '@/hooks/mutation/useUploadDealsFile';
 import { Plus, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useUploadDealsFile } from '@/hooks/mutation/useUploadDealsFile';
 import { toast } from 'sonner';
 
 interface BusinessImagesSectionProps {
@@ -19,6 +19,7 @@ export default function BusinessImagesSection({
   maxImages = 5,
   maxTotalSize = 3
 }: BusinessImagesSectionProps) {
+  console.log("maxTotalSize", maxTotalSize);
   const [error, setError] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const { handleUploadDealsFile } = useUploadDealsFile();
@@ -71,7 +72,7 @@ export default function BusinessImagesSection({
       for (const file of validFiles) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const imageUrl = await handleUploadDealsFile(formData);
         if (imageUrl) {
           uploadedUrls.push(imageUrl);
@@ -87,7 +88,7 @@ export default function BusinessImagesSection({
       } else {
         toast.dismiss(loadingToast);
       }
-    } catch (error) {
+    } catch {
       toast.dismiss(loadingToast);
       // Error toast is already shown by the hook
     } finally {

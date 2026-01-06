@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, Image, MessageSquare, MoreVertical } from "lucide-react";
+import { Copy, Eye, Image, MessageSquare, MoreVertical } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 // Support Ticket type definition based on API response
 export type SupportTicket = {
@@ -58,6 +59,35 @@ export const supportTicketColumns: ColumnDef<SupportTicket>[] = [
               </Badge>
             </div>
           </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "userId",
+    header: "User ID",
+    cell: ({ row }) => {
+      const userId = row.getValue("userId") as string;
+      //handle copy functionality
+      const handleCopyUserId = async () => {
+        await navigator.clipboard.writeText(userId);
+        toast.success("Transaction link copied to clipboard");
+
+      }
+      return (
+        <div className="flex gap-2 items-center">
+          <span className="text-sm">
+            {userId}
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            className="h-8 w-8 p-0 bg-theme-dark-green"
+            onClick={handleCopyUserId}
+            title="Copy Transaction Link"
+          >
+            <Copy className="h-2 w-2" />
+          </Button>
         </div>
       );
     },
@@ -121,7 +151,9 @@ export const supportTicketColumns: ColumnDef<SupportTicket>[] = [
         switch (status) {
           case "OPEN":
             return "bg-yellow-50 text-yellow-700 border-yellow-200";
-          case "CLOSE":
+          case "CLOSED":
+            return "bg-green-50 text-green-700 border-green-200";
+          case "RESOLVED":
             return "bg-green-50 text-green-700 border-green-200";
           default:
             return "bg-gray-50 text-gray-700 border-gray-200";

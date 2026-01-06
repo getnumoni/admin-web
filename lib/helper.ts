@@ -774,7 +774,7 @@ export const downloadQRCodeAsImage = async (printRef: React.RefObject<HTMLDivEle
  * Helper function to load an image with CORS handling
  * Uses fetch + blob approach to avoid CORS issues when drawing to canvas
  */
-const loadImageWithCors = (src: string): Promise<HTMLImageElement> => {
+export const loadImageWithCors = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     // For data URLs or blob URLs, load directly
     if (src.startsWith('data:') || src.startsWith('blob:')) {
@@ -1120,7 +1120,7 @@ export const downloadQRCodeImageWithLogo = async (
  * Fetches an image and converts it to a data URL to avoid CORS issues
  * Falls back to direct image loading if fetch fails
  */
-const fetchImageAsDataUrl = async (src: string): Promise<string> => {
+export const fetchImageAsDataUrl = async (src: string): Promise<string> => {
   // If it's already a data URL, return it
   if (src.startsWith('data:')) {
     return src;
@@ -1162,7 +1162,7 @@ const fetchImageAsDataUrl = async (src: string): Promise<string> => {
  * Loads an image with proper error handling and timeout
  * Sets crossOrigin for external URLs to allow canvas access
  */
-const loadImage = (src: string, isExternal: boolean = false): Promise<HTMLImageElement> => {
+export const loadImage = (src: string, isExternal: boolean = false): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const timeout = setTimeout(() => {
@@ -1193,7 +1193,7 @@ const loadImage = (src: string, isExternal: boolean = false): Promise<HTMLImageE
 /**
  * Converts SVG file to data URL by fetching it
  */
-const svgToDataUrl = async (svgPath: string): Promise<string> => {
+export const svgToDataUrl = async (svgPath: string): Promise<string> => {
   try {
     const response = await fetch(svgPath);
     if (!response.ok) {
