@@ -92,9 +92,6 @@ export default function AddMerchants() {
   };
 
   const onSubmit = async (data: MerchantFormData) => {
-    // console.log('Form submitted with data:', data);
-    // console.log('Form errors:', form.formState.errors);
-    // console.log('Form is valid:', form.formState.isValid);
 
     // Get bank name from bank code using the actual API data
     const getBankNameFromCode = (bankCode: string) => {
@@ -134,10 +131,6 @@ export default function AddMerchants() {
       accountHolderName: data.verifiedAccountName || ''
     };
 
-    // console.log('Merchant Form Payload:', payload);
-    // console.log('User ID:', user?.id);
-    // console.log('Bank Code:', data.bankCode);
-    // console.log('Bank Name:', getBankNameFromCode(data.bankCode));
     handleCreateMerchants(payload);
 
   };
