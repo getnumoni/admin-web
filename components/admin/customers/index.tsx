@@ -1,13 +1,14 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
-import { DateRangeOption } from '@/components/ui/date-range-selector';
+
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ADMIN_CUSTOMERS_ADD_URL } from '@/constant/routes';
 import useGetCustomers from '@/hooks/query/useGetCustomers';
 import { formatDateForAPI, getTimelineDates } from '@/lib/helper';
+import { DateRangeOption } from '@/lib/types';
 import { Customer } from '@/lib/types/customer';
 import { ChevronLeft, ChevronRight, Download, Info, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
