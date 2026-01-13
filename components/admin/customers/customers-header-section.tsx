@@ -1,8 +1,9 @@
 'use client';
 
 import SearchInput from '@/components/common/search-input';
-import { DateRangeOption, DateRangeSelector } from '@/components/ui/date-range-selector';
+import { DateRangeSelector } from '@/components/ui/date-range-selector';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DateRangeOption } from '@/lib/types';
 import { RefreshCw } from 'lucide-react';
 
 type FilterType = 'name' | 'email' | 'phone' | 'customerId' | '';
