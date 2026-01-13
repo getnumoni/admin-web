@@ -31,7 +31,7 @@ interface MerchantDetailsProps {
   userId: string | null;
 }
 
-export default function MerchantDetails({ merchantId, userId }: MerchantDetailsProps) {
+export default function MerchantDetails({ merchantId, userId }: Readonly<MerchantDetailsProps>) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
@@ -42,10 +42,10 @@ export default function MerchantDetails({ merchantId, userId }: MerchantDetailsP
 
   const { user } = useUserAuthStore();
 
-  // console.log('merchantDetails', merchantDetails?.data?.data);
+
   const merchantData = merchantDetails?.data?.data;
 
-  // console.log('merchantId', merchantId);
+  console.log('merchantData', merchantData);
 
   const handleEditPersonalInfo = () => {
     console.log("Edit personal information");
