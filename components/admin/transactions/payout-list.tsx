@@ -33,22 +33,18 @@ export default function PayoutList() {
     settlementRefId: debouncedFilters.settlementRefId.trim() || undefined,
     payonusRefId: debouncedFilters.payonusRefId.trim() || undefined,
     status: debouncedFilters.status.trim() || undefined,
+    startDate: debouncedFilters.startDate.trim() || undefined,
+    endDate: debouncedFilters.endDate.trim() || undefined,
   });
 
   // Extract payout data from API response
-  // API response structure: { pagination: {...}, data: [...], success: boolean, message: string }
   const apiData = data?.data;
-  const pagination = data?.data?.pagination;
-
-  // Get all payout records
-  const allPayouts: Payout[] = apiData?.data || [];
+  const pagination = apiData?.pagination;
+  const payouts: Payout[] = apiData?.data || [];
 
   // Get pagination info from API response
-  const totalRows = pagination?.totalElements || allPayouts.length;
+  const totalRows = pagination?.totalElements || payouts.length;
   const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
-
-  // API already paginates the data, so use it directly
-  const payouts: Payout[] = allPayouts;
 
   const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
     currentPage,
@@ -77,6 +73,12 @@ export default function PayoutList() {
         onPayonusRefIdChange={(value) => setFilter('payonusRefId', value)}
         status={filters.status}
         onStatusChange={(value) => setFilter('status', value)}
+        startDate={filters.startDate}
+        onStartDateChange={(value) => setFilter('startDate', value)}
+        endDate={filters.endDate}
+        onEndDateChange={(value) => setFilter('endDate', value)}
+        dateRangeOption={filters.dateRangeOption}
+        onDateRangeOptionChange={(value) => setFilter('dateRangeOption', value)}
         onResetFilter={resetFilters}
         showFilters={showFilters}
         onToggleFilters={toggleFilters}

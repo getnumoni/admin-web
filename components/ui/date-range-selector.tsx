@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { DateRangeOption } from "@/lib/types";
+import { endOfMonth, endOfToday, endOfWeek, endOfYesterday, format, startOfMonth, startOfToday, startOfWeek, startOfYesterday, subMonths } from "date-fns";
 import { Calendar as CalendarIcon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-
-export type DateRangeOption = 'Today' | 'Yesterday' | 'This Week' | 'This Month' | 'Last Month' | 'Custom Range' | 'All Time' | null;
 
 interface DateRangeSelectorProps {
   value: DateRangeOption;
@@ -29,7 +28,7 @@ export function DateRangeSelector({
   showCustomRange = false,
   className,
   disabled = false,
-}: DateRangeSelectorProps) {
+}: Readonly<DateRangeSelectorProps>) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [customStartDatePopoverOpen, setCustomStartDatePopoverOpen] = useState(false);
   const [customEndDatePopoverOpen, setCustomEndDatePopoverOpen] = useState(false);
@@ -39,10 +38,51 @@ export function DateRangeSelector({
   const handleOptionChange = useCallback((option: DateRangeOption) => {
     onValueChange(option);
     setPopoverOpen(false);
+
     if (option === 'Custom Range' && showCustomRange) {
       setCustomStartDatePopoverOpen(true);
+      return;
     }
-  }, [onValueChange, showCustomRange]);
+
+    if (!onDatesChange) return;
+
+    let start: Date | undefined;
+    let end: Date | undefined;
+
+    const now = new Date();
+
+    switch (option) {
+      case 'Today':
+        start = startOfToday();
+        end = endOfToday();
+        break;
+      case 'Yesterday':
+        start = startOfYesterday();
+        end = endOfYesterday();
+        break;
+      case 'This Week':
+        start = startOfWeek(now);
+        end = endOfWeek(now);
+        break;
+      case 'This Month':
+        start = startOfMonth(now);
+        end = endOfMonth(now);
+        break;
+      case 'Last Month': {
+        const lastMonth = subMonths(now, 1);
+        start = startOfMonth(lastMonth);
+        end = endOfMonth(lastMonth);
+        break;
+      }
+      case 'All Time':
+      default:
+        start = undefined;
+        end = undefined;
+        break;
+    }
+
+    onDatesChange(start, end);
+  }, [onValueChange, showCustomRange, onDatesChange]);
 
   const handleCustomStartDateSelect = useCallback((date: Date | undefined) => {
     setCustomStartDate(date);
@@ -99,9 +139,9 @@ export function DateRangeSelector({
             <ChevronDownIcon className="h-4 w-4 ml-auto" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-48 p-1">
+        <PopoverContent className="w-38 p-1 shadow-none">
           {options.map((option) => (
-            <div
+            <button
               key={option.value || 'null'}
               className={`px-3 py-2 text-sm cursor-pointer rounded-md transition-colors ${value === option.value
                 ? 'bg-gray-100 font-medium'
@@ -110,7 +150,7 @@ export function DateRangeSelector({
               onClick={() => handleOptionChange(option.value)}
             >
               {option.label}
-            </div>
+            </button>
           ))}
         </PopoverContent>
       </Popover>

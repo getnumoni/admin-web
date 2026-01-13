@@ -33,13 +33,17 @@ export function PurchasesTable() {
     transactionId: debouncedFilters.transactionId.trim() || undefined,
     dealId: debouncedFilters.dealId.trim() || undefined,
     purchaseId: debouncedFilters.purchaseId.trim() || undefined,
+    startDate: debouncedFilters.startDate.trim() || undefined,
+    endDate: debouncedFilters.endDate.trim() || undefined,
   });
 
   // Extract purchase data from API response
   const apiData = data?.data;
+  const pagination = apiData?.pagination;
   const purchases: PurchaseData[] = apiData?.data || [];
-  const totalRows = apiData?.totalRows || apiData?.total || purchases.length;
-  const totalPages = apiData?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
+
+  const totalRows = pagination?.totalElements || purchases.length;
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
 
   const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
     currentPage,
@@ -70,6 +74,12 @@ export function PurchasesTable() {
         onDealIdChange={(value) => setFilter('dealId', value)}
         purchaseId={filters.purchaseId}
         onPurchaseIdChange={(value) => setFilter('purchaseId', value)}
+        startDate={filters.startDate}
+        onStartDateChange={(value) => setFilter('startDate', value)}
+        endDate={filters.endDate}
+        onEndDateChange={(value) => setFilter('endDate', value)}
+        dateRangeOption={filters.dateRangeOption}
+        onDateRangeOptionChange={(value) => setFilter('dateRangeOption', value)}
         onResetFilter={resetFilters}
         showFilters={showFilters}
         onToggleFilters={toggleFilters}
