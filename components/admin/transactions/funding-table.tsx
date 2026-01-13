@@ -81,6 +81,8 @@ export default function FundingTable() {
         onStartDateChange={(value) => setFilter('startDate', value)}
         endDate={filters.endDate}
         onEndDateChange={(value) => setFilter('endDate', value)}
+        dateRangeOption={filters.dateRangeOption}
+        onDateRangeOptionChange={(value) => setFilter('dateRangeOption', value)}
         onResetFilter={resetFilters}
         showFilters={showFilters}
         onToggleFilters={toggleFilters}
