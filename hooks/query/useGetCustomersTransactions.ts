@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 interface GetCustomersTransactionsParams {
   customerName?: string;
   transactionType?: string;
+  page?: number;
+  size?: number;
 }
 
 const useGetCustomersTransactions = (params: GetCustomersTransactionsParams = {}) => {
-  const { customerName, transactionType } = params;
+  const { customerName, transactionType, page, size } = params;
 
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["customers-transactions", customerName, transactionType],
+    queryKey: ["customers-transactions", customerName, transactionType, page, size],
     queryFn: () => {
       const queryParams = new URLSearchParams();
 
@@ -21,9 +23,16 @@ const useGetCustomersTransactions = (params: GetCustomersTransactionsParams = {}
       if (transactionType) {
         queryParams.append("transactionType", transactionType);
       }
+      if (page !== undefined) {
+        queryParams.append("page", page.toString());
+      }
+      if (size !== undefined) {
+        queryParams.append("size", size.toString());
+      }
 
       const queryString = queryParams.toString();
-      return api.get(`/admin/getCustomerTransacionList${queryString ? `?${queryString}` : ""}`);
+      const url = queryString ? `/admin/getCustomerTransacionList?${queryString}` : "/admin/getCustomerTransacionList";
+      return api.get(url);
     },
   });
 
