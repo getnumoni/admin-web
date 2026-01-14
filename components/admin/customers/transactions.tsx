@@ -24,18 +24,17 @@ export default function Transactions() {
   const { data, isPending, error, isError, refetch } = useGetCustomersTransactions({
     customerName: debouncedSearchTerm.trim() || undefined,
     transactionType: orderStatus || undefined,
+    page: currentPage - 1,
+    size: 30, // Standard page size
   });
   const apiData = data?.data?.data;
 
-  const itemsPerPage = 12; // Based on the design showing 12 items
+  const itemsPerPage = 30;
 
-  // Use transactions directly from API (all filtering is server-side)
+  // Use transactions directly from API
   const transactions: CustomerTransaction[] = apiData?.pageData || [];
-
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTransactions = transactions.slice(startIndex, endIndex);
+  const totalPages = apiData?.totalPages || 1;
+  const totalRows = apiData?.totalRows || 0;
 
   const handlePreviousPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1));
@@ -83,7 +82,7 @@ export default function Transactions() {
 
   // Render function for data table content
   const renderDataTableContent = () => {
-    if (currentTransactions.length === 0) {
+    if (transactions.length === 0) {
       return (
         <EmptyState
           title="No Transactions Found"
@@ -92,7 +91,7 @@ export default function Transactions() {
       );
     }
 
-    return <DataTable columns={customerTransactionColumns} data={currentTransactions} />;
+    return <DataTable columns={customerTransactionColumns} data={transactions} />;
   };
 
   return (
@@ -165,12 +164,12 @@ export default function Transactions() {
       </div>
 
       {/* Pagination and Row Actions */}
-      {currentTransactions.length > 0 && (
+      {transactions.length > 0 && (
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             {/* Row Count */}
             <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, transactions.length)} of {transactions.length}
+              Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalRows)} of {totalRows}
             </div>
 
             {/* Row Action Icons */}
