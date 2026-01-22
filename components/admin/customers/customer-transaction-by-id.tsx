@@ -48,7 +48,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
       const transactionId = row.getValue("transactionId") as string;
       return (
         <div className="text-gray-600 text-sm font-mono">
-          {transactionId.length > 12 ? `${transactionId.slice(0, 8)}...` : transactionId}
+          {transactionId?.length > 12 ? `${transactionId.slice(0, 8)}...` : transactionId}
         </div>
       );
     },
@@ -60,7 +60,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
       const transactionNo = row.getValue("transactionNo") as string;
       return (
         <div className="text-gray-600 text-sm font-mono">
-          {transactionNo.length > 20 ? `${transactionNo.slice(0, 20)}...` : transactionNo}
+          {transactionNo?.length > 20 ? `${transactionNo?.slice(0, 20)}...` : transactionNo}
         </div>
       );
     },
@@ -99,7 +99,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
       const amount = row.getValue("amount") as number;
       return (
         <div className="text-gray-900 text-sm font-medium">
-          ₦{amount.toLocaleString()}
+          ₦{amount?.toLocaleString()}
         </div>
       );
     },
@@ -111,7 +111,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
       const balance = row.getValue("balance") as number;
       return (
         <div className="text-gray-600 text-sm">
-          ₦{balance.toLocaleString()}
+          ₦{balance?.toLocaleString()}
         </div>
       );
     },
