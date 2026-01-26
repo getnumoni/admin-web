@@ -4,6 +4,7 @@ import SearchInput from '@/components/common/search-input';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ADMIN_MERCHANTS_ADD_URL } from '@/constant/routes';
 import useGetAllMerchants from '@/hooks/query/useGetAllMerchants';
@@ -97,22 +98,12 @@ export default function ViewMerchants() {
   // Show error state
   if (isError) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="p-6 border-gray-200">
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="text-red-500 text-center">
-              <h3 className="text-lg font-semibold mb-2">Error Loading Merchants</h3>
-              <p className="text-gray-600 mb-4">{error?.message || "Failed to load merchants. Please try again."}</p>
-              <button
-                onClick={() => refetch()}
-                className="px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:bg-theme-dark-green/90 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ErrorState
+        title="Error Loading Merchants"
+        message={error?.message || "Failed to load merchants. Please try again."}
+        retryText="Try Again"
+        onRetry={() => refetch()}
+      />
     );
   }
 
