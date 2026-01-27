@@ -18,11 +18,12 @@ export const useMakeDealInternal = () => {
       }
     },
     onError: (error: { response: { data: { message: string } } }) => {
-      // console.log("Failed to create POS", error);
+
       toast.error(error?.response?.data?.message ?? "Failed to make deal internal");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["dealList"] });
     },
   });
 
