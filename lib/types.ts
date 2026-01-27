@@ -823,6 +823,7 @@ type DealData = {
   usageLimit: string | null;
   merchantName: string;
   merchantLogo: string | null;
+  isInternal: boolean;
   imagePath: Array<{
     id: string;
     dealId: string;
