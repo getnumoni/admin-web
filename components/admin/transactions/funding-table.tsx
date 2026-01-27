@@ -1,18 +1,16 @@
 'use client'
 
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetFundingReconciliation from "@/hooks/query/useGetFundingReconciliation";
 import { useFundingFilters } from "@/hooks/utils/useFundingFilters";
-import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
 import { extractErrorMessage } from "@/lib/helper";
 import { FundingReconciliation } from "@/lib/types";
+import { useState } from "react";
 import { fundingColumns } from './funding-column';
 import FundingDataSection from './funding-data-section';
 import FundingHeaderSection from './funding-header-section';
-import FundingPagination from './funding-pagination';
-
-const ITEMS_PER_PAGE = 20;
 
 export default function FundingTable() {
   const {
@@ -26,9 +24,11 @@ export default function FundingTable() {
     toggleFilters,
   } = useFundingFilters();
 
+  const [pageSize, setPageSize] = useState(20);
+
   const { data, isPending, error, isError, refetch } = useGetFundingReconciliation({
     page: currentPage,
-    size: ITEMS_PER_PAGE,
+    size: pageSize,
     sessionId: debouncedFilters.sessionId.trim() || undefined,
     providerId: debouncedFilters.providerId.trim() || undefined,
     senderName: debouncedFilters.senderName.trim() || undefined,
@@ -38,8 +38,6 @@ export default function FundingTable() {
   });
 
   // Extract funding data from API response
-  // New API response structure:
-  // { pagination: { totalPages, pageSize, currentPage, totalElements }, data: [], success: boolean, message: string }
   const apiResponse = data?.data;
 
   // Extract pagination info
@@ -48,15 +46,16 @@ export default function FundingTable() {
 
   // Get pagination values from API response
   const totalRows = pagination?.totalElements || funding.length;
-  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / pageSize);
 
-  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
-    currentPage,
-    totalRows,
-    ITEMS_PER_PAGE,
-    totalPages,
-    setCurrentPage
-  );
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0);
+  };
 
   if (isPending) {
     return <LoadingSpinner message="Loading funding records..." />
@@ -91,14 +90,13 @@ export default function FundingTable() {
       <FundingDataSection data={funding} columns={fundingColumns} />
 
       {funding?.length > 0 && (
-        <FundingPagination
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={totalRows}
-          currentPage={currentPage + 1}
+        <DataTablePagination
+          currentPage={currentPage}
           totalPages={totalPages}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
     </div>

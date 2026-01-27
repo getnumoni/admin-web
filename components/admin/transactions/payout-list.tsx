@@ -1,18 +1,16 @@
 'use client'
 
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetPayoutList from "@/hooks/query/useGetPayoutList";
 import { usePayoutFilters } from "@/hooks/utils/usePayoutFilters";
-import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
 import { extractErrorMessage } from "@/lib/helper";
 import { Payout } from "@/lib/types";
+import { useState } from "react";
 import { payoutColumns } from './payout-column';
 import PayoutDataSection from './payout-data-section';
 import PayoutHeaderSection from './payout-header-section';
-import PayoutPagination from './payout-pagination';
-
-const ITEMS_PER_PAGE = 20;
 
 export default function PayoutList() {
   const {
@@ -26,9 +24,11 @@ export default function PayoutList() {
     toggleFilters,
   } = usePayoutFilters();
 
+  const [pageSize, setPageSize] = useState(20);
+
   const { data, isPending, error, isError, refetch } = useGetPayoutList({
     page: currentPage,
-    size: ITEMS_PER_PAGE,
+    size: pageSize,
     merchantId: debouncedFilters.merchantId.trim() || undefined,
     settlementRefId: debouncedFilters.settlementRefId.trim() || undefined,
     payonusRefId: debouncedFilters.payonusRefId.trim() || undefined,
@@ -44,15 +44,16 @@ export default function PayoutList() {
 
   // Get pagination info from API response
   const totalRows = pagination?.totalElements || payouts.length;
-  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / pageSize);
 
-  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
-    currentPage,
-    totalRows,
-    ITEMS_PER_PAGE,
-    totalPages,
-    setCurrentPage
-  );
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0);
+  };
 
   if (isPending) {
     return <LoadingSpinner message="Loading payout records..." />
@@ -87,14 +88,13 @@ export default function PayoutList() {
       <PayoutDataSection data={payouts} columns={payoutColumns} />
 
       {payouts?.length > 0 && (
-        <PayoutPagination
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={totalRows}
-          currentPage={currentPage + 1}
+        <DataTablePagination
+          currentPage={currentPage}
           totalPages={totalPages}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
     </div>
