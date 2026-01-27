@@ -10,8 +10,6 @@ export default function AccountInformation({
   merchantData
 }: { readonly merchantData: MerchantDetailsResponse }) {
 
-  console.log('merchantData', merchantData);
-
   const leftColumnItems: InfoItem[] = [
     { label: "Registration Date", value: formatDateReadable(merchantData?.registrationDate || "N/A") },
     { label: "Account type", value: "Merchant", icon: User },

@@ -18,13 +18,22 @@ export const UpdateMerchantStatusDialog = ({
   merchant: Merchant;
 }) => {
   const [status, setStatus] = useState<UpdateMerchantVerificationStatusPayload['status'] | "">("");
-  const { handleUpdateMerchantVerificationStatus, isPending, isSuccess } = useUpdateMerchantVerificationStatus();
+  const { handleUpdateMerchantVerificationStatus, isPending, isSuccess, reset } = useUpdateMerchantVerificationStatus();
 
+  // Use a separate useEffect for closing on success
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
   }, [isSuccess, onClose]);
+
+  // Reset state when dialog is closed/opened
+  useEffect(() => {
+    if (!isOpen) {
+      setStatus("");
+      reset();
+    }
+  }, [isOpen, reset]);
 
   const handleUpdate = () => {
     if (!status) return;
