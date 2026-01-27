@@ -1,17 +1,15 @@
 'use client'
 
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAdminPurchases from "@/hooks/query/useGetAdminPurchases";
 import { usePurchasesFilters } from "@/hooks/utils/usePurchasesFilters";
-import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
 import { extractErrorMessage } from "@/lib/helper";
+import { useState } from "react";
 import { PurchaseData, purchasesColumns } from './purchases-columns';
 import PurchasesDataSection from './purchases-data-section';
 import PurchasesHeaderSection from './purchases-header-section';
-import PurchasesPagination from './purchases-pagination';
-
-const ITEMS_PER_PAGE = 20;
 
 export function PurchasesTable() {
   const {
@@ -25,9 +23,11 @@ export function PurchasesTable() {
     toggleFilters,
   } = usePurchasesFilters();
 
+  const [pageSize, setPageSize] = useState(20);
+
   const { data, isPending, error, isError, refetch } = useGetAdminPurchases({
     page: currentPage,
-    size: ITEMS_PER_PAGE,
+    size: pageSize,
     customerName: debouncedFilters.customerName.trim() || undefined,
     dealName: debouncedFilters.dealName.trim() || undefined,
     transactionId: debouncedFilters.transactionId.trim() || undefined,
@@ -43,15 +43,16 @@ export function PurchasesTable() {
   const purchases: PurchaseData[] = apiData?.data || [];
 
   const totalRows = pagination?.totalElements || purchases.length;
-  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / pageSize);
 
-  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
-    currentPage,
-    totalRows,
-    ITEMS_PER_PAGE,
-    totalPages,
-    setCurrentPage
-  );
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0);
+  };
 
   if (isPending) {
     return <LoadingSpinner message="Loading purchases..." />
@@ -88,14 +89,13 @@ export function PurchasesTable() {
       <PurchasesDataSection data={purchases} columns={purchasesColumns} />
 
       {purchases?.length > 0 && (
-        <PurchasesPagination
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={totalRows}
-          currentPage={currentPage + 1}
+        <DataTablePagination
+          currentPage={currentPage}
           totalPages={totalPages}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
     </div>

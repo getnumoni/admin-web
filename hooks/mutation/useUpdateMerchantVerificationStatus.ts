@@ -8,7 +8,7 @@ import { toast } from "sonner";
 export const useUpdateMerchantVerificationStatus = () => {
   const queryClient = useQueryClient();
 
-  const { mutate, isPending, isSuccess } = useMutation({
+  const { mutate, isPending, isSuccess, reset } = useMutation({
     mutationFn: (data: UpdateMerchantVerificationStatusPayload) => api.put("/admin/updateMerchantVerificationStatus", {}, { params: data }),
     onSuccess: (data) => {
       if (data) {
@@ -30,5 +30,5 @@ export const useUpdateMerchantVerificationStatus = () => {
     mutate(data);
   };
 
-  return { handleUpdateMerchantVerificationStatus, isPending, isSuccess };
+  return { handleUpdateMerchantVerificationStatus, isPending, isSuccess, reset };
 };
