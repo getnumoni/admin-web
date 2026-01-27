@@ -45,7 +45,6 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
 
   const merchantData = merchantDetails?.data?.data;
 
-  console.log('merchantData', merchantData);
 
   const handleEditPersonalInfo = () => {
     console.log("Edit personal information");
