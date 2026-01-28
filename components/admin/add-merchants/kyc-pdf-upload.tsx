@@ -3,6 +3,7 @@
 import { useUploadDealsFile } from "@/hooks/mutation/useUploadDealsFile";
 import { validateFileSize } from "@/lib/helper";
 import { FileText, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -26,7 +27,7 @@ export function KycPdfUpload({
   currentValue,
   error,
   fieldName,
-}: KycPdfUploadProps) {
+}: Readonly<KycPdfUploadProps>) {
   const { handleUploadDealsFile, isPending: isUploading } = useUploadDealsFile();
 
   // Map fieldName to document type
@@ -142,10 +143,12 @@ export function KycPdfUpload({
           <div className="space-y-3">
             {fileType === 'image' ? (
               <div className="relative">
-                <img
+                <Image
                   src={filePreview}
                   alt={fileName || 'Uploaded image'}
                   className="max-h-48 mx-auto rounded-lg object-contain"
+                  width={200}
+                  height={200}
                 />
                 <button
                   type="button"

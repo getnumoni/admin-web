@@ -23,8 +23,8 @@ interface PointAllocationColumnsProps {
 }
 
 export const createPointAllocationColumns = ({
-  onEditExpiry,
-  onEditPoints,
+  onEditExpiry: _onEditExpiry,
+  onEditPoints: _onEditPoints,
   currentPage = 0,
   pageSize = 20,
 }: PointAllocationColumnsProps & { currentPage?: number; pageSize?: number }): ColumnDef<PointAllocation>[] => {
@@ -110,7 +110,7 @@ export const createPointAllocationColumns = ({
 function PointAllocationActions({
   allocation,
   onEditExpiry,
-  onEditPoints,
+  onEditPoints: _onEditPoints,
 }: {
   allocation: PointAllocation;
   onEditExpiry: (id: string, data: { expiryDate: Date; reason: string }) => void;
