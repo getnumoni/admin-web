@@ -26,10 +26,10 @@ interface ReviewsSectionProps {
 }
 
 export default function ReviewsSection({
-  onHideReview,
-  onDeleteReview,
+  onHideReview: _onHideReview,
+  onDeleteReview: _onDeleteReview,
   merchantId
-}: ReviewsSectionProps) {
+}: Readonly<ReviewsSectionProps>) {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 

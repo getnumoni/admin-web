@@ -1012,7 +1012,7 @@ export const downloadQRCodeImageWithLogo = async (
         // Check if canvas is tainted (CORS issue)
         try {
           ctx.getImageData(0, 0, 1, 1);
-        } catch (e) {
+        } catch (_e) {
           cleanupBlobUrls();
           reject(new Error('Canvas is tainted due to CORS restrictions. Images must be served with proper CORS headers.'));
           return;
@@ -1051,6 +1051,7 @@ export const downloadQRCodeImageWithLogo = async (
         }, 'image/png');
       } catch (error) {
         // Fallback: try to draw QR code without logos if logo loading fails
+        console.warn('Failed to load logos, attempting fallback without logos:', error);
         try {
           const qrCodeImg = await loadImageWithCors(qrCodeUrl);
           const qrSize = qrCodeSize;
@@ -1103,7 +1104,8 @@ export const downloadQRCodeImageWithLogo = async (
           // Check if canvas is tainted (CORS issue)
           try {
             ctx.getImageData(0, 0, 1, 1);
-          } catch (e) {
+          } catch (error) {
+            console.warn('Canvas security check failed:', error);
             if (qrCodeImg.src.startsWith('blob:')) {
               URL.revokeObjectURL(qrCodeImg.src);
             }
@@ -1211,7 +1213,7 @@ export const loadImage = (src: string, isExternal: boolean = false): Promise<HTM
       clearTimeout(timeout);
       resolve(img);
     };
-    img.onerror = (error) => {
+    img.onerror = (_error) => {
       clearTimeout(timeout);
       const errorMsg = isExternal
         ? `Failed to load external image (CORS may be blocking): ${src}`
@@ -1457,7 +1459,7 @@ export const downloadQRCodeWithLogo = async (
                 } else {
                   throw new Error('Images not fully loaded');
                 }
-              } catch (error) {
+              } catch (_error) {
                 // Final fallback: Open a new window with the images
                 // User can right-click to save, or browser print to PDF
                 const tempWindow = window.open('', '_blank');
@@ -1519,7 +1521,7 @@ export const downloadQRCodeWithLogo = async (
         }
       };
 
-      const onImageError = (error: string | Event) => {
+      const onImageError = (_error: string | Event) => {
         document.body.removeChild(container);
         reject(new Error('Failed to load image'));
       };

@@ -16,9 +16,9 @@ interface CustomerReviewsSectionProps {
 
 export default function CustomerReviewsSection({
   customerId,
-  onHideReview,
-  onDeleteReview
-}: CustomerReviewsSectionProps) {
+  onHideReview: _onHideReview,
+  onDeleteReview: _onDeleteReview
+}: Readonly<CustomerReviewsSectionProps>) {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 
