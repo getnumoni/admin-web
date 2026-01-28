@@ -5,7 +5,7 @@ import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useUpdateInternalStatus } from "@/hooks/mutation/useUpdateInternalStatus";
-import { formatDateReadable, generateRandomBadgeColor } from "@/lib/helper";
+import { formatDateReadable, generateRandomBadgeColor, getApprovalStatusColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
@@ -24,6 +24,7 @@ export type Merchant = {
   businessPhoneNo: string | null;
   category: string[];
   isInternal: boolean;
+  approvalStatus: 'APPROVED' | 'UNVERIFIED' | null;
 };
 
 
@@ -127,6 +128,18 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
             </Badge>
           )) || <span className="text-gray-500 text-xs">No categories</span>}
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "approvalStatus",
+    header: "Approved Status",
+    cell: ({ row }) => {
+      const approvalStatus = row.original.approvalStatus;
+      return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getApprovalStatusColor(approvalStatus)}`}>
+          {approvalStatus || "N/A"}
+        </span>
       );
     },
   },
@@ -235,7 +248,7 @@ function ActionCell({ merchant }: Readonly<{ merchant: Merchant }>) {
               onClick={handleMakeMerchantInternal}
               className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              Make Deal Internal
+              Make Merchant Internal
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
