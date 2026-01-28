@@ -308,6 +308,39 @@ export const getAccountStatusColor = (status: string): string => {
   }
 };
 
+/**
+ * Gets the badge color class for approval status values with borders.
+ * 
+ * This function handles merchant approval status badges, including border styling.
+ * Supports statuses: APPROVED (green), UNVERIFIED (red), PENDING (yellow), and null/other (gray).
+ * 
+ * @param status - The approval status string (case-insensitive) or null
+ * @returns Tailwind CSS classes for badge styling including background, text, and border
+ * 
+ * @example
+ * ```typescript
+ * getApprovalStatusColor("APPROVED");   // Returns: "bg-green-100 text-green-800 border-green-200"
+ * getApprovalStatusColor("UNVERIFIED"); // Returns: "bg-red-100 text-red-800 border-red-200"
+ * getApprovalStatusColor("PENDING");    // Returns: "bg-yellow-100 text-yellow-800 border-yellow-200"
+ * getApprovalStatusColor(null);         // Returns: "bg-gray-100 text-gray-800 border-gray-200"
+ * ```
+ */
+export const getApprovalStatusColor = (status: string | null): string => {
+  if (!status) return "bg-gray-100 text-gray-800 border-gray-200";
+
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case "approved":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "unverified":
+      return "bg-red-100 text-red-800 border-red-200";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+};
+
 export const getStatusText = (status: string) => {
   switch (status.toLowerCase()) {
     case 'active':
