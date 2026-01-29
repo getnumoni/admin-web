@@ -29,6 +29,7 @@ const useGetDealList = (params: GetDealListParams = {}) => {
   const { data, isPending, error, isError, refetch } = useQuery({
     queryKey: [
       "deals",
+      "dealList",
       page,
       size,
       sort.join("|"),

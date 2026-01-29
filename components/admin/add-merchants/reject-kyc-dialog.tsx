@@ -34,10 +34,10 @@ export default function RejectKycDialog({
   isOpen,
   onClose,
   onConfirm,
-  documentType,
+  documentType: _documentType,
   documentName,
   isLoading = false,
-}: RejectKycDialogProps) {
+}: Readonly<RejectKycDialogProps>) {
   const form = useForm<RejectKycFormData>({
     resolver: zodResolver(rejectKycSchema),
     defaultValues: {

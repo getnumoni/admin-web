@@ -90,7 +90,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => {
-      const categories = row.getValue("category") as string[];
+      const categories = row.original.category;
       const maxVisible = 1; // Show only the first category
       const visibleCategories = categories.slice(0, maxVisible);
       const remainingCount = categories.length - maxVisible;
@@ -136,7 +136,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "initialPrice",
     header: "Initial Price",
     cell: ({ row }) => {
-      const price = parseFloat(row.getValue("initialPrice") ?? "0");
+      const price = Number(row.getValue("initialPrice") ?? "0");
       return (
         <div className="flex items-center space-x-1 text-gray-600 text-sm">
           <span>{formatCurrency(price) ?? "-"}</span>
@@ -148,7 +148,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "startDate",
     header: "Start Date",
     cell: ({ row }) => {
-      const dateStr = row.getValue("startDate") as string;
+      const dateStr = row.original.startDate;
       // Convert DD-MM-YYYY to YYYY-MM-DD for proper parsing
       const [day, month, year] = dateStr.split('-');
       const formattedDate = `${year}-${month}-${day}`;
@@ -163,7 +163,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "endDate",
     header: "End Date",
     cell: ({ row }) => {
-      const dateStr = row.getValue("endDate") as string;
+      const dateStr = row.original.endDate;
       // Convert DD-MM-YYYY to YYYY-MM-DD for proper parsing
       const [day, month, year] = dateStr.split('-');
       const formattedDate = `${year}-${month}-${day}`;
@@ -178,7 +178,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     accessorKey: "dealStatus",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("dealStatus") as string;
+      const status = row.original.dealStatus;
       return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getDealStatusColor(status)}`}>
           {getDealStatusText(status)}
@@ -200,6 +200,18 @@ export const dealsColumns: ColumnDef<DealData>[] = [
     },
   },
   {
+    accessorKey: "isInternal",
+    header: "Internal Deal",
+    cell: ({ row }) => {
+      const isInternal = row.original.isInternal;
+      return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${isInternal ? "bg-green-100 text-green-800 border-green-200" : "bg-gray-100 text-gray-800 border-gray-200"}`}>
+          {isInternal ? "Yes" : "No"}
+        </span>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
@@ -209,7 +221,7 @@ export const dealsColumns: ColumnDef<DealData>[] = [
 ];
 
 // Action Cell Component
-function ActionCell({ deal }: { deal: DealData }) {
+function ActionCell({ deal }: Readonly<{ deal: DealData }>) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
@@ -446,6 +458,7 @@ function ActionCell({ deal }: { deal: DealData }) {
         onClose={() => setIsMakeDealInternalDialogOpen(false)}
         onConfirm={handleMakeDealInternalConfirm}
         dealName={deal.name}
+        isInternal={deal.isInternal}
         isLoading={isMakeInternalPending}
       />
     </>

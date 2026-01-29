@@ -1,27 +1,25 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAllSignupBonusRequest from "@/hooks/query/useGetAllSignupBonusRequest";
-import { usePurchasesPagination } from "@/hooks/utils/usePurchasesPagination";
 import { extractErrorMessage } from "@/lib/helper";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import SignUpRequestDialog from "./sign-up-request-dialog";
 import { signupBonusRequestColumns, SignupBonusRequestData } from "./signup-bonus-request-columns";
 import SignupBonusRequestDataSection from "./signup-bonus-request-data-section";
-import SignupBonusRequestPagination from "./signup-bonus-request-pagination";
-
-const ITEMS_PER_PAGE = 10;
 
 export default function ViewAllSignUpRequest() {
   const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [openAddSignUpBonusRequestModal, setOpenAddSignUpBonusRequestModal] = useState(false);
 
-  const { data, isPending, isError, error, refetch, isRefetching } = useGetAllSignupBonusRequest({
+  const { data, isPending, isError, error, refetch } = useGetAllSignupBonusRequest({
     page: currentPage,
-    size: ITEMS_PER_PAGE,
+    size: pageSize,
   });
   const apiResponse = data?.data;
 
@@ -31,15 +29,16 @@ export default function ViewAllSignUpRequest() {
 
   // Get pagination values from API response
   const totalRows = pagination?.totalElements || signUpBonusRequests.length;
-  const totalPages = pagination?.totalPages || Math.ceil(totalRows / ITEMS_PER_PAGE);
+  const totalPages = pagination?.totalPages || Math.ceil(totalRows / pageSize);
 
-  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePurchasesPagination(
-    currentPage,
-    totalRows,
-    ITEMS_PER_PAGE,
-    totalPages,
-    setCurrentPage
-  );
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0);
+  };
 
   if (isPending) {
     return <LoadingSpinner message="Loading sign up bonus requests..." />
@@ -87,16 +86,13 @@ export default function ViewAllSignUpRequest() {
       />
 
       {signUpBonusRequests?.length > 0 && (
-        <SignupBonusRequestPagination
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={totalRows}
-          currentPage={currentPage + 1}
+        <DataTablePagination
+          currentPage={currentPage}
           totalPages={totalPages}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
-          onRefresh={refetch}
-          isRefetching={isRefetching}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
 

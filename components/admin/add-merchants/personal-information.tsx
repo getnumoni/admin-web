@@ -62,12 +62,12 @@ export default function PersonalInformation({
   businessPhoneNo,
   locations,
   bankInformation,
-  userId,
-  onEdit,
+  userId: _userId,
+  onEdit: _onEdit,
   sellOnline,
   sellOffline,
   registrationEmail,
-}: PersonalInformationProps) {
+}: Readonly<PersonalInformationProps>) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const leftColumnItems = [
     { label: "Business Name", value: businessName || "N/A" },

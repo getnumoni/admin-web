@@ -607,6 +607,7 @@ type MerchantDetailsResponse = {
   identificationType: string | null,
   identificationTypeNumber: string | null,
   minimumThreshold: string | null,
+  approvalStatus: string | null,
   locations: [
     {
       id: string | null,
@@ -822,6 +823,7 @@ type DealData = {
   usageLimit: string | null;
   merchantName: string;
   merchantLogo: string | null;
+  isInternal: boolean;
   imagePath: Array<{
     id: string;
     dealId: string;
@@ -1246,5 +1248,80 @@ type DealInformationProps = {
 
 type DateRangeOption = 'Today' | 'Yesterday' | 'This Week' | 'This Month' | 'Last Month' | 'Custom Range' | 'All Time' | null;
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, Bank, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, CacVerificationResponse, ChangeBranchStatusPayload, CharityData, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateRangeOption, DateSectionProps, DealData, DealInformationProps, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, Funding, FundingReconciliation, FundingReconciliationApiResponse, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantRewardRule, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PaginatedFundingReconciliationData, PaginatedPayoutData, Payout, PayoutApiResponse, PayoutPagination, PointAnalyticsProps, PointFlowData, PosData, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardData, RewardModalProps, RewardRule, RewardRuleApiItem, RewardRuleApiResponse, RewardRulesSectionProps, Rewards, RuleCardProps, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateDealStatusPayload, UpdateKycStatusPayload, UpdateMerchantPayload, UpdatePosPayload, UpdateRewardRuleModalProps, VerifyBankNamePayload, VerifyBankPayload, VerifyPayOnUsBankPayload };
+type UpdateMerchantVerificationStatusPayload = {
+  merchantId: string;
+  status: 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'VERIFIED' | 'UNVERIFIED';
+}
+
+
+
+type PointAllocationApiItem = {
+  customerName: string;
+  customerCode: string;
+  pointBalance: number;
+  expireDate: string;
+  location: string;
+}
+
+type PointAllocationPagination = {
+  totalPages: number;
+  pageSize: number;
+  currentPage: number;
+  totalElements: number;
+}
+type PointAllocationApiResponse = {
+  pagination: PointAllocationPagination;
+  data: PointAllocationApiItem[];
+  success: boolean;
+  message: string;
+}
+
+type SponsorDealApiItem = {
+  id: string;
+  heading: string;
+  description: string;
+  dealId: string;
+  backgroundImage: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type SponsorDealApiResponse = {
+  content: SponsorDealApiItem[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: Array<{
+      direction: string;
+      property: string;
+      ignoreCase: boolean;
+      nullHandling: string;
+      ascending: boolean;
+      descending: boolean;
+    }>;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  sort: Array<{
+    direction: string;
+    property: string;
+    ignoreCase: boolean;
+    nullHandling: string;
+    ascending: boolean;
+    descending: boolean;
+  }>;
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
+
+
+export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, Bank, BankPayload, BankToken, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, CacVerificationResponse, ChangeBranchStatusPayload, CharityData, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateRangeOption, DateSectionProps, DealData, DealInformationProps, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, Funding, FundingReconciliation, FundingReconciliationApiResponse, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantRewardRule, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PaginatedFundingReconciliationData, PaginatedPayoutData, Payout, PayoutApiResponse, PayoutPagination, PointAllocationApiItem, PointAllocationApiResponse, PointAllocationPagination, PointAnalyticsProps, PointFlowData, PosData, QRCodeCardProps, ReceiveMethodSectionProps, RewardCapSectionProps, RewardData, RewardModalProps, RewardRule, RewardRuleApiItem, RewardRuleApiResponse, RewardRulesSectionProps, Rewards, RuleCardProps, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, SponsorDealApiItem, SponsorDealApiResponse, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateDealStatusPayload, UpdateKycStatusPayload, UpdateMerchantPayload, UpdateMerchantVerificationStatusPayload, UpdatePosPayload, UpdateRewardRuleModalProps, VerifyBankNamePayload, VerifyBankPayload, VerifyPayOnUsBankPayload };
 

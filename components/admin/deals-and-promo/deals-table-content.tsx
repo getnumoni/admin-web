@@ -14,7 +14,7 @@ export default function DealsTableContent({
   dealsData,
   searchTerm,
   statusFilter,
-}: DealsTableContentProps) {
+}: Readonly<DealsTableContentProps>) {
   const hasDeals = dealsData && dealsData.length > 0;
   const hasFilters = searchTerm || statusFilter !== "all";
 

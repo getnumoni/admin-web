@@ -13,6 +13,7 @@ interface MakeDealInternalDialogProps {
   onConfirm: (isInternal: boolean) => void;
   dealName: string;
   isLoading?: boolean;
+  isInternal: boolean;
 }
 
 export default function MakeDealInternalDialog({
@@ -21,8 +22,9 @@ export default function MakeDealInternalDialog({
   onConfirm,
   dealName,
   isLoading = false,
+  isInternal: isDealInternal,
 }: Readonly<MakeDealInternalDialogProps>) {
-  const [isInternal, setIsInternal] = useState<string>('no');
+  const [isInternal, setIsInternal] = useState<string>(isDealInternal ? 'yes' : 'no');
 
   const handleOpenChange = (open: boolean) => {
     if (!open && !isLoading) {

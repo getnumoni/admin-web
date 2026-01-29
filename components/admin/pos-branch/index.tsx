@@ -1,13 +1,12 @@
 'use client';
 
 import SearchInput from "@/components/common/search-input";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAllPos from "@/hooks/query/useGetAllPos";
 import { useDebounce } from "@/hooks/utils/useDebounce";
-import { usePosPagination } from "@/hooks/utils/usePosPagination";
 import { useEffect, useState } from "react";
-import PosBranchPagination from "./pos-pagination";
 import PosTable from "./pos-table";
 
 export default function PosBranch() {
@@ -15,11 +14,10 @@ export default function PosBranch() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [size] = useState(20);
+  const [size, setSize] = useState(20);
 
   // Debounce search term to avoid too many API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -38,23 +36,18 @@ export default function PosBranch() {
   const totalPages = posList?.data?.data?.totalPages || 0;
   const totalRows = posList?.data?.data?.totalItems || 0;
 
-  const { startIndex, endIndex, handlePreviousPage, handleNextPage } = usePosPagination(
-    page,
-    totalRows,
-    size,
-    totalPages,
-    setPage
-  );
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setSize(newSize);
+    setPage(0); // Reset to first page when page size changes
+  };
 
   if (isPosListPending) return <LoadingSpinner message="Loading POS List..." />;
 
   if (isPosListError) return <ErrorState title="Error Loading POS List" message={posListError?.message || "Failed to load POS list. Please try again."} onRetry={refetchPosList} retryText="Retry" />;
-
-
-
-
-
-
 
   return (
     <div className="bg-white rounded-lg">
@@ -81,14 +74,13 @@ export default function PosBranch() {
 
 
       {posData && posData?.length > 0 && (
-        <PosBranchPagination
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={totalRows}
-          currentPage={page + 1}
+        <DataTablePagination
+          currentPage={page}
           totalPages={totalPages}
-          onPreviousPage={handlePreviousPage}
-          onNextPage={handleNextPage}
+          totalRows={totalRows}
+          pageSize={size}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
     </div>

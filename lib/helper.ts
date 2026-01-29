@@ -308,6 +308,39 @@ export const getAccountStatusColor = (status: string): string => {
   }
 };
 
+/**
+ * Gets the badge color class for approval status values with borders.
+ * 
+ * This function handles merchant approval status badges, including border styling.
+ * Supports statuses: APPROVED (green), UNVERIFIED (red), PENDING (yellow), and null/other (gray).
+ * 
+ * @param status - The approval status string (case-insensitive) or null
+ * @returns Tailwind CSS classes for badge styling including background, text, and border
+ * 
+ * @example
+ * ```typescript
+ * getApprovalStatusColor("APPROVED");   // Returns: "bg-green-100 text-green-800 border-green-200"
+ * getApprovalStatusColor("UNVERIFIED"); // Returns: "bg-red-100 text-red-800 border-red-200"
+ * getApprovalStatusColor("PENDING");    // Returns: "bg-yellow-100 text-yellow-800 border-yellow-200"
+ * getApprovalStatusColor(null);         // Returns: "bg-gray-100 text-gray-800 border-gray-200"
+ * ```
+ */
+export const getApprovalStatusColor = (status: string | null): string => {
+  if (!status) return "bg-gray-100 text-gray-800 border-gray-200";
+
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case "approved":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "unverified":
+      return "bg-red-100 text-red-800 border-red-200";
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+};
+
 export const getStatusText = (status: string) => {
   switch (status.toLowerCase()) {
     case 'active':
@@ -979,7 +1012,7 @@ export const downloadQRCodeImageWithLogo = async (
         // Check if canvas is tainted (CORS issue)
         try {
           ctx.getImageData(0, 0, 1, 1);
-        } catch (e) {
+        } catch (_e) {
           cleanupBlobUrls();
           reject(new Error('Canvas is tainted due to CORS restrictions. Images must be served with proper CORS headers.'));
           return;
@@ -1018,6 +1051,7 @@ export const downloadQRCodeImageWithLogo = async (
         }, 'image/png');
       } catch (error) {
         // Fallback: try to draw QR code without logos if logo loading fails
+        console.warn('Failed to load logos, attempting fallback without logos:', error);
         try {
           const qrCodeImg = await loadImageWithCors(qrCodeUrl);
           const qrSize = qrCodeSize;
@@ -1070,7 +1104,8 @@ export const downloadQRCodeImageWithLogo = async (
           // Check if canvas is tainted (CORS issue)
           try {
             ctx.getImageData(0, 0, 1, 1);
-          } catch (e) {
+          } catch (error) {
+            console.warn('Canvas security check failed:', error);
             if (qrCodeImg.src.startsWith('blob:')) {
               URL.revokeObjectURL(qrCodeImg.src);
             }
@@ -1178,7 +1213,7 @@ export const loadImage = (src: string, isExternal: boolean = false): Promise<HTM
       clearTimeout(timeout);
       resolve(img);
     };
-    img.onerror = (error) => {
+    img.onerror = (_error) => {
       clearTimeout(timeout);
       const errorMsg = isExternal
         ? `Failed to load external image (CORS may be blocking): ${src}`
@@ -1424,7 +1459,7 @@ export const downloadQRCodeWithLogo = async (
                 } else {
                   throw new Error('Images not fully loaded');
                 }
-              } catch (error) {
+              } catch (_error) {
                 // Final fallback: Open a new window with the images
                 // User can right-click to save, or browser print to PDF
                 const tempWindow = window.open('', '_blank');
@@ -1486,7 +1521,7 @@ export const downloadQRCodeWithLogo = async (
         }
       };
 
-      const onImageError = (error: string | Event) => {
+      const onImageError = (_error: string | Event) => {
         document.body.removeChild(container);
         reject(new Error('Failed to load image'));
       };
