@@ -7,7 +7,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ADMIN_CUSTOMERS_ADD_URL } from '@/constant/routes';
 import useGetCustomers from '@/hooks/query/useGetCustomers';
-import { formatDateForAPI, getTimelineDates } from '@/lib/helper';
+import { extractErrorMessage, formatDateForAPI, getTimelineDates } from '@/lib/helper';
 import { DateRangeOption } from '@/lib/types';
 import { Customer } from '@/lib/types/customer';
 import { ChevronLeft, ChevronRight, Download, Info, Plus, Trash2 } from 'lucide-react';
@@ -212,7 +212,7 @@ export default function Customers() {
   // Show error state
   if (isError) {
     return (
-      <ErrorState title="Error Loading Customers" message={error?.message || "Failed to load customers. Please try again."} onRetry={refetch} retryText="Retry" />
+      <ErrorState title="Error Loading Customers" message={extractErrorMessage(error) || "Failed to load customers. Please try again."} onRetry={refetch} retryText="Retry" />
     );
   }
 
