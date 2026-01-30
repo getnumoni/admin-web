@@ -14,7 +14,7 @@ import CustomerOverview from "./customer-overview";
 import CustomerTransactionById from "./customer-transaction-by-id";
 import CustomersTabs from "./customers-tab";
 
-export default function CustomerDetails({ customerId }: { customerId: string }) {
+export default function CustomerDetails({ customerId }: Readonly<{ customerId: string }>) {
   const [activeTab, setActiveTab] = useState("overview");
 
   const { data, isPending, error, isError, refetch } = useGetCustomerDetailsById({ customerId });
@@ -22,7 +22,6 @@ export default function CustomerDetails({ customerId }: { customerId: string }) 
   const { handleAdjustCustomerBalance, isPending: isAdjustBalancePending, isSuccess: isAdjustBalanceSuccess } = useAdjustCustomerBalance();
   const { user } = useUserAuthStore();
 
-  // console.log(data?.data?.data?.data);
   const customerData = data?.data?.data?.data;
 
   const handleAdjustPoints = (customerId: string, walletId: string, walletType: string, points: number, reason: string) => {

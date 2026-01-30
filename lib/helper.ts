@@ -504,11 +504,14 @@ export const formatDate = (dateString: string | null, fallback: string) => {
 
 /**
  * Formats a date string to a readable format (e.g., "27 Sep 2025")
- * @param dateString - Date string to format
- * @returns Formatted date string in "DD MMM YYYY" format
+ * @param dateString - Date string to format (can be null or undefined)
+ * @returns Formatted date string in "DD MMM YYYY" format, or "N/A" if date is null/undefined
  */
-export const formatDateReadable = (dateString: string): string => {
+export const formatDateReadable = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A';
   const date = new Date(dateString);
+  // Check if date is invalid
+  if (Number.isNaN(date.getTime())) return 'N/A';
   return date.toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'short',
