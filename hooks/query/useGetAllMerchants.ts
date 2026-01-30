@@ -5,7 +5,12 @@ interface GetAllMerchantsParams {
   page?: number;
   size?: number;
   businessName?: string;
-  createdDate?: string;
+  merchantEmail?: string;
+  merchantPhoneNo?: string;
+  merchantId?: string;
+  startDate?: string;
+  endDate?: string;
+  approvalStatus?: string;
 }
 
 const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
@@ -13,11 +18,16 @@ const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
     page = 0,
     size = 10,
     businessName,
-    createdDate,
+    merchantEmail,
+    merchantPhoneNo,
+    merchantId,
+    startDate,
+    endDate,
+    approvalStatus,
   } = params;
 
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["merchants", page, size, businessName, createdDate],
+    queryKey: ["merchants", page, size, businessName, merchantEmail, merchantPhoneNo, merchantId, startDate, endDate, approvalStatus],
     queryFn: () => {
       const queryParams = new URLSearchParams();
 
@@ -27,7 +37,12 @@ const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
 
       // Optional filter parameters
       if (businessName) queryParams.append("businessName", businessName);
-      if (createdDate) queryParams.append("createdDate", createdDate);
+      if (merchantEmail) queryParams.append("merchantEmail", merchantEmail);
+      if (merchantPhoneNo) queryParams.append("merchantPhoneNo", merchantPhoneNo);
+      if (merchantId) queryParams.append("merchantId", merchantId);
+      if (startDate) queryParams.append("startDate", startDate);
+      if (endDate) queryParams.append("endDate", endDate);
+      if (approvalStatus) queryParams.append("approvalStatus", approvalStatus);
 
       const queryString = queryParams.toString();
       return api.get(`/admin/getMerchantList?${queryString}`);
