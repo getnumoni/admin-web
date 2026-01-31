@@ -34,7 +34,7 @@ export default function MerchantsHeaderSection({
   approvalStatus,
   onApprovalStatusChange,
   onResetFilter,
-}: MerchantsHeaderSectionProps) {
+}: Readonly<MerchantsHeaderSectionProps>) {
   return (
     <div className="p-4 sm:p-6 border-b border-gray-200">
       <div className="flex flex-col gap-4">
