@@ -16,7 +16,7 @@ type Attachment = {
   imagePath: string | null;
 };
 
-export default function SupportTicketDetails({ ticketId }: { ticketId: string }) {
+export default function SupportTicketDetails({ ticketId }: Readonly<{ ticketId: string }>) {
   const { data, isPending, error, isError, refetch } = useGetSupportTicketById({ ticketId });
 
   if (isPending) {
@@ -37,7 +37,7 @@ export default function SupportTicketDetails({ ticketId }: { ticketId: string })
   const supportTicket = data?.data?.data;
 
 
-  const hasAttachments = supportTicket?.imagepath && supportTicket.imagepath.length > 0 && supportTicket.imagepath.some((img: Attachment) => img.imagePath);
+  const hasAttachments = supportTicket?.imagepath && supportTicket.imagepath?.length > 0 && supportTicket.imagepath?.some((img: Attachment) => img.imagePath);
 
   return (
     <div className="min-h-screen bg-gray-50 ">

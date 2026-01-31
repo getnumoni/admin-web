@@ -43,7 +43,7 @@ export default function CharityBasicInformation<
   isRegionsPending = false,
   isStatesPending = false,
   isLgaPending = false
-}: CharityBasicInformationProps<TFieldValues, TName>) {
+}: Readonly<CharityBasicInformationProps<TFieldValues, TName>>) {
   // Paginated merchants for associated brands selector
   const [merchantPage, setMerchantPage] = React.useState(0);
   const [merchantOptions, setMerchantOptions] = React.useState<{ value: string; label: string }[]>([]);
@@ -62,8 +62,7 @@ export default function CharityBasicInformation<
       nextOptions.forEach((o: { value: string; label: string }) => { if (!existing.has(o.value)) merged.push(o); });
       return merged;
     });
-    // Only append when the page index changes to avoid infinite re-renders due to ref changes
-  }, [merchantPage]);
+  }, [pageMerchants]);
 
   // Watch temp combobox selection to push only the ID to associatedBrands, then clear
   const tempFieldName = "associatedBrandsTemp" as unknown as FieldPath<TFieldValues>;
