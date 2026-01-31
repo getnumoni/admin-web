@@ -10,7 +10,7 @@ interface MerchantDescriptionProps {
 
 }
 
-export default function MerchantDescription({ description, onEdit: _onEdit, userId }: Readonly<MerchantDescriptionProps>) {
+export default function MerchantDescription({ description, userId }: Readonly<MerchantDescriptionProps>) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // const handleEditClick = () => {

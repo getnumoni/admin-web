@@ -22,7 +22,7 @@ export default function AddCharity() {
   const [selectedContactRegion, setSelectedContactRegion] = useState("");
   const [selectedContactState, setSelectedContactState] = useState("");
   const [associatedBrands, setAssociatedBrands] = useState<string[]>([]);
-  const [mediaImages, setMediaImages] = useState<string[]>([]);
+  // const [mediaImages, setMediaImages] = useState<string[]>([]);
 
   const { data: regionsData, isPending: isRegionsPending } = useGetAllRegions();
   const { data: statesData, isPending: isStatesPending } = useGetStates({ region: selectedRegion });
@@ -70,9 +70,9 @@ export default function AddCharity() {
   const contactStates = contactStatesData?.data?.data || [];
   const contactLgas = contactLgaData?.data?.data || [];
 
-  const handleImageChange = (imageUrl: string | null) => {
-    setValue('logoUrl', imageUrl || '');
-  };
+  // const handleImageChange = (imageUrl: string | null) => {
+  //   setValue('logoUrl', imageUrl || '');
+  // };
 
   const handleAddBrand = (brand: string) => {
     if (brand && !associatedBrands.includes(brand)) {
@@ -84,15 +84,15 @@ export default function AddCharity() {
     setAssociatedBrands(associatedBrands.filter(b => b !== brand));
   };
 
-  const handleAddImage = (imageBase64: string) => {
-    const next = [...mediaImages, imageBase64].slice(0, 6);
-    setMediaImages(next);
-    setValue('mediaUrls', next);
-  };
+  // const handleAddImage = (imageBase64: string) => {
+  //   const next = [...mediaImages, imageBase64].slice(0, 6);
+  //   setMediaImages(next);
+  //   setValue('mediaUrls', next);
+  // };
 
-  const handleRemoveImage = (index: number) => {
-    setMediaImages(mediaImages.filter((_, i) => i !== index));
-  };
+  // const handleRemoveImage = (index: number) => {
+  //   setMediaImages(mediaImages.filter((_, i) => i !== index));
+  // };
 
   // Watch form values for dependent dropdowns
   const watchedRegion = watch("region");

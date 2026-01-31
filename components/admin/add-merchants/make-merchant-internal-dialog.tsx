@@ -15,7 +15,7 @@ type MakeMerchantInternalDialogProps = {
   userType: "MERCHANT" | "CUSTOMER" | "CHARITY";
 }
 
-export function MakeMerchantInternalDialog({ isOpen, onClose, onConfirm, merchantName, isLoading, isInternal: isMerchantInternal, email: _email, userType: _userType }: Readonly<MakeMerchantInternalDialogProps>) {
+export function MakeMerchantInternalDialog({ isOpen, onClose, onConfirm, merchantName, isLoading, isInternal: isMerchantInternal }: Readonly<MakeMerchantInternalDialogProps>) {
 
   const [isInternal, setIsInternal] = useState<string>(isMerchantInternal ? 'yes' : 'no');
 
