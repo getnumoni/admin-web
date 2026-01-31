@@ -3,7 +3,7 @@
 import { formatCurrency } from "@/lib/helper";
 import { CustomerDetailsResponse } from "@/lib/types";
 
-export default function CustomerFinancialOverview({ customerData }: { customerData: CustomerDetailsResponse }) {
+export default function CustomerFinancialOverview({ customerData }: Readonly<{ customerData: CustomerDetailsResponse }>) {
 
   // console.log('customerData', customerData);
   const financialOverview = customerData?.financialOverview;
@@ -11,7 +11,7 @@ export default function CustomerFinancialOverview({ customerData }: { customerDa
   const brandPointBalance = financialOverview?.brandPointBalance;
 
   // Extract wallet balance from wallet object (in naira)
-  const walletBalance = customerData?.wallet?.amount || 0;
+  // const walletBalance = customerData?.wallet?.amount || 0;
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 my-4">

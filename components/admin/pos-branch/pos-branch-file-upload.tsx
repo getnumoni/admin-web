@@ -2,21 +2,20 @@
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { validateFileSize } from '@/lib/helper';
-import { Control, UseFormSetValue } from 'react-hook-form';
+import { PosBranchFormData } from '@/lib/schemas/pos-branch-schema';
 import { FileText, Upload, X } from 'lucide-react';
 import { useId, useState } from 'react';
+import { Control, UseFormSetValue } from 'react-hook-form';
 import { toast } from 'sonner';
-import { PosBranchFormData } from '@/lib/schemas/pos-branch-schema';
 
 interface PosBranchFileUploadProps {
   control: Control<PosBranchFormData>;
   setValue: UseFormSetValue<PosBranchFormData>;
 }
 
-export default function PosBranchFileUpload({ control, setValue }: PosBranchFileUploadProps) {
+export default function PosBranchFileUpload({ control, setValue }: Readonly<PosBranchFileUploadProps>) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputId = useId();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,11 +73,10 @@ export default function PosBranchFileUpload({ control, setValue }: PosBranchFile
             <FormControl>
               <div className="space-y-2">
                 <div
-                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-                    field.value
-                      ? 'border-gray-300'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${field.value
+                    ? 'border-gray-300'
+                    : 'border-gray-300 hover:border-gray-400'
+                    }`}
                 >
                   {filePreview ? (
                     <div className="flex items-center justify-between">
@@ -91,8 +89,7 @@ export default function PosBranchFileUpload({ control, setValue }: PosBranchFile
                       <button
                         type="button"
                         onClick={handleRemoveFile}
-                        disabled={isUploading}
-                        className="text-red-500 p-1 cursor-pointer rounded-full hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50"
+                        className="text-red-500 p-1 cursor-pointer rounded-full hover:bg-red-500 hover:text-white transition-colors"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -111,10 +108,9 @@ export default function PosBranchFileUpload({ control, setValue }: PosBranchFile
                         <button
                           type="button"
                           onClick={() => document.getElementById(fileInputId)?.click()}
-                          disabled={isUploading}
-                          className="text-gray-800 hover:text-gray-900 disabled:opacity-50"
+                          className="text-gray-800 hover:text-gray-900"
                         >
-                          {isUploading ? 'Uploading...' : 'Choose file'}
+                          Choose file
                         </button>
                         <p className="text-xs text-gray-500 mt-1">
                           or drag and drop here

@@ -29,8 +29,7 @@ export default function UpdateSponsoredDealDialog({
   isOpen,
   onClose,
   deal,
-  isLoading = false,
-}: UpdateSponsoredDealDialogProps) {
+}: Readonly<UpdateSponsoredDealDialogProps>) {
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
@@ -123,6 +122,13 @@ export default function UpdateSponsoredDealDialog({
     if (!open && !isUpdating && !isUploading) {
       onClose();
     }
+  };
+
+  // Helper function to determine loading text based on current state
+  const getLoadingText = () => {
+    if (isUploading) return "Uploading Image...";
+    if (isUpdating) return "Updating Sponsored Deal...";
+    return "Processing...";
   };
 
   return (
@@ -232,7 +238,7 @@ export default function UpdateSponsoredDealDialog({
             form="update-sponsored-deal-form"
             disabled={isSubmitting || isUpdating || isUploading}
             isLoading={isSubmitting || isUpdating || isUploading}
-            loadingText={isUploading ? "Uploading Image..." : isUpdating ? "Updating Sponsored Deal..." : "Processing..."}
+            loadingText={getLoadingText()}
             className="px-9 py-6 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
           >
             Update Sponsored Deal

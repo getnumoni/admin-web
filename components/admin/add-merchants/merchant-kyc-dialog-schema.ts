@@ -15,10 +15,9 @@ export const identificationTypes = [
  * Creates a Zod schema for KYC form validation
  * Validates different fields based on the selected identification type
  * 
- * @param existingKycData - Optional existing KYC data to pre-populate fields
  * @returns Zod schema object for form validation
  */
-export const createKycSchema = (existingKycData?: { menuPath?: string | null; reqCertificatePath?: string | null }) =>
+export const createKycSchema = () =>
   z.object({
     identificationType: z.string().min(1, "Please select an identification type"),
     identificationTypeNumber: z.string().optional(),
