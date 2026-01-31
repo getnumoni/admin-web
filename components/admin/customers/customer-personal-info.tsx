@@ -42,22 +42,22 @@ export default function CustomerPersonalInfo({
           {/* Left Column */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-muted-foreground">Full Name</label>
-              <p className="text-base font-semibold text-foreground mt-1">
+              <label htmlFor="name" className="text-sm text-muted-foreground">Full Name</label>
+              <p id="name" className="text-base font-semibold text-foreground mt-1">
                 {customerData?.name || "Shai Hulud"}
               </p>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">Email Address</label>
-              <p className="text-base font-semibold text-foreground mt-1">
+              <label htmlFor="email" className="text-sm text-muted-foreground">Email Address</label>
+              <p id="email" className="text-base font-semibold text-foreground mt-1">
                 {customerData?.email || "shaihulud@gmail.com"}
               </p>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">Phone Number</label>
-              <p className="text-base font-semibold text-foreground mt-1">
+              <label htmlFor="phoneNumber" className="text-sm text-muted-foreground">Phone Number</label>
+              <p id="phoneNumber" className="text-base font-semibold text-foreground mt-1">
                 {customerData?.phoneNumber || "+234 701 2345 678"}
               </p>
             </div>
@@ -66,22 +66,22 @@ export default function CustomerPersonalInfo({
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-muted-foreground">Address</label>
-              <p className="text-base font-semibold text-foreground mt-1">
+              <label htmlFor="address" className="text-sm text-muted-foreground">Address</label>
+              <p id="address" className="text-base font-semibold text-foreground mt-1">
                 {customerData?.locations[0]?.address || ""}
               </p>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">Date of Birth</label>
-              <p className="text-base font-semibold text-foreground mt-1">
-                {formatDateReadable(customerData?.dateOfBirth) || "N/A"}
+              <label htmlFor="dateOfBirth" className="text-sm text-muted-foreground">Date of Birth</label>
+              <p id="dateOfBirth" className="text-base font-semibold text-foreground mt-1">
+                {formatDateReadable(customerData?.dateOfBirth)}
               </p>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">Country of Residence</label>
-              <p className="text-base font-semibold text-foreground mt-1">
+              <label htmlFor="country" className="text-sm text-muted-foreground">Country of Residence</label>
+              <p id="country" className="text-base font-semibold text-foreground mt-1">
                 {customerData?.locations[0]?.country || "Nigeria"}
               </p>
             </div>

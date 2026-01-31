@@ -29,7 +29,7 @@ export default function CustomerOverview({
   isAdjustPointsSuccess,
   isAdjustBalancePending,
   isAdjustBalanceSuccess
-}: CustomerOverviewProps) {
+}: Readonly<CustomerOverviewProps>) {
 
   const handleHideReview = (id: string) => {
     console.log("Hide review:", id);
