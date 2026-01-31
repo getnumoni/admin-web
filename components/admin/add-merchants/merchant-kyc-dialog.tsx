@@ -48,7 +48,7 @@ export default function MerchantKycDialog({
   onClose,
   merchantId,
   businessName,
-  existingKycData,
+  // existingKycData,
 }: Readonly<MerchantKycDialogProps>) {
   // Initialize form with validation schema
   const form = useForm({
