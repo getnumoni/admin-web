@@ -49,10 +49,10 @@ export default function MerchantKycDialog({
   merchantId,
   businessName,
   existingKycData,
-}: MerchantKycDialogProps) {
+}: Readonly<MerchantKycDialogProps>) {
   // Initialize form with validation schema
   const form = useForm({
-    resolver: zodResolver(createKycSchema(existingKycData)),
+    resolver: zodResolver(createKycSchema()),
     mode: "onSubmit",
     defaultValues: {
       identificationType: "",
