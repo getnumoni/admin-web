@@ -164,12 +164,12 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: 'posQRCode',
     header: "POS QR Code",
     cell: ({ row }) => {
-      const qrCode = row.getValue("posQRCode") as string | null | undefined;
-      const posId = row.getValue("posId") as string;
-      const posName = row.getValue("posName") as string;
-      const merchantLogo = row.original.merchantLogo as string | null | undefined;
-      const location = row.original.location as string | null | undefined;
-      const address = row.original.address as string | null | undefined;
+      const qrCode = row.original.posQRCode;
+      const posId = row.original.posId;
+      const posName = row.original.posName;
+      const merchantLogo = row.original.merchantLogo;
+      const location = row.original.location;
+      const address = row.original.address;
 
       const handleDownloadQRCode = async () => {
         if (!qrCode) return;

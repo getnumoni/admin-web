@@ -52,6 +52,7 @@ interface PersonalInformationProps {
   sellOnline: boolean;
   sellOffline: boolean;
   registrationEmail: string;
+  qrCode?: string;
 }
 
 export default function PersonalInformation({
@@ -67,6 +68,7 @@ export default function PersonalInformation({
   sellOnline,
   sellOffline,
   registrationEmail,
+
 }: Readonly<PersonalInformationProps>) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const leftColumnItems = [
@@ -86,6 +88,8 @@ export default function PersonalInformation({
 
   const rightColumnItems = [
     { label: "Address", value: address },
+
+
   ];
 
   // const handleEditClick = () => {
@@ -98,6 +102,7 @@ export default function PersonalInformation({
   //   // Here you would typically call an API to update the information
   //   setIsEditDialogOpen(false);
   // };
+
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 ">
@@ -154,6 +159,8 @@ export default function PersonalInformation({
               )}
             </>
           )}
+
+
         </div>
       </div>
 
@@ -163,7 +170,7 @@ export default function PersonalInformation({
           <span className="text-sm text-gray-500 font-medium mb-2">Categories:</span>
           <div className="flex flex-wrap gap-2">
             {category?.map((cat, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+              <Badge key={`${cat}-${index}`} variant="secondary" className="text-xs">
                 {cat}
               </Badge>
             ))}

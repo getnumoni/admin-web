@@ -9,7 +9,7 @@ interface MerchantHeaderProps {
   level: string;
 }
 
-export default function MerchantHeader({ merchantName, userId, level }: MerchantHeaderProps) {
+export default function MerchantHeader({ merchantName, userId, level }: Readonly<MerchantHeaderProps>) {
 
   return (
     <div className="flex items-center justify-between">
