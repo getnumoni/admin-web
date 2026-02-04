@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 
 
 
-export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
+export default function AdminSidebar({ isOpen, onClose }: Readonly<SidebarProps>) {
   const pathname = usePathname();
 
   const [expandedItems, setExpandedItems] = useState<string[]>(getExpandedItemsForPath(pathname, adminNavigationItem));
@@ -137,9 +137,11 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/70 z-40 lg:hidden"
+        <button
+          type="button"
+          className="fixed inset-0 bg-black/70 z-40 lg:hidden cursor-default"
           onClick={onClose}
+          aria-label="Close sidebar"
         />
       )}
 
