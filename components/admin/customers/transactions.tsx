@@ -1,6 +1,7 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -9,13 +10,14 @@ import useGetCustomersTransactions from '@/hooks/query/useGetCustomersTransactio
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { extractErrorMessage } from '@/lib/helper';
 import { CustomerTransaction } from '@/lib/types';
-import { ChevronDown, ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { ChevronDown, RefreshCw, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { customerTransactionColumns } from './transaction-columns';
 
 export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based for consistency
+  const [pageSize, setPageSize] = useState(30);
   const [orderStatus, setOrderStatus] = useState('');
 
   // Debounce search term to avoid too many API calls
@@ -24,24 +26,23 @@ export default function Transactions() {
   const { data, isPending, error, isError, refetch } = useGetCustomersTransactions({
     customerName: debouncedSearchTerm.trim() || undefined,
     transactionType: orderStatus || undefined,
-    page: currentPage - 1,
-    size: 30, // Standard page size
+    page: currentPage,
+    size: pageSize,
   });
   const apiData = data?.data?.data;
-
-  const itemsPerPage = 30;
 
   // Use transactions directly from API
   const transactions: CustomerTransaction[] = apiData?.pageData || [];
   const totalPages = apiData?.totalPages || 1;
   const totalRows = apiData?.totalRows || 0;
 
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(0); // Reset to first page when page size changes
   };
 
   const handleResetFilter = () => {
@@ -51,7 +52,7 @@ export default function Transactions() {
 
   // Reset to first page when debounced search term or order status changes
   useEffect(() => {
-    setCurrentPage(1);
+    setCurrentPage(0);
   }, [debouncedSearchTerm, orderStatus]);
 
   // Transaction type options for the dropdown
@@ -163,56 +164,16 @@ export default function Transactions() {
         {renderDataTableContent()}
       </div>
 
-      {/* Pagination and Row Actions */}
+      {/* Pagination */}
       {transactions.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            {/* Row Count */}
-            <div className="text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalRows)} of {totalRows}
-            </div>
-
-            {/* Row Action Icons */}
-            <div className="flex items-center gap-4">
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Download"
-              >
-                <Download className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Information"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <DataTablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
       )}
     </div>
   );
