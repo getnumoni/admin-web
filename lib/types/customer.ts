@@ -6,6 +6,8 @@ export type Customer = {
   emailAddress: string;
   phoneNumber: string;
   address: string | null;
+  walletBalance: string;
+  kycStatus: string | null;
 };
 
 export type CustomerApiResponse = {
