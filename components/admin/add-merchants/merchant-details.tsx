@@ -8,6 +8,7 @@ import { useAdjustMerchantPoints } from "@/hooks/mutation/useAdjustMerchantPoint
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useResetMerchantPassword } from "@/hooks/mutation/useResetMerchantPassword";
 import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
+import { downloadQRCodeImageWithLogo } from "@/lib/helper";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { Download } from "lucide-react";
 import Image from "next/image";
@@ -137,6 +138,19 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
   if (isMerchantDetailsPending) {
     return <LoadingSpinner message="Loading merchant details..." />
   }
+
+  const handleDownloadQRCode = async () => {
+    if (!merchantData?.qrCode) return;
+
+    try {
+      const filename = merchantData?.businessName || merchantData?.merchantId || 'merchant';
+      await downloadQRCodeImageWithLogo(merchantData?.qrCode, filename, merchantData?.merchantId);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to download QR code';
+      console.error('Error downloading QR code:', errorMessage, error);
+      toast.error(errorMessage);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -148,7 +162,12 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
         />
         <div className="flex items-start gap-4 mb-6">
           {merchantData?.businessImagePath && (
-            <div className="relative group cursor-pointer shrink-0" onClick={() => setIsImageDialogOpen(true)}>
+            <button
+              type="button"
+              className="relative group cursor-pointer shrink-0 bg-transparent border-0 p-0"
+              onClick={() => setIsImageDialogOpen(true)}
+              aria-label={`View full size image of ${merchantData.businessName || 'merchant'}`}
+            >
               <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
                 <Image
                   src={merchantData.businessImagePath}
@@ -172,9 +191,39 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
                   </Button>
                 </div>
               </div>
-            </div>
+            </button>
           )}
 
+          {/* QR Code */}
+          <div>
+            {merchantData?.qrCode && (
+              <div className="flex flex-col items-start mt-4">
+
+                <div className="relative group cursor-pointer">
+                  <div className="border border-gray-200 rounded-lg p-2 bg-white">
+                    <Image
+                      src={merchantData.qrCode}
+                      alt="Merchant QR Code"
+                      width={128}
+                      height={128}
+                      className="object-contain"
+                    />
+                  </div>
+                  {/* Download button overlay - center */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      onClick={handleDownloadQRCode}
+                      className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white shadow-lg rounded-full p-2"
+                      size="sm"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Full Screen Image Dialog */}
