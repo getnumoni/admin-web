@@ -29,7 +29,7 @@ export function DateRangePicker({
   placeholder = "Pick a date range",
   className,
   disabled = false,
-}: DateRangePickerProps) {
+}: Readonly<DateRangePickerProps>) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleSelect = (range: { from: Date | undefined; to?: Date | undefined } | undefined) => {

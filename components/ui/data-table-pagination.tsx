@@ -28,7 +28,7 @@ export function DataTablePagination({
   pageSize,
   onPageChange,
   onPageSizeChange,
-}: DataTablePaginationProps) {
+}: Readonly<DataTablePaginationProps>) {
   const startIndex = currentPage * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalRows);
 

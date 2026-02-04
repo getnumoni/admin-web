@@ -3,6 +3,7 @@
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDeleteCustomer } from "@/hooks/mutation/useDeleteCustomer";
+import { getAccountStatusColor } from "@/lib/helper";
 import { Customer } from "@/lib/types/customer";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical } from "lucide-react";
@@ -74,22 +75,6 @@ export const customerColumns: ColumnDef<Customer>[] = [
     },
   },
   {
-    accessorKey: "dateJoined",
-    header: "Date Joined",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("dateJoined"));
-      return (
-        <div className="text-gray-600 text-sm">
-          {date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "emailAddress",
     header: "Email Address",
     cell: ({ row }) => (
@@ -107,10 +92,55 @@ export const customerColumns: ColumnDef<Customer>[] = [
     accessorKey: "address",
     header: "Address",
     cell: ({ row }) => {
-      const address = row.getValue("address") as string | null;
+      const address = row.original.address;
       return (
         <div className="text-gray-600 text-sm max-w-xs truncate" title={address || ''}>
           {address || 'N/A'}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "kycStatus",
+    header: "KYC Status",
+    cell: ({ row }) => {
+      const kycStatus = row.original.kycStatus;
+      if (!kycStatus) {
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            N/A
+          </span>
+        );
+      }
+      return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAccountStatusColor(kycStatus)}`}>
+          {kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1)}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "walletBalance",
+    header: "Wallet Balance",
+    cell: ({ row }) => {
+      const walletBalance = row.original.walletBalance;
+      return (
+        <div className="text-gray-600 text-sm">{walletBalance ?? 0}</div>
+      );
+    },
+  },
+  {
+    accessorKey: "dateJoined",
+    header: "Date Joined",
+    cell: ({ row }) => {
+      const date = new Date(row.original.dateJoined);
+      return (
+        <div className="text-gray-600 text-sm">
+          {date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
         </div>
       );
     },
@@ -125,7 +155,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
 ];
 
 // Action Cell Component
-function ActionCell({ customer }: { customer: Customer }) {
+function ActionCell({ customer }: Readonly<{ customer: Customer }>) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { handleDeleteCustomer, isPending, isSuccess } = useDeleteCustomer();
   const router = useRouter();

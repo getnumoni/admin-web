@@ -220,7 +220,7 @@ export const formatCurrency = (amount: number) => {
     style: 'currency',
     currency: 'NGN',
     minimumFractionDigits: 2,
-  }).format(amount).replace('NGN', '₦');
+  }).format(amount).replace('NGN', '₦ ');
 };
 
 /**
@@ -403,6 +403,131 @@ export function isStaticAsset(pathname: string) {
   return /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot|otf)$/i.test(pathname);
 }
 
+/**
+ * Gets the appropriate placeholder text for search inputs based on the selected filter type.
+ * 
+ * This function provides user-friendly placeholder text for customer search inputs,
+ * guiding users on what type of data to enter based on their selected filter.
+ * 
+ * @param type - The filter type selected ('name', 'email', 'phone', 'customerId', or empty string)
+ * @returns Placeholder text string appropriate for the selected filter type
+ * 
+ * @example
+ * ```typescript
+ * getSearchPlaceholder('name');       // Returns: "Enter customer name"
+ * getSearchPlaceholder('email');      // Returns: "Enter customer email"
+ * getSearchPlaceholder('phone');      // Returns: "Enter phone number"
+ * getSearchPlaceholder('customerId'); // Returns: "Enter customer ID"
+ * getSearchPlaceholder('');           // Returns: "Select filter type first"
+ * ```
+ */
+export const getSearchPlaceholder = (type: 'name' | 'email' | 'phone' | 'customerId' | ''): string => {
+  switch (type) {
+    case 'name':
+      return 'Enter customer name';
+    case 'email':
+      return 'Enter customer email';
+    case 'phone':
+      return 'Enter phone number';
+    case 'customerId':
+      return 'Enter customer ID';
+    default:
+      return 'Select filter type first';
+  }
+};
+
+/**
+ * Parses and formats customer search terms based on the selected filter type.
+ * 
+ * This function takes a raw search value and filter type, then returns an object
+ * with the appropriate search parameters for the customer API. It handles special
+ * formatting for phone numbers (removing non-digit characters while preserving +).
+ * 
+ * @param searchValue - The raw search input from the user
+ * @param type - The filter type ('name', 'email', 'phone', 'customerId', or empty string)
+ * @returns Object with search parameters for the API (name, customerEmail, customerPhoneNo, customerId)
+ * 
+ * @example
+ * ```typescript
+ * parseCustomerSearchTerm('John Doe', 'name');
+ * // Returns: { name: 'John Doe', customerEmail: undefined, customerPhoneNo: undefined, customerId: undefined }
+ * 
+ * parseCustomerSearchTerm('user@example.com', 'email');
+ * // Returns: { name: undefined, customerEmail: 'user@example.com', customerPhoneNo: undefined, customerId: undefined }
+ * 
+ * parseCustomerSearchTerm('+1 (555) 123-4567', 'phone');
+ * // Returns: { name: undefined, customerEmail: undefined, customerPhoneNo: '+15551234567', customerId: undefined }
+ * 
+ * parseCustomerSearchTerm('12345', 'customerId');
+ * // Returns: { name: undefined, customerEmail: undefined, customerPhoneNo: undefined, customerId: '12345' }
+ * 
+ * parseCustomerSearchTerm('', 'name');
+ * // Returns: { name: undefined, customerEmail: undefined, customerPhoneNo: undefined, customerId: undefined }
+ * ```
+ */
+export const parseCustomerSearchTerm = (
+  searchValue: string,
+  type: 'name' | 'email' | 'phone' | 'customerId' | ''
+): {
+  name: string | undefined;
+  customerEmail: string | undefined;
+  customerPhoneNo: string | undefined;
+  customerId: string | undefined;
+} => {
+  const trimmed = searchValue.trim();
+  if (!trimmed || !type) {
+    return {
+      name: undefined,
+      customerEmail: undefined,
+      customerPhoneNo: undefined,
+      customerId: undefined,
+    };
+  }
+
+  // Apply filter based on selected type
+  switch (type) {
+    case 'name':
+      return {
+        name: trimmed,
+        customerEmail: undefined,
+        customerPhoneNo: undefined,
+        customerId: undefined,
+      };
+    case 'email':
+      return {
+        name: undefined,
+        customerEmail: trimmed,
+        customerPhoneNo: undefined,
+        customerId: undefined,
+      };
+    case 'phone': {
+      // Clean phone number (remove spaces, dashes, parentheses, keep + if present)
+      const digitsOnly = trimmed.replace(/\D/g, '');
+      const hasPlus = trimmed.startsWith('+');
+      const cleanedPhone = hasPlus ? '+' + digitsOnly : digitsOnly;
+      return {
+        name: undefined,
+        customerEmail: undefined,
+        customerPhoneNo: cleanedPhone,
+        customerId: undefined,
+      };
+    }
+    case 'customerId':
+      return {
+        name: undefined,
+        customerEmail: undefined,
+        customerPhoneNo: undefined,
+        customerId: trimmed,
+      };
+    default:
+      return {
+        name: undefined,
+        customerEmail: undefined,
+        customerPhoneNo: undefined,
+        customerId: undefined,
+      };
+  }
+};
 
 export const getRewardType = (earnMethod: string) => {
   switch (earnMethod) {

@@ -1,25 +1,26 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import useGetMerchantTransactions from '@/hooks/query/useGetMerchantTransactions';
 import { extractErrorMessage } from '@/lib/helper';
 import { MerchantTransaction } from '@/lib/types';
-import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { RefreshCw, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { transactionColumns } from './transaction-columns';
 
 export default function MerchantTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
-  const itemsPerPage = 20; // Changed to match standard page size
+  const [pageSize, setPageSize] = useState(20);
 
   // Use searchTerm as merchantName filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetMerchantTransactions({
     page: currentPage,
-    size: itemsPerPage,
+    size: pageSize,
     merchantName: searchTerm.trim() || undefined, // Send search term as merchantName filter
   });
 
@@ -29,16 +30,13 @@ export default function MerchantTransactions() {
   const totalRows = apiData?.totalRows || 0;
   const totalPages = apiData?.totalPages || 0;
 
-  // Calculate pagination display values
-  const startIndex = currentPage * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalRows);
-
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 0));
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages - 1));
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(0); // Reset to first page when page size changes
   };
 
   const handleResetFilter = () => {
@@ -125,59 +123,16 @@ export default function MerchantTransactions() {
         {renderDataTableContent()}
       </div>
 
-      {/* Pagination and Row Actions */}
+      {/* Pagination */}
       {transactions.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            {/* Row Count */}
-            <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{endIndex} of {totalRows}
-            </div>
-
-            {/* Row Action Icons */}
-            <div className="flex items-center gap-4">
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Download"
-              >
-                <Download className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Information"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 0}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="px-3 py-1 text-sm text-gray-600">
-                Page {currentPage + 1} of {totalPages || 1}
-              </span>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage >= totalPages - 1 || totalPages === 0}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <DataTablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRows={totalRows}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
       )}
     </div>
   );
