@@ -1,14 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAdjustMerchantBalance } from "@/hooks/mutation/useAdjustMerchantBalance";
 import { useAdjustMerchantPoints } from "@/hooks/mutation/useAdjustMerchantPoints";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useResetMerchantPassword } from "@/hooks/mutation/useResetMerchantPassword";
 import useGetMerchantDetailsById from "@/hooks/query/useGetMerchantDetailsById";
-import { downloadQRCodeImageWithLogo } from "@/lib/helper";
+import { downloadQRCodeImageWithLogo, loadImageWithCors } from "@/lib/helper";
 import { useUserAuthStore } from "@/stores/user-auth-store";
 import { Download } from "lucide-react";
 import Image from "next/image";
@@ -34,7 +33,6 @@ interface MerchantDetailsProps {
 
 export default function MerchantDetails({ merchantId, userId }: Readonly<MerchantDetailsProps>) {
   const [activeTab, setActiveTab] = useState("overview");
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const { data: merchantDetails, isPending: isMerchantDetailsPending } = useGetMerchantDetailsById({ merchantId: merchantId as string });
   const { handleDeleteMerchant, isPending: isDeletePending } = useDeleteMerchant();
   const { handleResetMerchantPassword, isPending: isResetPending } = useResetMerchantPassword();
@@ -124,14 +122,41 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
 
   const handleDownloadImage = async () => {
     if (!merchantData?.businessImagePath) return;
-    const link = document.createElement('a');
-    link.href = merchantData.businessImagePath;
-    link.download = `${(merchantData.businessName || 'merchant').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-image.jpg`;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 
+    try {
+      // Use the same CORS-handling approach as QR code download
+      const img = await loadImageWithCors(merchantData?.businessImagePath);
+
+      // Convert image to canvas then to blob
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+
+      ctx.drawImage(img, 0, 0);
+
+      // Convert canvas to blob and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = globalThis.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${(merchantData.businessName || 'merchant').replaceAll(/[^a-z0-9]/gi, '-').toLowerCase()}-profile-image.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          globalThis.URL.revokeObjectURL(url);
+          toast.success('Image downloaded successfully');
+        }
+      }, 'image/jpeg', 0.95);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast.error('Failed to download image');
+    }
   };
 
 
@@ -162,36 +187,29 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
         />
         <div className="flex items-start gap-4 mb-6">
           {merchantData?.businessImagePath && (
-            <button
-              type="button"
-              className="relative group cursor-pointer shrink-0 bg-transparent border-0 p-0"
-              onClick={() => setIsImageDialogOpen(true)}
-              aria-label={`View full size image of ${merchantData.businessName || 'merchant'}`}
-            >
+            <div className="relative group shrink-0">
               <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
                 <Image
                   src={merchantData.businessImagePath}
                   alt={merchantData.businessName || "Merchant image"}
                   fill
-                  className="object-cover group-hover:opacity-90 transition-opacity"
+                  className="object-cover"
                   sizes="160px"
                 />
                 {/* Download button overlay - center */}
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDownloadImage();
-                    }}
+                    onClick={handleDownloadImage}
                     className="bg-theme-dark-green hover:bg-theme-dark-green/90 text-white shadow-lg rounded-full p-2"
                     size="sm"
+                    aria-label={`Download ${merchantData.businessName || 'merchant'} image`}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-            </button>
+            </div>
           )}
 
           {/* QR Code */}
@@ -226,35 +244,7 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
           </div>
         </div>
 
-        {/* Full Screen Image Dialog */}
-        <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
-          <DialogContent className="max-w-7xl w-full p-0 bg-black" showCloseButton={true}>
-            <DialogTitle className="sr-only">Merchant Image Preview</DialogTitle>
-            {merchantData?.businessImagePath && (
-              <div className="relative w-full h-[90vh] bg-black">
-                <Image
-                  src={merchantData.businessImagePath}
-                  alt={merchantData.businessName || "Full screen merchant image"}
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
-                {/* Download button in full screen */}
-                <div className="absolute bottom-4 right-4 z-10">
-                  <Button
-                    type="button"
-                    onClick={handleDownloadImage}
-                    className="bg-white hover:bg-gray-100 text-gray-900 shadow-lg"
-                    size="lg"
-                  >
-                    <Download className="h-5 w-5 mr-2" />
-                    Download Image
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+
 
         <MerchantTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
