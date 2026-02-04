@@ -12,9 +12,9 @@ type PosTableProps = {
 export default function PosTable({
   posData,
   searchTerm,
-}: PosTableProps) {
+}: Readonly<PosTableProps>) {
   const hasPos = posData && posData?.length > 0;
-  const hasFilters = searchTerm !== "";
+
 
   if (!hasPos) {
     return <EmptyState title="No POS found" description="No POS found matching your criteria" />;

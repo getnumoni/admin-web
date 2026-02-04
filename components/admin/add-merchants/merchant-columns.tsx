@@ -1,16 +1,19 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDeleteMerchant } from "@/hooks/mutation/useDeleteMerchant";
 import { useUpdateInternalStatus } from "@/hooks/mutation/useUpdateInternalStatus";
-import { formatDateReadable, generateRandomBadgeColor, getApprovalStatusColor } from "@/lib/helper";
+import { downloadQRCodeImageWithLogo, formatDateReadable, generateRandomBadgeColor, getApprovalStatusColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreVertical } from "lucide-react";
+import { Download, MoreVertical } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { MakeMerchantInternalDialog } from "./make-merchant-internal-dialog";
 import { UpdateMerchantStatusDialog } from "./update-merchant-status-dialog";
 
@@ -25,6 +28,7 @@ export type Merchant = {
   category: string[];
   isInternal: boolean;
   approvalStatus: 'APPROVED' | 'UNVERIFIED' | null;
+  qrCode?: string
 };
 
 
@@ -127,6 +131,61 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
               {cat}
             </Badge>
           )) || <span className="text-gray-500 text-xs">No categories</span>}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'qrCode',
+    header: "QR Code",
+    cell: ({ row }) => {
+      const qrCode = row.original.qrCode;
+      const posId = row.original.id;
+      const posName = row.original.businessName;
+
+      const handleDownloadQRCode = async () => {
+        if (!qrCode) return;
+
+        try {
+          const filename = posName || posId || 'pos';
+          await downloadQRCodeImageWithLogo(qrCode, filename, posId);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to download QR code';
+          console.error('Error downloading QR code:', errorMessage, error);
+          toast.error(errorMessage);
+        }
+      };
+
+      if (!qrCode) {
+        return (
+          <div className="text-gray-400 text-sm">
+            N/A
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex items-center gap-2">
+          <div className="relative w-12 h-12 rounded border border-gray-200 overflow-hidden bg-white">
+            <Image
+              src={qrCode}
+              alt={`QR Code for ${posName || posId}`}
+              width={48}
+              height={48}
+              className="object-contain"
+              unoptimized
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadQRCode}
+            className="h-8 w-8 p-0"
+            title="Download QR Code as PDF"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
         </div>
       );
     },
