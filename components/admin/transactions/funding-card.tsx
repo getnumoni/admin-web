@@ -39,6 +39,20 @@ export default function FundingCard() {
       icon: <Gift className="h-6 w-6 text-white" />,
       bgColor: "bg-white",
       iconBgColor: "bg-black"
+    },
+    {
+      title: "nuMoni Wallet Ballance",
+      value: formatValue(fundingOverview?.TotalPayOnUsWalletBalance, true) ?? 0,
+      icon: <Banknote className="h-6 w-6 text-white" />,
+      bgColor: "bg-white",
+      iconBgColor: "bg-black"
+    },
+    {
+      title: "Customers Wallet Balance",
+      value: formatValue(fundingOverview?.TotalCustomersWalletBalance, true) ?? 0,
+      icon: <Banknote className="h-6 w-6 text-white" />,
+      bgColor: "bg-white",
+      iconBgColor: "bg-black"
     }
   ];
 
@@ -57,12 +71,12 @@ export default function FundingCard() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-8">
       {fundingMetrics.map((metric, index) => {
         // Show skeleton loading state
         if (isPending) {
           return (
-            <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
+            <div key={metric.title} className="bg-white rounded-xl p-4 border border-gray-100">
               <Skeleton className="h-4 w-24 mb-3" />
               <Skeleton className="h-8 w-32" />
             </div>
@@ -72,7 +86,7 @@ export default function FundingCard() {
         // Show metric card with data
         return (
           <MetricCard
-            key={index}
+            key={metric.title}
             title={metric.title}
             value={String(metric.value)}
             icon={metric.icon}

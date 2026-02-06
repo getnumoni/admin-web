@@ -6,6 +6,10 @@ export type Customer = {
   emailAddress: string;
   phoneNumber: string;
   address: string | null;
+  walletBalance: string;
+  city: string | null;
+  street: string | null;
+  kycStatus: string | null;
 };
 
 export type CustomerApiResponse = {
