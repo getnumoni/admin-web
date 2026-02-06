@@ -94,12 +94,28 @@ export const customerColumns: ColumnDef<Customer>[] = [
     cell: ({ row }) => {
       const address = row.original.address;
       return (
-        <div className="text-gray-600 text-sm max-w-xs truncate" title={address || ''}>
-          {address || 'N/A'}
-        </div>
+        <div className="text-gray-600 text-sm">{address ?? 0}</div>
       );
     },
   },
+  // {
+  //   id: "location",
+  //   header: "Location",
+  //   cell: ({ row }) => {
+  //     const street = row.original.street;
+  //     const city = row.original.city;
+
+  //     // Build location string
+  //     const locationParts = [street, city].filter(Boolean);
+  //     const location = locationParts.length > 0 ? locationParts.join(', ') : 'N/A';
+
+  //     return (
+  //       <div className="text-gray-600 text-sm max-w-xs truncate" title={location}>
+  //         {location}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "kycStatus",
     header: "KYC Status",
