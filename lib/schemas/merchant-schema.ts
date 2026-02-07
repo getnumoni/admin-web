@@ -16,8 +16,8 @@ export const merchantSchema = z.object({
     .regex(/^\d{10}$/, 'Phone number must contain only digits'),
   businessCategory: z.array(z.string()).min(1, 'At least one business category is required'),
   rcNumber: z.string().optional().refine(
-    (val) => !val || /^RC[A-Z0-9]+$/i.test(val),
-    { message: 'RC number must start with "RC" followed by alphanumeric characters' }
+    (val) => !val || /^(RC|BN)[A-Z0-9]+$/i.test(val),
+    { message: 'Business registration number must start with "RC" or "BN" followed by alphanumeric characters' }
   ),
   businessType: z.string().min(1, 'Business type is required'),
   headquarterAddress: z.string().min(1, 'Headquarter address is required'),
