@@ -99,6 +99,27 @@ export default function BusinessInformation({ control, setValue }: Readonly<Busi
     }
   }, [selectedState, setValue]);
 
+  // Determine placeholder text for state select
+  let statePlaceholder: string;
+  if (!selectedRegion) {
+    statePlaceholder = "Select Region First";
+  } else if (statesPending) {
+    statePlaceholder = "Loading states...";
+  } else {
+    statePlaceholder = "Select a state";
+  }
+
+  // Determine placeholder text for LGA select
+  let lgaPlaceholder: string;
+  if (!selectedState) {
+    lgaPlaceholder = "Select State First";
+  } else if (lgasPending) {
+    lgaPlaceholder = "Loading LGAs...";
+  } else {
+    lgaPlaceholder = "Select an LGA";
+  }
+
+
   return (
     <div className="m-6 border border-gray-100 rounded-xl p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Business Information</h2>
@@ -188,7 +209,7 @@ export default function BusinessInformation({ control, setValue }: Readonly<Busi
             name="state"
             label="State"
             options={states}
-            placeholder={!selectedRegion ? "Select Region First" : statesPending ? "Loading states..." : "Select a state"}
+            placeholder={statePlaceholder}
             disabled={!selectedRegion || statesPending}
             required
           />
@@ -198,7 +219,7 @@ export default function BusinessInformation({ control, setValue }: Readonly<Busi
             name="lga"
             label="LGA"
             options={lgas}
-            placeholder={!selectedState ? "Select State First" : lgasPending ? "Loading LGAs..." : "Select an LGA"}
+            placeholder={lgaPlaceholder}
             disabled={!selectedState || lgasPending}
             required
           />
