@@ -32,7 +32,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     accessorKey: "senderName",
     header: "Sender Name",
     cell: ({ row }) => {
-      const senderName = row.getValue("senderName") as string | null;
+      const senderName = row.original.senderName;
       return (
         <div className="text-gray-900 text-sm font-medium">
           {senderName || "N/A"}
@@ -53,7 +53,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     accessorKey: "sessionId",
     header: "Session ID",
     cell: ({ row }) => {
-      const sessionId = row.getValue("sessionId") as string | null;
+      const sessionId = row.original.sessionId;
       return (
         <div className="text-gray-600 text-sm font-mono">
           {sessionId || "N/A"}
@@ -92,7 +92,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     accessorKey: "senderBank",
     header: "Sender Bank",
     cell: ({ row }) => {
-      const senderBank = row.getValue("senderBank") as string | null;
+      const senderBank = row.original.senderBank;
       return (
         <div className="text-gray-600 text-sm">
           {senderBank || "N/A"}
@@ -131,7 +131,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     accessorKey: "providerStatus",
     header: "Provider Status",
     cell: ({ row }) => {
-      const status = row.getValue("providerStatus") as string;
+      const status = row.original.providerStatus;
       const statusColor = status === "SUCCESSFUL"
         ? "bg-green-100 text-green-800 border-green-200"
         : status === "Initiative"
@@ -149,7 +149,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     accessorKey: "numoniStatus",
     header: "Numoni Status",
     cell: ({ row }) => {
-      const status = row.getValue("numoniStatus") as string;
+      const status = row.original.numoniStatus;
       const statusColor = status === "SUCCESSFUL"
         ? "bg-green-100 text-green-800 border-green-200"
         : status === "Initiative"
@@ -168,7 +168,7 @@ export const fundingColumns: ColumnDef<FundingReconciliation>[] = [
     header: "Date",
     cell: ({ row }) => (
       <div className="text-gray-600 text-sm">
-        {formatDateReadable(row.getValue("timestamp"))}
+        {formatDateReadable(row.original.timestamp)}
       </div>
     ),
   },

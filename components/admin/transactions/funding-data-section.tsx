@@ -11,7 +11,7 @@ interface FundingDataSectionProps {
   columns: ColumnDef<FundingReconciliation>[];
 }
 
-export default function FundingDataSection({ data, columns }: FundingDataSectionProps) {
+export default function FundingDataSection({ data, columns }: Readonly<FundingDataSectionProps>) {
   if (data.length === 0) {
     return (
       <div className="p-0">
