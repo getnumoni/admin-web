@@ -111,10 +111,17 @@ export default function CustomerCard() {
           className="w-64"
         />
       </div>
-      <div className="w-3/12">
+      <div className="grid grid-cols-4 gap-4">
         <MetricCard
           title="Total Customers"
           value={(customerCount?.totalCustomers || 0).toString()}
+          bgColor="bg-white"
+          iconBgColor="bg-green-50"
+          icon={<User className="h-5 w-5 text-theme-dark-green" />}
+        />
+        <MetricCard
+          title="Period Number of Customers"
+          value={(customerCount?.filteredCustomers || 0).toString()}
           bgColor="bg-white"
           iconBgColor="bg-green-50"
           icon={<User className="h-5 w-5 text-theme-dark-green" />}
