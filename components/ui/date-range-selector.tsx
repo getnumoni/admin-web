@@ -46,16 +46,17 @@ export function DateRangeSelector({
   }, [onDatesChange]);
 
   const handleOptionChange = useCallback((option: DateRangeOption) => {
-    onValueChange(option);
     setPopoverOpen(false);
 
     if (option === 'Custom Range' && showCustomRange) {
       // Open the custom date dialog
       setTempStartDate(customStartDate);
       setTempEndDate(customEndDate);
-      setCustomDialogOpen(true);
+      setTimeout(() => setCustomDialogOpen(true), 150);
       return;
     }
+
+    onValueChange(option);
 
     if (!onDatesChange) return;
 
@@ -101,24 +102,17 @@ export function DateRangeSelector({
     setCustomStartDate(tempStartDate);
     setCustomEndDate(tempEndDate);
     setCustomDialogOpen(false);
-  }, [tempStartDate, tempEndDate]);
+    onValueChange('Custom Range');
+    if (onDatesChange) {
+      onDatesChange(tempStartDate, tempEndDate);
+    }
+  }, [tempStartDate, tempEndDate, onValueChange, onDatesChange]);
 
   const handleCancelCustomDates = useCallback(() => {
     setTempStartDate(customStartDate);
     setTempEndDate(customEndDate);
     setCustomDialogOpen(false);
-    // Reset to previous value if no dates were set
-    if (!customStartDate && !customEndDate) {
-      onValueChange(showAllTime ? null : 'Today');
-    }
-  }, [customStartDate, customEndDate, onValueChange, showAllTime]);
-
-  // Notify parent of date changes when custom dates are applied
-  useEffect(() => {
-    if (showCustomRange && value === 'Custom Range' && onDatesChangeRef.current) {
-      onDatesChangeRef.current(customStartDate, customEndDate);
-    }
-  }, [customStartDate, customEndDate, value, showCustomRange]);
+  }, [customStartDate, customEndDate]);
 
   // Reset custom dates when switching away from Custom Range
   useEffect(() => {
