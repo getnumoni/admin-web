@@ -1706,8 +1706,6 @@ export const getCurrentDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd-m
   const now = new Date();
 
   switch (format) {
-    case 'iso':
-      return now.toISOString();
     case 'formatted':
       return now.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -1722,6 +1720,7 @@ export const getCurrentDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd-m
       }).replace(/\//g, '-');
     case 'timestamp':
       return now.getTime();
+    case 'iso':
     default:
       return now.toISOString();
   }
@@ -1743,8 +1742,6 @@ export const getYesterdayDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd
   yesterday.setDate(yesterday.getDate() - 1);
 
   switch (format) {
-    case 'iso':
-      return yesterday.toISOString();
     case 'formatted':
       return yesterday.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -1759,6 +1756,7 @@ export const getYesterdayDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd
       }).replace(/\//g, '-');
     case 'timestamp':
       return yesterday.getTime();
+    case 'iso':
     default:
       return yesterday.toISOString();
   }
@@ -1819,12 +1817,6 @@ export const getTimelineDates = (
   };
 
   switch (timeline) {
-    case 'Today':
-      return {
-        startDate: formatDate(today),
-        endDate: formatDate(today)
-      };
-
     case 'Yesterday': {
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
@@ -1836,10 +1828,11 @@ export const getTimelineDates = (
 
     case 'This Week': {
       const startOfWeek = getStartOfWeek(new Date(today));
-      const endOfWeek = getEndOfWeek(new Date(today));
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
       return {
         startDate: formatDate(startOfWeek),
-        endDate: formatDate(endOfWeek)
+        endDate: formatDate(new Date(Math.max(Number(yesterday), Number(startOfWeek))))
       };
     }
 
@@ -1856,10 +1849,11 @@ export const getTimelineDates = (
 
     case 'This Month': {
       const startOfMonth = getStartOfMonth(today);
-      const endOfMonth = getEndOfMonth(today);
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
       return {
         startDate: formatDate(startOfMonth),
-        endDate: formatDate(endOfMonth)
+        endDate: formatDate(new Date(Math.max(Number(yesterday), Number(startOfMonth))))
       };
     }
 
@@ -1880,12 +1874,9 @@ export const getTimelineDates = (
           endDate: customEndDate
         };
       }
-      // Fallback to today if no custom dates provided
-      return {
-        startDate: formatDate(today),
-        endDate: formatDate(today)
-      };
+    // Fall through to Today/default if no custom dates provided
 
+    case 'Today':
     default:
       // Default to today
       return {
@@ -1983,7 +1974,7 @@ export const parseFileSize = (sizeString: string): number => {
   const match = sizeString.toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(b|kb|mb|gb)$/);
   if (!match) return 0;
 
-  const size = parseFloat(match[1]);
+  const size = Number.parseFloat(match[1]);
   const unit = match[2];
   return size * units[unit];
 };
@@ -1993,7 +1984,7 @@ export const formatFileSize = (bytes: number): string => {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 export const validateFileSize = (file: File, maxSizeString: string): { isValid: boolean; error?: string } => {
@@ -2161,22 +2152,20 @@ export const generateRandomBadgeColor = (input: string): string => {
  */
 export const getTransactionTypeColor = (type: string): string => {
   switch (type) {
-    // Merchant transaction types
+    // Green badges
     case 'SALES':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'PAY_OUT':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'SERVICE_FEE':
-      return 'bg-red-100 text-red-800 border-red-200';
-    // Customer transaction types
-    case 'PURCHASE':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'LOAD_MONEY':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'SHARE_MONEY_DEBIT':
-      return 'bg-red-100 text-red-800 border-red-200';
     case 'SHARE_MONEY_CREDIT':
       return 'bg-green-100 text-green-800 border-green-200';
+
+    // Red badges
+    case 'PAY_OUT':
+    case 'SERVICE_FEE':
+    case 'SHARE_MONEY_DEBIT':
+      return 'bg-red-100 text-red-800 border-red-200';
+
+    case 'PURCHASE':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'BONUS':
       return 'bg-purple-100 text-purple-800 border-purple-200';
     default:
@@ -2194,9 +2183,9 @@ export const getTransactionTypeColor = (type: string): string => {
  * formatNumberWithCommas("1234567.89") // Returns: "1,234,567.89"
  */
 export const formatNumberWithCommas = (value: number | string): string => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  const numValue = typeof value === 'string' ? Number.parseFloat(value) : value;
 
-  if (isNaN(numValue)) return '0';
+  if (Number.isNaN(numValue)) return '0';
 
   return numValue.toLocaleString('en-US', {
     minimumFractionDigits: 0,
@@ -2214,7 +2203,7 @@ export const formatNumberWithCommas = (value: number | string): string => {
  * removeCommasFromNumber("1,234,567.89") // Returns: "1234567.89"
  */
 export const removeCommasFromNumber = (value: string): string => {
-  return value.replace(/,/g, '');
+  return value.replaceAll(/,/g, '');
 };
 
 /**
@@ -2228,10 +2217,10 @@ export const removeCommasFromNumber = (value: string): string => {
  * calculateNewPrice("1000", "25") // Returns: "750.00"
  */
 export const calculateNewPrice = (oldPrice: number | string, discountPercent: number | string): string => {
-  const oldPriceNum = typeof oldPrice === 'string' ? parseFloat(oldPrice) : oldPrice;
-  const discountPercentNum = typeof discountPercent === 'string' ? parseFloat(discountPercent) : discountPercent;
+  const oldPriceNum = typeof oldPrice === 'string' ? Number.parseFloat(oldPrice) : oldPrice;
+  const discountPercentNum = typeof discountPercent === 'string' ? Number.parseFloat(discountPercent) : discountPercent;
 
-  if (isNaN(oldPriceNum) || isNaN(discountPercentNum)) {
+  if (Number.isNaN(oldPriceNum) || Number.isNaN(discountPercentNum)) {
     return '';
   }
 
