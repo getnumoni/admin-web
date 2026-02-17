@@ -5,12 +5,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useGetMerchantRewardPointById from "@/hooks/query/useGetMerchantRewardPointById";
 import { extractErrorMessage } from "@/lib/helper";
 import { Edit, Store } from "lucide-react";
+import MerchantRewardList from "./merchant-reward-list";
 import MerchantRuleCard from "./merchant-rule-card";
 import MerchantRuleTable from "./merchant-rule-table";
 import PointAllocationCard from "./point-allocation-card";
 
 
-export default function MerchantRewardPoints({ merchantId, userId }: { merchantId: string, userId: string | null }) {
+export default function MerchantRewardPoints({ merchantId, userId }: Readonly<{ merchantId: string, userId: string | null }>) {
   const { data: rewardPointData, isPending: isRewardPointPending, isError: isRewardPointError, error: rewardPointError, refetch } = useGetMerchantRewardPointById({ merchantId });
   const rewardData = rewardPointData?.data?.data;
 
@@ -133,6 +134,16 @@ export default function MerchantRewardPoints({ merchantId, userId }: { merchantI
 
         <div className="p-4">
           <PointAllocationCard merchantId={merchantId} />
+        </div>
+      </div>
+
+      {/* reward list */}
+      <div className="bg-white rounded-lg border border-gray-100 my-4">
+        <h3 className="text-lg font-semibold text-gray-900 p-4 ">Reward List</h3>
+        <hr />
+
+        <div className="p-4">
+          <MerchantRewardList merchantId={merchantId} />
         </div>
       </div>
     </main>

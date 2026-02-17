@@ -210,6 +210,7 @@ const adminNavigationItem: AdminNavigationItem[] = [
       { name: 'Purchases', path: ADMIN_TRANSACTIONS_PURCHASES_URL, icon: BarChart3 },
       { name: 'Points', path: ADMIN_TRANSACTIONS_POINTS_URL, icon: FileText },
       { name: 'Payouts', path: ADMIN_TRANSACTIONS_PAYOUTS_URL, icon: FileText },
+      // { name: 'Wallets', path: ADMIN_TRANSACTIONS_WALLETS_URL, icon: Wallet2 }
     ]
   },
   {
