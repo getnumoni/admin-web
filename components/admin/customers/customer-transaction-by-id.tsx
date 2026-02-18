@@ -2,12 +2,14 @@
 
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetTransactionListByCustomerId from "@/hooks/query/useGetTransactionListByCustomerId";
 import { extractErrorMessage, formatDateReadable, getTransactionTypeColor } from "@/lib/helper";
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 
 type Transaction = {
   date: string;
@@ -21,15 +23,35 @@ type Transaction = {
   status: string;
 };
 
+// Response type based on the JSON provided by the user
+type Pagination = {
+  isFirst: boolean;
+  isLast: boolean;
+  currentPageElements: number;
+  totalPages: number;
+  pageSize: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  currentPage: number;
+  totalElements: number;
+};
+
+type ApiResponse = {
+  pagination?: Pagination;
+  data: Transaction[];
+  success?: boolean;
+  message?: string;
+};
+
 const transactionColumns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "date",
     header: "Date & Time",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date") as string);
+      const date = new Date(row.original.date);
       return (
         <div className="text-gray-600 text-sm">
-          <div>{formatDateReadable(row.getValue("date") as string)}</div>
+          <div>{formatDateReadable(row.original.date)}</div>
           <div className="text-xs text-gray-500">
             {date.toLocaleTimeString('en-US', {
               hour: '2-digit',
@@ -45,7 +67,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "transactionId",
     header: "Transaction ID",
     cell: ({ row }) => {
-      const transactionId = row.getValue("transactionId") as string;
+      const transactionId = row.original.transactionId;
       return (
         <div className="text-gray-600 text-sm font-mono">
           {transactionId?.length > 12 ? `${transactionId.slice(0, 8)}...` : transactionId}
@@ -57,7 +79,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "transactionNo",
     header: "Transaction No",
     cell: ({ row }) => {
-      const transactionNo = row.getValue("transactionNo") as string;
+      const transactionNo = row.original.transactionNo;
       return (
         <div className="text-gray-600 text-sm font-mono">
           {transactionNo?.length > 20 ? `${transactionNo?.slice(0, 20)}...` : transactionNo}
@@ -69,7 +91,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "customerId",
     header: "Customer ID",
     cell: ({ row }) => {
-      const customerId = row.getValue("customerId") as string;
+      const customerId = row.original.customerId;
       return (
         <div className="text-gray-600 text-sm">
           {customerId}
@@ -81,7 +103,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "type",
     header: "Type",
     cell: ({ row }) => {
-      const type = row.getValue("type") as string;
+      const type = row.original.type;
       return (
         <Badge
           variant="outline"
@@ -96,7 +118,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      const amount = row.getValue("amount") as number;
+      const amount = row.original.amount;
       return (
         <div className="text-gray-900 text-sm font-medium">
           ₦{amount?.toLocaleString()}
@@ -108,7 +130,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "balance",
     header: "Balance",
     cell: ({ row }) => {
-      const balance = row.getValue("balance") as number;
+      const balance = row.original.balance;
       return (
         <div className="text-gray-600 text-sm">
           ₦{balance?.toLocaleString()}
@@ -120,7 +142,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "merchantId",
     header: "Merchant ID",
     cell: ({ row }) => {
-      const merchantId = row.getValue("merchantId") as string | null;
+      const merchantId = row.original.merchantId;
       return (
         <div className="text-gray-600 text-sm">
           {merchantId || "-"}
@@ -132,7 +154,7 @@ const transactionColumns: ColumnDef<Transaction>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.original.status;
       const getStatusColor = (status: string) => {
         switch (status) {
           case "COMPLETED":
@@ -157,27 +179,67 @@ const transactionColumns: ColumnDef<Transaction>[] = [
   },
 ];
 
-export default function CustomerTransactionById({ customerId }: { customerId: string }) {
-  const { data, isPending, error, isError, refetch } = useGetTransactionListByCustomerId({ customerId });
+export default function CustomerTransactionById({ customerId }: Readonly<{ customerId: string }>) {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10); // Default to 10 as per API response
+
+  const { data, isPending, error, isError, refetch } = useGetTransactionListByCustomerId({
+    customerId,
+    page: currentPage,
+    size: pageSize
+  });
 
   if (isPending) {
     return <LoadingSpinner message="Loading transaction list..." />;
   }
+
   if (isError) {
-    return <ErrorState title="Error Loading Transaction List" message={extractErrorMessage(error) || "Failed to load transaction list. Please try again."} onRetry={refetch} retryText="Retry" />;
+    return (
+      <ErrorState
+        title="Error Loading Transaction List"
+        message={extractErrorMessage(error) || "Failed to load transaction list. Please try again."}
+        onRetry={refetch}
+        retryText="Retry"
+      />
+    );
   }
 
-  const transactions = data?.data?.data || [];
+  // The hook returns the axios response object structure usually, checking response path
+  // data is the Axios response, data.data is the payload
+  const responseData: ApiResponse = data?.data;
 
-  if (transactions.length === 0) {
-    return <EmptyState title="No transaction found" description="No transaction found. Please try again." />;
+  // Access the data and pagination from the response
+  const transactions: Transaction[] = responseData?.data || [];
+  const pagination = responseData?.pagination;
+
+  // Determine pagination values
+  const totalPages = pagination?.totalPages || (transactions.length > 0 ? 1 : 0);
+  const totalRows = pagination?.totalElements || transactions.length;
+
+  if (transactions.length === 0 && currentPage === 0) {
+    return <EmptyState title="No transaction found" description="No transaction found for this user." />;
   }
+
+  // Handle page size change - reset to first page
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0);
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
       <div className="p-0">
         <DataTable columns={transactionColumns} data={transactions} />
       </div>
+
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalRows={totalRows}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </div>
   );
 }

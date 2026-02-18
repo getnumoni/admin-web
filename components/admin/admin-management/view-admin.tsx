@@ -2,18 +2,20 @@
 
 import SearchInput from '@/components/common/search-input';
 import { DataTable } from '@/components/ui/data-table';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import useGetAdminList from '@/hooks/query/useGetAdminList';
 import { extractErrorMessage } from '@/lib/helper';
 import { Admin } from '@/lib/types/admin';
-import { ChevronDown, ChevronLeft, ChevronRight, Download, Filter, Info, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronDown, Filter, RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { adminColumns } from './admin-columns';
 
 export default function ViewAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
   const { data: adminList, isPending: isAdminListPending, error: isAdminError, isError: isAdminListError, refetch: refetchAdminList } = useGetAdminList();
   const admins = adminList?.data?.data?.pageData || [];
   // console.log(admins);
@@ -21,8 +23,6 @@ export default function ViewAdmin() {
   // const [roleFilter, setRoleFilter] = useState('');
   // const [teamFilter, setTeamFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-
-  const itemsPerPage = 12;
 
   // Filter admins based on search term
   const filteredAdmins = useMemo(() => {
@@ -39,18 +39,10 @@ export default function ViewAdmin() {
     );
   }, [searchTerm, admins]);
 
-  const totalPages = Math.ceil(filteredAdmins.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const totalPages = Math.ceil(filteredAdmins.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
   const currentAdmins = filteredAdmins.slice(startIndex, endIndex);
-
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
-  };
 
   const handleResetFilter = () => {
 
@@ -121,57 +113,17 @@ export default function ViewAdmin() {
 
       {/* Pagination and Row Actions */}
       {!isAdminListPending && currentAdmins.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Row Count */}
-            <div className="text-sm text-gray-600 order-2 sm:order-1">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredAdmins.length)} of {filteredAdmins.length}
-            </div>
-
-            {/* Row Action Icons */}
-            <div className="flex items-center gap-2 sm:gap-4 order-1 sm:order-2">
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Download"
-              >
-                <Download className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Information"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-center gap-2 order-3">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="px-3 py-1 text-sm text-gray-600 whitespace-nowrap">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <DataTablePagination
+          currentPage={currentPage - 1} // DataTablePagination uses 0-based index
+          totalPages={totalPages}
+          totalRows={filteredAdmins.length}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page + 1)} // Convert back to 1-based index
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       )}
     </div>
   );
