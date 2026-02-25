@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/ui/back-button";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAdjustCustomerBalance } from "@/hooks/mutation/useAdjustCustomerBalance";
@@ -80,6 +81,7 @@ export default function CustomerDetails({ customerId }: Readonly<{ customerId: s
     );
   }
   return <div className="min-h-screen bg-gray-50 p-3">
+    <BackButton />
     <div className="max-w-7xl mx-auto">
       <CustomerHeader
         customerName={customerData?.name}
