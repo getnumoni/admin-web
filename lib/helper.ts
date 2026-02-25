@@ -330,8 +330,10 @@ export const getApprovalStatusColor = (status: string | null): string => {
   const normalizedStatus = status.toLowerCase();
   switch (normalizedStatus) {
     case "approved":
+    case "verified":
       return "bg-green-100 text-green-800 border-green-200";
     case "unverified":
+    case "rejected":
       return "bg-red-100 text-red-800 border-red-200";
     case "pending":
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
