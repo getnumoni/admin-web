@@ -16,10 +16,10 @@ import RejectKycDialog from "./reject-kyc-dialog";
 export default function MerchantKyc({
   merchantDetails,
   merchantId
-}: {
+}: Readonly<{
   merchantDetails: MerchantDetailsResponse;
   merchantId: string | string[] | undefined;
-}) {
+}>) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [isCacSheetOpen, setIsCacSheetOpen] = useState(false);
