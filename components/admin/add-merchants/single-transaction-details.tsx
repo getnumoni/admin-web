@@ -1,21 +1,18 @@
 "use client";
 
+import { BackButton } from "@/components/ui/back-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetMerchantTransactionDetailsById from "@/hooks/query/useGetMerchantTransactionDetailsById";
 import { extractErrorMessage, formatCurrency, formatDateReadable, getStatusColor, getTransactionTypeColor } from "@/lib/helper";
 import { IndividualMerchantTransactionDetails } from "@/lib/types";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 
 
-export default function SingleTransactionDetails({ transactionId }: { transactionId: string }) {
+export default function SingleTransactionDetails({ transactionId }: Readonly<{ transactionId: string }>) {
   const { data, isPending, error, isError, refetch } = useGetMerchantTransactionDetailsById({ transactionId });
-  const router = useRouter();
 
   if (isPending) {
     return <LoadingSpinner message="Loading transaction details..." />;
@@ -35,12 +32,7 @@ export default function SingleTransactionDetails({ transactionId }: { transactio
       <EmptyState
         title="No transaction details available."
         description="No transaction details available. Please try again."
-        actionButton={
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
-        }
+        actionButton={<BackButton className="flex items-center gap-2 mb-0" />}
       />
     );
   }
@@ -76,13 +68,31 @@ export default function SingleTransactionDetails({ transactionId }: { transactio
     { label: "Currency", value: transactionDetails.currency || '-' },
   ];
 
+  const renderItemValue = (item: typeof leftColumnItems[0]) => {
+    if (item.label === "Type") {
+      return (
+        <Badge className={`text-xs rounded-full border mt-1 ${getTransactionTypeColor(transactionDetails.type)}`}>
+          {item.value}
+        </Badge>
+      );
+    }
+
+    if (item.label === "Status") {
+      return (
+        <Badge className={`text-xs rounded-full border mt-1 ${getTransactionStatusColor(transactionDetails.status)}`}>
+          {item.value}
+        </Badge>
+      );
+    }
+
+    return (
+      <span className="text-sm text-gray-900 font-semibold text-right max-w-[60%]">{item.value}</span>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <Button variant="outline" className="flex items-center gap-2" onClick={() => router.back()}>
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </Button>
+      <BackButton className="flex items-center gap-2 mb-0" />
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
           <h3 className="text-lg font-bold text-gray-900">Transaction Details</h3>
@@ -90,26 +100,16 @@ export default function SingleTransactionDetails({ transactionId }: { transactio
 
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-5">
-            {leftColumnItems.map((item, index) => (
-              <div key={index} className="flex flex-col items-start">
+            {leftColumnItems.map((item) => (
+              <div key={item.label} className="flex flex-col items-start">
                 <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
-                {item.label === "Type" ? (
-                  <Badge className={`text-xs rounded-full border mt-1 ${getTransactionTypeColor(transactionDetails.type)}`}>
-                    {item.value}
-                  </Badge>
-                ) : item.label === "Status" ? (
-                  <Badge className={`text-xs rounded-full border mt-1 ${getTransactionStatusColor(transactionDetails.status)}`}>
-                    {item.value}
-                  </Badge>
-                ) : (
-                  <span className="text-sm text-gray-900 font-semibold text-right max-w-[60%]">{item.value}</span>
-                )}
+                {renderItemValue(item)}
               </div>
             ))}
           </div>
           <div className="space-y-5">
-            {rightColumnItems.map((item, index) => (
-              <div key={index} className="flex flex-col items-start">
+            {rightColumnItems.map((item) => (
+              <div key={item.label} className="flex flex-col items-start">
                 <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
                 <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{item.value}</span>
               </div>
@@ -145,7 +145,7 @@ export default function SingleTransactionDetails({ transactionId }: { transactio
 }
 
 // Bank/Payment Information Card Component
-function BankPaymentInformation({ transactionDetails }: { transactionDetails: IndividualMerchantTransactionDetails }) {
+function BankPaymentInformation({ transactionDetails }: Readonly<{ transactionDetails: IndividualMerchantTransactionDetails }>) {
   const paymentItems = [
     { label: "Pay On Us Account Name", value: transactionDetails.payOnusAccountName || '-' },
     { label: "Pay On Us Account Number", value: transactionDetails.payOnusAccountNumber || '-' },
@@ -161,16 +161,16 @@ function BankPaymentInformation({ transactionDetails }: { transactionDetails: In
 
       <div className="grid grid-cols-2 gap-8">
         <div className="space-y-5">
-          {paymentItems.slice(0, 2).map((item, index) => (
-            <div key={index} className="flex flex-col items-start">
+          {paymentItems.slice(0, 2).map((item) => (
+            <div key={item.label} className="flex flex-col items-start">
               <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
               <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{item.value}</span>
             </div>
           ))}
         </div>
         <div className="space-y-5">
-          {paymentItems.slice(2).map((item, index) => (
-            <div key={index} className="flex flex-col items-start">
+          {paymentItems.slice(2).map((item) => (
+            <div key={item.label} className="flex flex-col items-start">
               <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
               <span className="text-sm text-gray-900 font-semibold max-w-[90%]">{item.value}</span>
             </div>
