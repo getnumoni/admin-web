@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ADMIN_MERCHANTS_ADD_URL } from '@/constant/routes';
+import useExportMerchantList from '@/hooks/query/useExportMerchantList';
 import useGetAllMerchants from '@/hooks/query/useGetAllMerchants';
 import { extractErrorMessage, formatDateForAPI, getTimelineDates } from '@/lib/helper';
 import { DateRangeOption } from '@/lib/types';
@@ -27,6 +28,9 @@ export default function ViewMerchants() {
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
   const [approvalStatus, setApprovalStatus] = useState('');
+
+  const { handleExportMerchantList, isPending: exportMerchantListPending } = useExportMerchantList();
+
 
   // Convert date range option to API date strings in dd-mm-yyyy format
   const { startDate, endDate } = useMemo(() => {
@@ -256,6 +260,8 @@ export default function ViewMerchants() {
         approvalStatus={approvalStatus}
         onApprovalStatusChange={setApprovalStatus}
         onResetFilter={handleResetFilter}
+        onExport={handleExportMerchantList}
+        isExportPending={exportMerchantListPending}
       />
 
       {/* Data Table */}

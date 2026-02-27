@@ -1,10 +1,12 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import useExportMerchantTransactionList from '@/hooks/query/useExportMerchantTransactionList';
 import useGetMerchantTransactions from '@/hooks/query/useGetMerchantTransactions';
 import { extractErrorMessage } from '@/lib/helper';
 import { MerchantTransaction } from '@/lib/types';
@@ -16,6 +18,8 @@ export default function MerchantTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const [pageSize, setPageSize] = useState(20);
+
+  const { handleExportMerchantTransactionList, isPending: exportMerchantTransactionListPending } = useExportMerchantTransactionList();
 
   // Use searchTerm as merchantName filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetMerchantTransactions({
@@ -105,16 +109,29 @@ export default function MerchantTransactions() {
             )}
           </div>
 
-          {/* Reset Button */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleResetFilter}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+          <div className='flex gap-2'>
+            <Button
+              className='bg-theme-dark-green py-2 h-[42px]'
+              onClick={handleExportMerchantTransactionList}
+              disabled={exportMerchantTransactionListPending}
+              isLoading={exportMerchantTransactionListPending}
+              loadingText="Exporting..."
             >
-              <RefreshCw className="h-4 w-4" />
-              Reset Search
-            </button>
+              Export
+            </Button>
+
+            {/* Reset Button */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleResetFilter}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Reset Search
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
 
