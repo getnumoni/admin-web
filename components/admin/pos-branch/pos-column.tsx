@@ -6,8 +6,9 @@ import { useDeletePos } from "@/hooks/mutation/useDeletePos";
 import { downloadQRCodeImageWithLogo, getDealStatusText, getStatusColor } from "@/lib/helper";
 import { PosData } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Download, Edit, MoreVertical, Trash2 } from "lucide-react";
+import { ArrowUpRight, Copy, Download, Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DeletePOSDialog from "./delete-pos-dialog";
@@ -32,7 +33,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "posId",
     header: "POS ID",
     cell: ({ row }) => {
-      const posId = row.getValue("posId") as string;
+      const posId = row.original.posId;
       return (
         <div className="text-gray-600 text-sm">
           {posId}
@@ -44,7 +45,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "posName",
     header: "POS Name",
     cell: ({ row }) => {
-      const posName = row.getValue("posName") as string;
+      const posName = row.original.posName;
       return (
         <div className="text-gray-600 text-sm">
           {posName}
@@ -56,7 +57,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "merchantId",
     header: "Merchant ID",
     cell: ({ row }) => {
-      const merchantId = row.getValue("merchantId") as string;
+      const merchantId = row.original.merchantId;
       return (
         <div className="text-gray-600 text-sm">
           {merchantId}
@@ -68,7 +69,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "branchId",
     header: "Branch ID",
     cell: ({ row }) => {
-      const branchId = row.getValue("branchId") as string | null;
+      const branchId = row.original.branchId;
       return (
         <div className="text-gray-600 text-sm">
           {branchId || "N/A"}
@@ -80,7 +81,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "bankName",
     header: "Bank Name",
     cell: ({ row }) => {
-      const bankName = row.getValue("bankName") as string;
+      const bankName = row.original.bankName;
       return (
         <div className="text-gray-600 text-sm">
           {bankName}
@@ -92,7 +93,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "accountNo",
     header: "Account No",
     cell: ({ row }) => {
-      const accountNo = row.getValue("accountNo") as string;
+      const accountNo = row.original.accountNo;
       return (
         <div className="text-gray-600 text-sm">
           {accountNo}
@@ -104,7 +105,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "accountHolderName",
     header: "Account Holder Name",
     cell: ({ row }) => {
-      const accountHolderName = row.getValue("accountHolderName") as string;
+      const accountHolderName = row.original.accountHolderName;
       return (
         <div className="text-gray-600 text-sm">
           {accountHolderName}
@@ -116,7 +117,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "bankCode",
     header: "Bank Code",
     cell: ({ row }) => {
-      const bankCode = row.getValue("bankCode") as string;
+      const bankCode = row.original.bankCode;
       return (
         <div className="text-gray-600 text-sm">
           {bankCode}
@@ -128,7 +129,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "bankTransferCode",
     header: "Bank Transfer Code",
     cell: ({ row }) => {
-      const bankTransferCode = row.getValue("bankTransferCode") as string;
+      const bankTransferCode = row.original.bankTransferCode;
       return (
         <div className="text-gray-600 text-sm">
           {bankTransferCode}
@@ -140,7 +141,7 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => {
-      const location = row.getValue("location") as string;
+      const location = row.original.location;
       return (
         <div className="text-gray-600 text-sm">
           {location}
@@ -152,11 +153,59 @@ export const posColumns: ColumnDef<PosData>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.original.status;
       return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
           {getDealStatusText(status)}
         </span>
+      );
+    },
+  },
+  {
+    accessorKey: "transactions",
+    header: "View Transactions",
+    cell: ({ row }) => {
+      const posId = row.original.posId;
+      const merchantName = row.original.merchantName;
+      const posName = row.original.posName;
+      const merchantId = row.original.merchantId;
+
+      const handleCopyLink = async () => {
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_MERCHANT_URL;
+          const encodedMerchantName = encodeURIComponent(merchantName || '');
+          const encodedPosName = encodeURIComponent(posName || '');
+          const transactionLink = `${baseUrl}/pos-transaction-history/${posId}?merchantName=${encodedMerchantName}&posName=${encodedPosName}&merchantId=${merchantId}`;
+          await navigator.clipboard.writeText(transactionLink);
+          toast.success("Transaction link copied to clipboard");
+        } catch {
+          toast.error("Failed to copy link");
+        }
+      };
+
+      return (
+        <div className="flex items-center gap-2">
+          <Link href={`${process.env.NEXT_PUBLIC_MERCHANT_URL}/pos-transaction-history/${posId}?merchantName=${encodeURIComponent(merchantName || '')}&posName=${encodeURIComponent(posName || '')}&merchantId=${merchantId}`} target="_blank">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              title="View Transactions"
+            >
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Button
+            type="button"
+            size="sm"
+            className="h-8 w-8 p-0 bg-theme-dark-green"
+            onClick={handleCopyLink}
+            title="Copy Transaction Link"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
       );
     },
   },
