@@ -1,13 +1,17 @@
 import api from "@/lib/api";
-import { ExportTypeMerchant } from "@/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+export interface ExportCustomerSharePointParams {
+  customerId?: string;
+  startDate: string;
+  endDate: string;
+}
 
-const useExportMerchantTransactionList = () => {
+const useExportCustomerSharePoint = () => {
   const { mutate, mutateAsync, isPending, isSuccess, reset } = useMutation({
-    mutationFn: async (params: ExportTypeMerchant) => {
-      const response = await api.get(`/admin/getMerchantTransactionList/export`, {
+    mutationFn: async (params: ExportCustomerSharePointParams) => {
+      const response = await api.get(`/admin/customerSharePoints/export`, {
         params,
         responseType: "blob", // Important for file downloads
       });
@@ -22,7 +26,7 @@ const useExportMerchantTransactionList = () => {
 
       // Try to get filename from Content-Disposition header, fallback to default
       const contentDisposition = response.headers["content-disposition"];
-      let filename = "merchant-transaction-list.csv"; // default filename
+      let filename = "customer-sharepoint.csv"; // default filename
 
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(
@@ -39,20 +43,20 @@ const useExportMerchantTransactionList = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success("Merchant transaction list exported successfully");
+      toast.success("Customer sharepoint exported successfully");
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       toast.error(
-        error?.response?.data?.message ?? "Failed to export merchant transaction list"
+        error?.response?.data?.message ?? "Failed to export customer sharepoint"
       );
     },
   });
 
-  const handleExportMerchantTransactionList = (params: ExportTypeMerchant) => {
+  const handleExportCustomerSharePoint = (params: ExportCustomerSharePointParams) => {
     mutate(params);
   };
 
-  return { handleExportMerchantTransactionList, exportMutateAsync: mutateAsync, isPending, isSuccess, reset };
+  return { handleExportCustomerSharePoint, exportMutateAsync: mutateAsync, isPending, isSuccess, reset };
 };
 
-export default useExportMerchantTransactionList;
+export default useExportCustomerSharePoint;

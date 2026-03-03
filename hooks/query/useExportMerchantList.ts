@@ -1,11 +1,13 @@
 import api from "@/lib/api";
+import { ExportTypeMerchant } from "@/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const useExportMerchantList = () => {
   const { mutate, isPending, isSuccess, reset } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (params: ExportTypeMerchant) => {
       const response = await api.get(`/admin/getMerchantList/export`, {
+        params,
         responseType: "blob", // Important for file downloads
       });
       return response;
@@ -45,8 +47,8 @@ const useExportMerchantList = () => {
     },
   });
 
-  const handleExportMerchantList = () => {
-    mutate();
+  const handleExportMerchantList = (params: ExportTypeMerchant) => {
+    mutate(params);
   };
 
   return { handleExportMerchantList, isPending, isSuccess, reset };
