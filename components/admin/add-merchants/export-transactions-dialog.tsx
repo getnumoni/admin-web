@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import useExportMerchantList from "@/hooks/query/useExportMerchantList";
+import useExportMerchantTransactionList from "@/hooks/query/useExportMerchantTransactionList";
 import { getDatesFromRangeOption } from "@/lib/helper";
 import { DateRangeOption, ExportTypeMerchant } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,13 +29,13 @@ const exportMerchantTransactionSchema = z.object({
 
 type ExportMerchantTransactionFormData = z.infer<typeof exportMerchantTransactionSchema>;
 
-interface ExportMerchantDialogProps {
+interface ExportTransactionsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ExportMerchantDialog({ open, onOpenChange }: Readonly<ExportMerchantDialogProps>) {
-  const { handleExportMerchantList, isPending, isSuccess, reset } = useExportMerchantList();
+export function ExportTransactionsDialog({ open, onOpenChange }: Readonly<ExportTransactionsDialogProps>) {
+  const { handleExportMerchantTransactionList, isPending, isSuccess, reset } = useExportMerchantTransactionList();
 
   const todayDates = useMemo(() => getDatesFromRangeOption('Today'), []);
   const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>('Today');
@@ -115,7 +115,7 @@ export function ExportMerchantDialog({ open, onOpenChange }: Readonly<ExportMerc
       payload.approvalStatus = payload.approvalStatus.toUpperCase();
     }
 
-    handleExportMerchantList(payload);
+    handleExportMerchantTransactionList(payload);
   };
 
   useEffect(() => {
