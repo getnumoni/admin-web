@@ -29,14 +29,14 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'merchantName',
     header: 'Merchant',
     cell: ({ row }) => {
-      const merchantName = row.getValue('merchantName') as string;
+      const merchantName = row.original.merchantName;
       const merchantId = row.original.merchantId;
       return (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <span className="text-xs font-medium text-gray-600">
-                {merchantName.charAt(0).toUpperCase()}
+                {merchantName?.charAt(0).toUpperCase()}
               </span>
             </div>
           </div>
@@ -52,7 +52,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'date',
     header: 'Date',
     cell: ({ row }) => {
-      const date = row.getValue('date') as string;
+      const date = row.original.date;
       const time = row.original.time;
       return (
         <div className="text-sm text-gray-900">
@@ -66,7 +66,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'transactionId',
     header: 'Txn ID',
     cell: ({ row }) => {
-      const transactionId = row.getValue('transactionId') as string;
+      const transactionId = row.original.transactionId;
       return (
         <div className="text-sm text-gray-900 font-mono">
           {transactionId.slice(-8)}...
@@ -78,7 +78,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'type',
     header: 'Type',
     cell: ({ row }) => {
-      const type = row.getValue('type') as MerchantTransaction['type'];
+      const type = row.original.type;
       return (
         <Badge className={`text-xs rounded-full border ${getTransactionTypeColor(type)}`}>
           {type}
@@ -90,7 +90,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'amount',
     header: 'Amount',
     cell: ({ row }) => {
-      const amount = row.getValue('amount') as number;
+      const amount = row.original.amount;
       return (
         <div className="text-sm font-medium text-gray-900">
           {formatCurrency(amount)}
@@ -102,7 +102,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'pointIssued',
     header: 'Point Issued',
     cell: ({ row }) => {
-      const pointIssued = row.getValue('pointIssued') as number | null;
+      const pointIssued = row.original.pointIssued;
       return (
         <div className="text-sm text-gray-900">
           {pointIssued !== null ? (
@@ -118,7 +118,7 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as MerchantTransaction['status'];
+      const status = row.original.status;
       const getStatusColor = (status: MerchantTransaction['status']) => {
         switch (status) {
           case 'SUCCESSFUL':
@@ -150,8 +150,9 @@ export const transactionColumns: ColumnDef<MerchantTransaction>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem className="cursor-pointer">
-              <Link href={`/dashboard/merchants/transactions/${transactionId}?merchantName=${`Transaction Details for ${merchantName}`}`}>
-                View More Details</Link>
+              <Link href={`/dashboard/merchants/transactions/${transactionId}?merchantName=Transaction Details for ${merchantName}`}>
+                View More Details
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
