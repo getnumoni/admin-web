@@ -27,12 +27,26 @@ export default function Bonuses() {
       icon: <User className="h-6 w-6 text-gray-200" />,
       bgColor: 'bg-[#FFDADC]',
       iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total User Expired',
+      value: formatValue(signUpBonusStats?.totalUsersExpired),
+      icon: <User className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#FFDADC]',
+      iconBgColor: 'bg-black'
+    },
+    {
+      title: 'Total Amount Expired',
+      value: formatValue(signUpBonusStats?.totalAmountExpired),
+      icon: <Gift className="h-6 w-6 text-gray-200" />,
+      bgColor: 'bg-[#FFDADC]',
+      iconBgColor: 'bg-black'
     }
   ]
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
         {metrics.map((metric, index) => {
           if (isPending) {
             return (

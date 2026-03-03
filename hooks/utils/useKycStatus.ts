@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
 import { useUpdateKycStatus } from "@/hooks/mutation/useUpdateKycStatus";
-import { UpdateKycStatusPayload } from "@/lib/types";
 import { getDocumentDisplayName } from "@/lib/merchant-kyc-helpers";
+import { UpdateKycStatusPayload } from "@/lib/types";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const useKycStatus = (merchantId: string | string[] | undefined) => {
   const [rejectingDocumentType, setRejectingDocumentType] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export const useKycStatus = (merchantId: string | string[] | undefined) => {
     const payload: UpdateKycStatusPayload = {
       merchantId: merchantId as string,
       documentType,
-      status: 'APPROVE'
+      status: 'APPROVED'
     };
 
     handleUpdateKyc(payload);
@@ -60,7 +60,7 @@ export const useKycStatus = (merchantId: string | string[] | undefined) => {
     const payload: UpdateKycStatusPayload = {
       merchantId: merchantId as string,
       documentType: rejectingDocumentType,
-      status: 'REJECT',
+      status: 'REJECTED',
       reason
     };
 

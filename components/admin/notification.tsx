@@ -1,17 +1,17 @@
 'use client';
-import useGetNotificationList from '@/hooks/query/useGetNotificationList';
 
 import { useMarkNotificationAsRead } from '@/hooks/mutation/useMarkNotificationAsRead';
+import useGetNotificationList from '@/hooks/query/useGetNotificationList';
 import { extractErrorMessage } from '@/lib/helper';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { DataTablePagination } from '../ui/data-table-pagination';
 import { EmptyState } from '../ui/empty-state';
 import { ErrorState } from '../ui/error-state';
 import { LoadingModal } from '../ui/loading-modal';
 import LoadingSpinner from '../ui/loading-spinner';
 
-//
-
+// Helper object for role-based styling to maintain visual hierarchy
 const roleColors = {
   green: 'bg-green-100 text-green-800',
   orange: 'bg-orange-100 text-orange-800',
@@ -29,13 +29,13 @@ type NotificationItem = {
   roleColor: 'green' | 'orange' | 'purple' | 'blue' | string;
 };
 
-// Format time as e.g., 5:35 AM
+// Format time utility (e.g., 5:35 AM)
 const formatTime = (iso: string): string => {
   const d = new Date(iso);
   return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 };
 
-// API notification type and mapper
+// API notification type mapper
 type ApiNotification = {
   id: string;
   title: string;
@@ -46,6 +46,7 @@ type ApiNotification = {
   createdDt: string;
 };
 
+// Transform API response to UI model
 const mapApiNotificationToItem = (n: ApiNotification): NotificationItem => {
   const role = typeof n.usertype === 'string' ? n.usertype : 'USER';
   const roleColor = role === 'CUSTOMER' ? 'blue' : role === 'MERCHANT' ? 'orange' : role === 'NUMONI' ? 'green' : 'purple';
@@ -62,73 +63,74 @@ const mapApiNotificationToItem = (n: ApiNotification): NotificationItem => {
 
 export default function Notification() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
-  const itemsPerPage = 20;
+
+  // Pagination State
+  // Using 0-based index for API compatibility
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+
   const { handleMarkNotificationAsRead, isPending: isMarkingAsReadPending } = useMarkNotificationAsRead();
 
-
-
+  // Fetch notifications with dynamic pagination parameters
   const { data, isPending, error, isError, refetch } = useGetNotificationList({
     page: currentPage,
-    size: itemsPerPage,
+    size: pageSize,
     title: searchTerm.trim() || undefined,
   });
 
   type Paginated<T> = { pageData: T[]; totalRows: number; totalPages: number };
+
+  // Data transformation and pagination logic
   const { serverNotifications, totalRows, totalPages, isPaginated } = useMemo(() => {
     const root = data?.data?.data as unknown;
     let list: NotificationItem[] = [];
     let tr = 0;
     let tp = 0;
+
+    // Check if response conforms to paginated structure
     const paginated = !!(root && !Array.isArray(root) && (root as Paginated<ApiNotification>).pageData);
+
     if (paginated) {
       const pageData = ((root as Paginated<ApiNotification>).pageData) || [];
       list = pageData.map(mapApiNotificationToItem);
       tr = Number((root as Paginated<ApiNotification>).totalRows) || 0;
       tp = Number((root as Paginated<ApiNotification>).totalPages) || 0;
     } else if (Array.isArray(root)) {
+      // Fallback for flat array responses (client-side pagination support)
       list = (root as ApiNotification[]).map(mapApiNotificationToItem);
       tr = list.length;
-      tp = Math.ceil(tr / itemsPerPage);
+      tp = Math.ceil(tr / pageSize);
     }
-    return { serverNotifications: list, totalRows: tr, totalPages: tp, isPaginated: paginated };
-  }, [data, itemsPerPage]);
 
-  // Filter notifications based on search term
-  // Prefer server data; fallback to mock if API returns empty
-  // When using server data, rely on API filtering via title; otherwise show all
+    return { serverNotifications: list, totalRows: tr, totalPages: tp, isPaginated: paginated };
+  }, [data, pageSize]);
+
+  // Memoize filtered list - primarily for client-side search if needed later, currently passes through server results
   const filteredNotifications = useMemo<NotificationItem[]>(() => {
     return serverNotifications;
   }, [serverNotifications]);
 
-  // Calculate pagination
-  const displayTotalPages = serverNotifications.length > 0 ? totalPages : Math.ceil(filteredNotifications.length / itemsPerPage);
-  const startIndex = currentPage * itemsPerPage;
+  // Determine effective total pages based on data source type
+  const displayTotalPages = serverNotifications.length > 0 ? totalPages : Math.ceil(filteredNotifications.length / pageSize);
+
+  // Calculate slice indices for client-side pagination fallback
+  const startIndex = currentPage * pageSize;
   const endIndex = serverNotifications.length > 0
-    ? Math.min(startIndex + itemsPerPage, totalRows)
-    : Math.min(startIndex + itemsPerPage, filteredNotifications.length);
+    ? Math.min(startIndex + pageSize, totalRows)
+    : Math.min(startIndex + pageSize, filteredNotifications.length);
+
   const currentNotifications = serverNotifications.length > 0 && isPaginated
-    ? filteredNotifications // already server-page
-    : filteredNotifications.slice(startIndex, endIndex);
+    ? filteredNotifications // Server has already returned the correct page
+    : filteredNotifications.slice(startIndex, endIndex); // Client must slice the full list
 
-
-  // Handle pagination
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 0));
-  };
-
-  const handleNextPage = () => {
-    if (serverNotifications.length > 0) {
-      setCurrentPage(prev => Math.min(prev + 1, displayTotalPages - 1));
-    } else {
-      setCurrentPage(prev => Math.min(prev + 1, displayTotalPages));
-    }
-  };
-
-  // Mark a single notification as read (pass id to API)
+  // Handlers
   const handleMarkAsRead = (id: number | string) => {
-    // console.log('mark-as-read id:', id);
     handleMarkNotificationAsRead(id.toString());
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(0); // Reset to first page to avoid out-of-bounds
   };
 
   if (isPending) {
@@ -136,10 +138,16 @@ export default function Notification() {
   }
 
   if (isError) {
-    return <ErrorState title="Error Loading Notifications" message={extractErrorMessage(error) || "Failed to load notifications. Please try again."} onRetry={refetch} retryText="Try Again" />;
+    return (
+      <ErrorState
+        title="Error Loading Notifications"
+        message={extractErrorMessage(error) || "Failed to load notifications. Please try again."}
+        onRetry={refetch}
+        retryText="Try Again"
+      />
+    );
   }
 
-  //empty state
   if (serverNotifications.length === 0) {
     return <EmptyState
       title="No Notifications Found"
@@ -163,7 +171,6 @@ export default function Notification() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-
         </div>
       </div>
 
@@ -212,40 +219,15 @@ export default function Notification() {
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
-          {/* Pagination Info */}
-          <div className="text-sm text-gray-600">
-            {serverNotifications.length > 0
-              ? (
-                <>Showing {startIndex + 1}-{endIndex} of {totalRows}</>
-              ) : (
-                <>Showing {startIndex + 1}-{Math.min(endIndex, filteredNotifications.length)} of {filteredNotifications.length}</>
-              )}
-          </div>
-
-
-
-          {/* Pagination Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 0}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage >= displayTotalPages - 1 || displayTotalPages === 0}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Reusable Data Table Pagination */}
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={displayTotalPages}
+        totalRows={totalRows}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </div>
   );
 }

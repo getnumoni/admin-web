@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useAdjustMerchantBalance } from "@/hooks/mutation/useAdjustMerchantBalance";
@@ -178,6 +179,7 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
   };
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <BackButton />
       <div className="max-w-7xl mx-auto">
 
         <MerchantHeader

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { RewardRule } from './types';
+import { DateRangeOption, RewardRule } from './types';
 
 // Extend Window interface for html2canvas
 declare global {
@@ -258,15 +258,14 @@ export const formatValue = (value: number | null | undefined, isCurrency: boolea
 };
 
 export const getStatusColor = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case 'open':
-      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-    case 'close':
-      return 'bg-green-50 text-green-700 border-green-200';
+  switch (status.toLowerCase()) {
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'inactive':
     case 'closed':
+    case 'expired':
+    case 'paused':
+    case 'pause':
       return 'bg-red-100 text-red-800 border-red-200';
     case 'pending':
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -331,11 +330,18 @@ export const getApprovalStatusColor = (status: string | null): string => {
   const normalizedStatus = status.toLowerCase();
   switch (normalizedStatus) {
     case "approved":
+    case "verified":
+    case "active":
       return "bg-green-100 text-green-800 border-green-200";
     case "unverified":
+    case "rejected":
+    case "expired":
       return "bg-red-100 text-red-800 border-red-200";
     case "pending":
+    case "processing":
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case 'used':
+      return "bg-gray-100 text-gray-600 border border-gray-200"
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
   }
@@ -348,6 +354,11 @@ export const getStatusText = (status: string) => {
     case 'inactive':
     case 'closed':
       return 'Inactive';
+    case 'paused':
+    case 'pause':
+      return 'Paused'
+    case 'expired':
+      return 'Expired'
     case 'pending':
       return 'Pending';
     default:
@@ -1706,8 +1717,6 @@ export const getCurrentDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd-m
   const now = new Date();
 
   switch (format) {
-    case 'iso':
-      return now.toISOString();
     case 'formatted':
       return now.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -1722,6 +1731,7 @@ export const getCurrentDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd-m
       }).replace(/\//g, '-');
     case 'timestamp':
       return now.getTime();
+    case 'iso':
     default:
       return now.toISOString();
   }
@@ -1743,8 +1753,6 @@ export const getYesterdayDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd
   yesterday.setDate(yesterday.getDate() - 1);
 
   switch (format) {
-    case 'iso':
-      return yesterday.toISOString();
     case 'formatted':
       return yesterday.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -1759,6 +1767,7 @@ export const getYesterdayDate = (format: 'iso' | 'formatted' | 'timestamp' | 'dd
       }).replace(/\//g, '-');
     case 'timestamp':
       return yesterday.getTime();
+    case 'iso':
     default:
       return yesterday.toISOString();
   }
@@ -1819,12 +1828,6 @@ export const getTimelineDates = (
   };
 
   switch (timeline) {
-    case 'Today':
-      return {
-        startDate: formatDate(today),
-        endDate: formatDate(today)
-      };
-
     case 'Yesterday': {
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
@@ -1836,10 +1839,11 @@ export const getTimelineDates = (
 
     case 'This Week': {
       const startOfWeek = getStartOfWeek(new Date(today));
-      const endOfWeek = getEndOfWeek(new Date(today));
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
       return {
         startDate: formatDate(startOfWeek),
-        endDate: formatDate(endOfWeek)
+        endDate: formatDate(new Date(Math.max(Number(yesterday), Number(startOfWeek))))
       };
     }
 
@@ -1856,10 +1860,11 @@ export const getTimelineDates = (
 
     case 'This Month': {
       const startOfMonth = getStartOfMonth(today);
-      const endOfMonth = getEndOfMonth(today);
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
       return {
         startDate: formatDate(startOfMonth),
-        endDate: formatDate(endOfMonth)
+        endDate: formatDate(new Date(Math.max(Number(yesterday), Number(startOfMonth))))
       };
     }
 
@@ -1880,12 +1885,9 @@ export const getTimelineDates = (
           endDate: customEndDate
         };
       }
-      // Fallback to today if no custom dates provided
-      return {
-        startDate: formatDate(today),
-        endDate: formatDate(today)
-      };
+    // Fall through to Today/default if no custom dates provided
 
+    case 'Today':
     default:
       // Default to today
       return {
@@ -1983,7 +1985,7 @@ export const parseFileSize = (sizeString: string): number => {
   const match = sizeString.toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(b|kb|mb|gb)$/);
   if (!match) return 0;
 
-  const size = parseFloat(match[1]);
+  const size = Number.parseFloat(match[1]);
   const unit = match[2];
   return size * units[unit];
 };
@@ -1993,7 +1995,7 @@ export const formatFileSize = (bytes: number): string => {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 export const validateFileSize = (file: File, maxSizeString: string): { isValid: boolean; error?: string } => {
@@ -2161,22 +2163,20 @@ export const generateRandomBadgeColor = (input: string): string => {
  */
 export const getTransactionTypeColor = (type: string): string => {
   switch (type) {
-    // Merchant transaction types
+    // Green badges
     case 'SALES':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'PAY_OUT':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'SERVICE_FEE':
-      return 'bg-red-100 text-red-800 border-red-200';
-    // Customer transaction types
-    case 'PURCHASE':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'LOAD_MONEY':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'SHARE_MONEY_DEBIT':
-      return 'bg-red-100 text-red-800 border-red-200';
     case 'SHARE_MONEY_CREDIT':
       return 'bg-green-100 text-green-800 border-green-200';
+
+    // Red badges
+    case 'PAY_OUT':
+    case 'SERVICE_FEE':
+    case 'SHARE_MONEY_DEBIT':
+      return 'bg-red-100 text-red-800 border-red-200';
+
+    case 'PURCHASE':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'BONUS':
       return 'bg-purple-100 text-purple-800 border-purple-200';
     default:
@@ -2194,9 +2194,9 @@ export const getTransactionTypeColor = (type: string): string => {
  * formatNumberWithCommas("1234567.89") // Returns: "1,234,567.89"
  */
 export const formatNumberWithCommas = (value: number | string): string => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  const numValue = typeof value === 'string' ? Number.parseFloat(value) : value;
 
-  if (isNaN(numValue)) return '0';
+  if (Number.isNaN(numValue)) return '0';
 
   return numValue.toLocaleString('en-US', {
     minimumFractionDigits: 0,
@@ -2214,7 +2214,7 @@ export const formatNumberWithCommas = (value: number | string): string => {
  * removeCommasFromNumber("1,234,567.89") // Returns: "1234567.89"
  */
 export const removeCommasFromNumber = (value: string): string => {
-  return value.replace(/,/g, '');
+  return value.replaceAll(/,/g, '');
 };
 
 /**
@@ -2228,10 +2228,10 @@ export const removeCommasFromNumber = (value: string): string => {
  * calculateNewPrice("1000", "25") // Returns: "750.00"
  */
 export const calculateNewPrice = (oldPrice: number | string, discountPercent: number | string): string => {
-  const oldPriceNum = typeof oldPrice === 'string' ? parseFloat(oldPrice) : oldPrice;
-  const discountPercentNum = typeof discountPercent === 'string' ? parseFloat(discountPercent) : discountPercent;
+  const oldPriceNum = typeof oldPrice === 'string' ? Number.parseFloat(oldPrice) : oldPrice;
+  const discountPercentNum = typeof discountPercent === 'string' ? Number.parseFloat(discountPercent) : discountPercent;
 
-  if (isNaN(oldPriceNum) || isNaN(discountPercentNum)) {
+  if (Number.isNaN(oldPriceNum) || Number.isNaN(discountPercentNum)) {
     return '';
   }
 
@@ -2650,3 +2650,35 @@ export function extractErrorMessage(error: unknown): string {
   // Fallback
   return 'An error occurred'
 }
+
+/**
+ * Parses a YYYY-MM-DD date string to a local Date object
+ * @param dateString - Date string in YYYY-MM-DD format
+ * @returns Date object in local timezone
+ * 
+ * @example
+ * parseDateString('2024-01-15') // Returns Date object for January 15, 2024
+ */
+export const parseDateString = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+/**
+ * Converts a date range option to actual start and end Date objects
+ * @param option - Date range option (Today, Yesterday, This Week, etc.)
+ * @returns Object with start and end Date objects, or null if option is invalid
+ * 
+ * @example
+ * getDatesFromRangeOption('Today') // Returns { start: Date, end: Date }
+ * getDatesFromRangeOption('Custom Range') // Returns null
+ */
+export const getDatesFromRangeOption = (option: DateRangeOption): { start: Date; end: Date } | null => {
+  if (!option || option === 'Custom Range') return null;
+
+  const dateStrings = getTimelineDates(option);
+  const start = parseDateString(dateStrings.startDate);
+  const end = parseDateString(dateStrings.endDate);
+
+  return { start, end };
+};

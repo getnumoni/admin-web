@@ -1,6 +1,7 @@
 'use client';
 
 import SearchInput from '@/components/common/search-input';
+import { Button } from '@/components/ui/button';
 import { DateRangeSelector } from '@/components/ui/date-range-selector';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangeOption } from '@/lib/types';
@@ -20,6 +21,7 @@ interface MerchantsHeaderSectionProps {
   approvalStatus: string;
   onApprovalStatusChange: (status: string) => void;
   onResetFilter: () => void;
+  onExportModalOpen: (open: boolean) => void;
 }
 
 export default function MerchantsHeaderSection({
@@ -34,7 +36,9 @@ export default function MerchantsHeaderSection({
   approvalStatus,
   onApprovalStatusChange,
   onResetFilter,
+  onExportModalOpen,
 }: Readonly<MerchantsHeaderSectionProps>) {
+
   return (
     <div className="p-4 sm:p-6 border-b border-gray-200">
       <div className="flex flex-col gap-4">
@@ -97,16 +101,25 @@ export default function MerchantsHeaderSection({
             </div>
           </div>
 
+          <div>
+            <Button
+              className='bg-theme-dark-green py-2 h-[42px]'
+              onClick={() => onExportModalOpen(true)}
+            >
+              Export
+            </Button>
+          </div>
+
           {/* Reset Filter Button */}
           <div className="flex items-center">
-            <button
+            <Button
               onClick={onResetFilter}
               className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer h-[42px]"
             >
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Reset Filter</span>
               <span className="sm:hidden">Reset</span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>

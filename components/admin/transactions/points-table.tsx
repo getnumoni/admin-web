@@ -1,17 +1,21 @@
 'use client'
 
+import { Button } from "@/components/ui/button";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetCustomerSharedPoint from "@/hooks/query/useGetCustomerSharedPoint";
 import { extractErrorMessage } from "@/lib/helper";
 import { useState } from "react";
+import { ExportSharedPointsDialog } from "./export-shared-points";
 import { PointsTransactionData, pointsColumns } from './points-columns';
 import PointsDataSection from './points-data-section';
 
 export default function PointsTable() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
+
 
   const { data, isPending, error, isError, refetch } = useGetCustomerSharedPoint({
     page: currentPage,
@@ -50,8 +54,14 @@ export default function PointsTable() {
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 flex justify-between  items-center">
         <h1 className="text-2xl font-bold text-gray-900">Points Transactions</h1>
+        <Button
+          className='bg-theme-dark-green py-2 h-[42px]'
+          onClick={() => setExportModalOpen(true)}
+        >
+          Export
+        </Button>
       </div>
 
       <PointsDataSection data={points} columns={pointsColumns} />
@@ -66,6 +76,12 @@ export default function PointsTable() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      {/* Export Dialog */}
+      <ExportSharedPointsDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }

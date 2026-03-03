@@ -6,7 +6,7 @@ interface GetCustomerCountParams {
   endDate?: string;
 }
 
-const useGetCustomerCount = (params: GetCustomerCountParams = {}) => {
+const useGetCustomerCount = (params: GetCustomerCountParams = {}, enabled = true) => {
   const {
     startDate,
     endDate,
@@ -25,6 +25,7 @@ const useGetCustomerCount = (params: GetCustomerCountParams = {}) => {
 
       return api.get(`/admin/totalCustomers?${queryParams.toString()}`);
     },
+    enabled,
   });
 
   return { data, isPending, error, isError, refetch };

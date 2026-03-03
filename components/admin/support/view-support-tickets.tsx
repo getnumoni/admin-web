@@ -3,17 +3,19 @@
 import SearchInput from '@/components/common/search-input';
 import { Button } from '@/components/ui/button';
 import { DataTable } from "@/components/ui/data-table";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetSupportTicketList from "@/hooks/query/useGetSupportTicketList";
-import { ChevronLeft, ChevronRight, Download, Info, RefreshCw, Trash2 } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SupportTicket, supportTicketColumns } from "./support-ticket-columns";
 
 export default function ViewSupportTickets() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const { data: supportTicketList, isPending: isPendingSupportTicketList, error: errorSupportTicketList, isError: isErrorSupportTicketList, refetch: refetchSupportTicketList } = useGetSupportTicketList();
 
@@ -38,18 +40,10 @@ export default function ViewSupportTickets() {
     );
   }, [searchTerm, allTickets]);
 
-  const itemsPerPage = 20;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
   const currentTickets = filteredTickets.slice(startIndex, endIndex);
-
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredTickets.length / itemsPerPage)));
-  };
+  const totalPages = Math.ceil(filteredTickets.length / pageSize);
 
   const handleResetFilter = () => {
     setSearchTerm('');
@@ -126,57 +120,17 @@ export default function ViewSupportTickets() {
 
       {/* Pagination and Row Actions */}
       {currentTickets.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            {/* Row Count */}
-            <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredTickets.length)} of {filteredTickets.length} support tickets
-            </div>
-
-            {/* Row Action Icons */}
-            <div className="flex items-center gap-4">
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Download"
-              >
-                <Download className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Information"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-              <button
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="text-sm text-gray-600 px-3">
-                Page {currentPage} of {Math.ceil(filteredTickets.length / itemsPerPage)}
-              </span>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === Math.ceil(filteredTickets.length / itemsPerPage)}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <DataTablePagination
+          currentPage={currentPage - 1} // DataTablePagination uses 0-based index
+          totalPages={totalPages}
+          totalRows={filteredTickets.length}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page + 1)} // Convert back to 1-based index
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { BackButton } from "@/components/ui/back-button";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetDealDetails from "@/hooks/query/useGetDealDetails";
@@ -7,7 +8,7 @@ import DealHeader from "./deal-header";
 import DealImages from "./deal-images";
 import DealInformation from "./deal-information";
 
-export default function DealDetails({ dealId }: { dealId: string }) {
+export default function DealDetails({ dealId }: Readonly<{ dealId: string }>) {
   const { data, isPending, error, isError, refetch } = useGetDealDetails({ dealId });
 
   if (isPending) {
@@ -26,6 +27,7 @@ export default function DealDetails({ dealId }: { dealId: string }) {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <BackButton />
       <div className="max-w-7xl mx-auto">
         <DealHeader
           dealName={dealData.name}

@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/ui/back-button";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetCharityDetailsById from "@/hooks/query/useGetCharityDetailsById";
 import { useState } from "react";
@@ -45,6 +46,7 @@ export default function CharityDetails({ charityId }: { charityId: string }) {
 
   return (
     <div className="min-h-screen bg-gray-50 p-3">
+      <BackButton />
       <div className="max-w-7xl mx-auto">
         <CharityHeader
           charityName={charityData?.charityName}

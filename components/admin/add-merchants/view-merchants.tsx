@@ -12,12 +12,14 @@ import { DateRangeOption } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { ExportMerchantDialog } from './export-merchant-dialog';
 import { Merchant, merchantColumns } from './merchant-columns';
 import MerchantsHeaderSection from './merchants-header-section';
 
 type FilterType = 'businessName' | 'merchantEmail' | 'merchantPhoneNo' | 'merchantId' | '';
 
 export default function ViewMerchants() {
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
   const [filterType, setFilterType] = useState<FilterType>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -256,6 +258,7 @@ export default function ViewMerchants() {
         approvalStatus={approvalStatus}
         onApprovalStatusChange={setApprovalStatus}
         onResetFilter={handleResetFilter}
+        onExportModalOpen={setExportModalOpen}
       />
 
       {/* Data Table */}
@@ -274,6 +277,12 @@ export default function ViewMerchants() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      {/* Export Dialog */}
+      <ExportMerchantDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }

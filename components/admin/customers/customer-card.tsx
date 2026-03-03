@@ -83,10 +83,12 @@ export default function CustomerCard() {
     }
   }, [dateRangeOption, customStartDate, customEndDate]);
 
+  const shouldFetch = dateRangeOption !== 'Custom Range' || (!!startDate && !!endDate);
+
   const { data, isPending, error, isError, refetch } = useGetCustomerCount({
     startDate,
     endDate,
-  });
+  }, shouldFetch);
 
   const handleDateRangeDatesChange = (start: Date | undefined, end: Date | undefined) => {
     setCustomStartDate(start);
