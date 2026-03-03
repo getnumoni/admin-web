@@ -21,8 +21,7 @@ interface MerchantsHeaderSectionProps {
   approvalStatus: string;
   onApprovalStatusChange: (status: string) => void;
   onResetFilter: () => void;
-  onExport: () => void;
-  isExportPending: boolean;
+  onExportModalOpen: (open: boolean) => void;
 }
 
 export default function MerchantsHeaderSection({
@@ -37,8 +36,7 @@ export default function MerchantsHeaderSection({
   approvalStatus,
   onApprovalStatusChange,
   onResetFilter,
-  onExport,
-  isExportPending,
+  onExportModalOpen,
 }: Readonly<MerchantsHeaderSectionProps>) {
 
   return (
@@ -106,10 +104,7 @@ export default function MerchantsHeaderSection({
           <div>
             <Button
               className='bg-theme-dark-green py-2 h-[42px]'
-              onClick={onExport}
-              disabled={isExportPending}
-              isLoading={isExportPending}
-              loadingText="Exporting..."
+              onClick={() => onExportModalOpen(true)}
             >
               Export
             </Button>

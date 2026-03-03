@@ -6,19 +6,20 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ADMIN_MERCHANTS_ADD_URL } from '@/constant/routes';
-import useExportMerchantList from '@/hooks/query/useExportMerchantList';
 import useGetAllMerchants from '@/hooks/query/useGetAllMerchants';
 import { extractErrorMessage, formatDateForAPI, getTimelineDates } from '@/lib/helper';
 import { DateRangeOption } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { ExportMerchantDialog } from './export-merchant-dialog';
 import { Merchant, merchantColumns } from './merchant-columns';
 import MerchantsHeaderSection from './merchants-header-section';
 
 type FilterType = 'businessName' | 'merchantEmail' | 'merchantPhoneNo' | 'merchantId' | '';
 
 export default function ViewMerchants() {
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
   const [filterType, setFilterType] = useState<FilterType>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -28,9 +29,6 @@ export default function ViewMerchants() {
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
   const [approvalStatus, setApprovalStatus] = useState('');
-
-  const { handleExportMerchantList, isPending: exportMerchantListPending } = useExportMerchantList();
-
 
   // Convert date range option to API date strings in dd-mm-yyyy format
   const { startDate, endDate } = useMemo(() => {
@@ -260,8 +258,7 @@ export default function ViewMerchants() {
         approvalStatus={approvalStatus}
         onApprovalStatusChange={setApprovalStatus}
         onResetFilter={handleResetFilter}
-        onExport={handleExportMerchantList}
-        isExportPending={exportMerchantListPending}
+        onExportModalOpen={setExportModalOpen}
       />
 
       {/* Data Table */}
@@ -280,6 +277,12 @@ export default function ViewMerchants() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      {/* Export Dialog */}
+      <ExportMerchantDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }

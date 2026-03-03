@@ -6,12 +6,12 @@ import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import useExportMerchantTransactionList from '@/hooks/query/useExportMerchantTransactionList';
 import useGetMerchantTransactions from '@/hooks/query/useGetMerchantTransactions';
 import { extractErrorMessage } from '@/lib/helper';
 import { MerchantTransaction } from '@/lib/types';
 import { RefreshCw, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { ExportTransactionsDialog } from './export-transactions-dialog';
 import { transactionColumns } from './transaction-columns';
 
 export default function MerchantTransactions() {
@@ -19,7 +19,7 @@ export default function MerchantTransactions() {
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const [pageSize, setPageSize] = useState(20);
 
-  const { handleExportMerchantTransactionList, isPending: exportMerchantTransactionListPending } = useExportMerchantTransactionList();
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
 
   // Use searchTerm as merchantName filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetMerchantTransactions({
@@ -112,10 +112,7 @@ export default function MerchantTransactions() {
           <div className='flex gap-2'>
             <Button
               className='bg-theme-dark-green py-2 h-[42px]'
-              onClick={handleExportMerchantTransactionList}
-              disabled={exportMerchantTransactionListPending}
-              isLoading={exportMerchantTransactionListPending}
-              loadingText="Exporting..."
+              onClick={() => setExportModalOpen(true)}
             >
               Export
             </Button>
@@ -151,6 +148,12 @@ export default function MerchantTransactions() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      {/* Export Dialog */}
+      <ExportTransactionsDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }
