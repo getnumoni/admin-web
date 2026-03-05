@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { customerColumns } from "./customer-columns";
 import CustomersHeaderSection from "./customers-header-section";
+import { ExportCustomerListDialog } from "./export-customer-list";
 
 export default function CustomerRecordTable() {
 
@@ -26,6 +27,7 @@ export default function CustomerRecordTable() {
   const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>(null);
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   // Convert date range option to API date strings in dd-mm-yyyy format
   const { startDate, endDate } = useMemo(() => {
@@ -154,6 +156,7 @@ export default function CustomerRecordTable() {
           onDateRangeChange={setDateRangeOption}
           onDateRangeDatesChange={handleDateRangeDatesChange}
           onResetFilter={handleResetFilter}
+          onExport={() => setExportModalOpen(true)}
         />
 
         {/* Data Table */}
@@ -190,6 +193,11 @@ export default function CustomerRecordTable() {
           />
         )}
       </div>
+
+      <ExportCustomerListDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </main>
   );
 }

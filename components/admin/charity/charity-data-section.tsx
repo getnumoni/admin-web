@@ -11,7 +11,7 @@ interface CharityDataSectionProps {
   columns: ColumnDef<CharityData>[];
 }
 
-export default function CharityDataSection({ data, columns }: CharityDataSectionProps) {
+export default function CharityDataSection({ data, columns }: Readonly<CharityDataSectionProps>) {
   if (data.length === 0) {
     return (
       <div className="p-0">

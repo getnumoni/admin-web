@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import DealsTableContent from "./deals-table-content";
+import { ExportDealListDialog } from "./export-deal-list";
 
 export default function AllDealsData() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +23,7 @@ export default function AllDealsData() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
 
   // Debounce search term to avoid too many API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -169,6 +171,12 @@ export default function AllDealsData() {
                 <option value="pending">Pending</option>
                 <option value="open">Open</option>
               </select>
+              <Button
+                className='bg-theme-dark-green py-2 h-[42px]'
+                onClick={() => setExportModalOpen(true)}
+              >
+                Export
+              </Button>
 
               <Button
                 variant="outline"
@@ -204,6 +212,12 @@ export default function AllDealsData() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      {/* deal list dialog */}
+      <ExportDealListDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }
