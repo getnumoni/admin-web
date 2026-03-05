@@ -1,6 +1,7 @@
 'use client';
 
 import SearchInput from '@/components/common/search-input';
+import { Button } from '@/components/ui/button';
 import { DateRangeSelector } from '@/components/ui/date-range-selector';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRangeOption } from '@/lib/types';
@@ -18,6 +19,7 @@ interface CustomersHeaderSectionProps {
   onDateRangeChange: (option: DateRangeOption) => void;
   onDateRangeDatesChange: (start: Date | undefined, end: Date | undefined) => void;
   onResetFilter: () => void;
+  onExport: () => void;
 }
 
 export default function CustomersHeaderSection({
@@ -30,7 +32,8 @@ export default function CustomersHeaderSection({
   onDateRangeChange,
   onDateRangeDatesChange,
   onResetFilter,
-}: CustomersHeaderSectionProps) {
+  onExport,
+}: Readonly<CustomersHeaderSectionProps>) {
   return (
     <div className="p-4 sm:p-6 border-b border-gray-200">
       <div className="flex flex-col gap-4">
@@ -76,15 +79,22 @@ export default function CustomersHeaderSection({
           </div>
 
           {/* Reset Filter Button */}
-          <div className="flex items-center">
-            <button
+          <div className="flex items-center gap-2">
+            <Button
               onClick={onResetFilter}
               className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer h-[42px]"
             >
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Reset Filter</span>
               <span className="sm:hidden">Reset</span>
-            </button>
+            </Button>
+
+            <Button
+              onClick={onExport}
+              className="flex items-center gap-2 px-8 py-5 bg-theme-dark-green text-white rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              Export
+            </Button>
           </div>
         </div>
       </div>

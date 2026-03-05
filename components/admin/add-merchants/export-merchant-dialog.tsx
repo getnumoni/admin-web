@@ -5,42 +5,21 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { FormInputTopLabel } from "@/components/ui/form-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import useExportMerchantList from "@/hooks/query/useExportMerchantList";
-import { getDatesFromRangeOption } from "@/lib/helper";
-import { DateRangeOption, ExportTypeMerchant } from "@/lib/types";
+import { useDateSelection } from "@/hooks/utils/useDateSelection";
+import { ExportDialogParam, ExportTypeMerchant } from "@/lib/types";
+import { exportMerchantTransactionSchema } from "@/schema/all-export-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const exportMerchantTransactionSchema = z.object({
-  businessName: z.string().optional(),
-  merchantEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
-  merchantPhoneNo: z.string().optional(),
-  merchantId: z.string().optional(),
-  approvalStatus: z.string().optional(),
-  startDate: z.date({
-    message: "Start date is required",
-  }),
-  endDate: z.date({
-    message: "End date is required",
-  }),
-});
+
 
 type ExportMerchantTransactionFormData = z.infer<typeof exportMerchantTransactionSchema>;
 
-interface ExportMerchantDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function ExportMerchantDialog({ open, onOpenChange }: Readonly<ExportMerchantDialogProps>) {
+export function ExportMerchantDialog({ open, onOpenChange }: Readonly<ExportDialogParam>) {
   const { handleExportMerchantList, isPending, isSuccess, reset } = useExportMerchantList();
-
-  const todayDates = useMemo(() => getDatesFromRangeOption('Today'), []);
-  const [dateRangeOption, setDateRangeOption] = useState<DateRangeOption>('Today');
-  const [startDate, setStartDate] = useState<Date | undefined>(todayDates?.start);
-  const [endDate, setEndDate] = useState<Date | undefined>(todayDates?.end);
 
   const form = useForm<ExportMerchantTransactionFormData>({
     resolver: zodResolver(exportMerchantTransactionSchema),
@@ -50,49 +29,27 @@ export function ExportMerchantDialog({ open, onOpenChange }: Readonly<ExportMerc
       merchantPhoneNo: "",
       merchantId: "",
       approvalStatus: "",
-      startDate: todayDates?.start,
-      endDate: todayDates?.end,
+      startDate: new Date(),
+      endDate: new Date(),
     },
   });
 
-  const handleDateRangeOptionChange = useCallback((option: DateRangeOption) => {
-    setDateRangeOption(option);
+  const {
+    dateRangeOption,
+    startDate,
+    endDate,
+    handleDateRangeOptionChange,
+    handleCustomDatesChange,
+    resetDates
+  } = useDateSelection(form);
 
-    if (option && option !== 'Custom Range') {
-      const dates = getDatesFromRangeOption(option);
-      if (dates) {
-        setStartDate(dates.start);
-        setEndDate(dates.end);
-        form.setValue("startDate", dates.start, { shouldValidate: true });
-        form.setValue("endDate", dates.end, { shouldValidate: true });
-      }
-    } else {
-      setStartDate(undefined);
-      setEndDate(undefined);
-    }
-  }, [form]);
-
-  const handleCustomDatesChange = useCallback((customStart: Date | undefined, customEnd: Date | undefined) => {
-    if (dateRangeOption === 'Custom Range') {
-      setStartDate(customStart);
-      setEndDate(customEnd);
-      if (customStart) {
-        form.setValue("startDate", customStart, { shouldValidate: true });
-      }
-      if (customEnd) {
-        form.setValue("endDate", customEnd, { shouldValidate: true });
-      }
-    }
-  }, [dateRangeOption, form]);
 
   const handleClose = useCallback(() => {
     form.reset();
-    setStartDate(todayDates?.start);
-    setEndDate(todayDates?.end);
-    setDateRangeOption('Today');
+    resetDates();
     reset();
     onOpenChange(false);
-  }, [form, onOpenChange, reset, todayDates]);
+  }, [form, onOpenChange, reset, resetDates]);
 
   const handleSubmit = (formData: ExportMerchantTransactionFormData) => {
     if (!formData.startDate || !formData.endDate) {

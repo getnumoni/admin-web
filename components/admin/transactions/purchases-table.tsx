@@ -7,6 +7,7 @@ import useGetAdminPurchases from "@/hooks/query/useGetAdminPurchases";
 import { usePurchasesFilters } from "@/hooks/utils/usePurchasesFilters";
 import { extractErrorMessage } from "@/lib/helper";
 import { useState } from "react";
+import { ExportPurchaseTransactionDialog } from './export-purchase-transaction';
 import { PurchaseData, purchasesColumns } from './purchases-columns';
 import PurchasesDataSection from './purchases-data-section';
 import PurchasesHeaderSection from './purchases-header-section';
@@ -24,6 +25,7 @@ export function PurchasesTable() {
   } = usePurchasesFilters();
 
   const [pageSize, setPageSize] = useState(20);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const { data, isPending, error, isError, refetch } = useGetAdminPurchases({
     page: currentPage,
@@ -84,6 +86,7 @@ export function PurchasesTable() {
         onResetFilter={resetFilters}
         showFilters={showFilters}
         onToggleFilters={toggleFilters}
+        onExport={() => setExportModalOpen(true)}
       />
 
       <PurchasesDataSection data={purchases} columns={purchasesColumns} />
@@ -98,6 +101,11 @@ export function PurchasesTable() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      <ExportPurchaseTransactionDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   )
 }

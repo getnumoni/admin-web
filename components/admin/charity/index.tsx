@@ -9,6 +9,7 @@ import { charityColumns } from './charity-columns';
 import CharityDataSection from './charity-data-section';
 import CharityErrorDisplay from './charity-error-display';
 import CharityHeaderSection from './charity-header-section';
+import { ExportCharityListDialog } from './export-charity-list';
 
 
 export default function Charity() {
@@ -16,6 +17,7 @@ export default function Charity() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const [showFilters, setShowFilters] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const [itemsPerPage, setItemsPerPage] = useState(20);
 
@@ -80,6 +82,7 @@ export default function Charity() {
         onResetFilter={handleResetFilter}
         showFilters={showFilters}
         onToggleFilters={handleToggleFilters}
+        onExport={() => setExportModalOpen(true)}
       />
 
       <CharityDataSection data={charities} columns={charityColumns} />
@@ -94,6 +97,11 @@ export default function Charity() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+      <ExportCharityListDialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+      />
     </div>
   );
 }

@@ -1,12 +1,14 @@
 'use client';
 
 import SearchInput from "@/components/common/search-input";
+import { Button } from "@/components/ui/button";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetAllPos from "@/hooks/query/useGetAllPos";
 import { useDebounce } from "@/hooks/utils/useDebounce";
 import { useEffect, useState } from "react";
+import { ExportAllPos } from "./export-all-pos";
 import PosTable from "./pos-table";
 
 export default function PosBranch() {
@@ -15,7 +17,7 @@ export default function PosBranch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
-
+  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
   // Debounce search term to avoid too many API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -64,6 +66,12 @@ export default function PosBranch() {
                 onChange={setSearchTerm}
               />
             </div>
+            <Button
+              className='bg-theme-dark-green py-2 h-[42px]'
+              onClick={() => setExportModalOpen(true)}
+            >
+              Export
+            </Button>
 
           </div>
 
@@ -83,6 +91,11 @@ export default function PosBranch() {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+
+
+      {/* export dialog */}
+      <ExportAllPos open={exportModalOpen}
+        onOpenChange={setExportModalOpen} />
     </div>
   );
 }
