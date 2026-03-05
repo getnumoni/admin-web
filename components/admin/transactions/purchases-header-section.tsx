@@ -1,6 +1,7 @@
 "use client";
 
 import SearchInput from '@/components/common/search-input';
+import { Button } from '@/components/ui/button';
 import { DateRangeSelector } from '@/components/ui/date-range-selector';
 import { DateRangeOption } from '@/lib/types';
 import { format } from 'date-fns';
@@ -26,6 +27,7 @@ interface PurchasesHeaderSectionProps {
   onResetFilter: () => void;
   showFilters: boolean;
   onToggleFilters: () => void;
+  onExport: () => void;
 }
 
 export default function PurchasesHeaderSection({
@@ -47,7 +49,8 @@ export default function PurchasesHeaderSection({
   onDateRangeOptionChange,
   onResetFilter,
   showFilters,
-  onToggleFilters
+  onToggleFilters,
+  onExport,
 }: Readonly<PurchasesHeaderSectionProps>) {
   return (
     <div className="p-6 border-gray-200">
@@ -86,6 +89,13 @@ export default function PurchasesHeaderSection({
             <RefreshCw className="h-4 w-4" />
             Reset Filter
           </button>
+
+          <Button
+            onClick={onExport}
+            className="flex items-center gap-2 px-4 py-2 bg-theme-dark-green text-white rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+          >
+            Export
+          </Button>
         </div>
       </div>
 
