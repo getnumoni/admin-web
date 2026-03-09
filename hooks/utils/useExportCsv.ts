@@ -1,5 +1,6 @@
 import api from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { toast } from "sonner";
 
 interface UseExportCsvOptions {
@@ -57,7 +58,14 @@ const useExportCsv = <TParams extends Record<string, unknown>>(
         }
       }
 
-      link.setAttribute("download", filename);
+      // Postfix filename with current date
+      const dateString = format(new Date(), "dd-MM-yyyy");
+      const nameParts = filename.split('.');
+      const extension = nameParts.length > 1 ? nameParts.pop() : 'csv';
+      const baseName = nameParts.join('.');
+      const finalFilename = `${baseName}-${dateString}.${extension}`;
+
+      link.setAttribute("download", finalFilename);
       globalThis.document.body.appendChild(link);
       link.click();
       link.remove();
