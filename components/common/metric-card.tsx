@@ -14,7 +14,7 @@ export const MetricCard = ({ title, value, change, changeType, icon, bgColor, ic
 
         {/* Value and Change - Always at bottom */}
         <div className="flex items-baseline gap-2 mt-auto">
-          <p className="text-lg font-extrabold text-gray-900">{value}</p>
+          <p className="text-lg font-extrabold text-gray-900">{value ?? 0}</p>
           {change && (
             <p className={`text-xs font-medium ${changeType === 'positive' ? 'text-green-600' : 'text-red-600'
               }`}>

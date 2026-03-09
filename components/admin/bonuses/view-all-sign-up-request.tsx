@@ -1,5 +1,6 @@
 'use client'
 
+import { ExportButton } from "@/components/common/export-button";
 import { Button } from "@/components/ui/button";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { ErrorState } from "@/components/ui/error-state";
@@ -8,6 +9,7 @@ import useGetAllSignupBonusRequest from "@/hooks/query/useGetAllSignupBonusReque
 import { extractErrorMessage } from "@/lib/helper";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import ExportSignUpBonusDialog from "./export-sign-up-bonus-dialog";
 import SignUpRequestDialog from "./sign-up-request-dialog";
 import { signupBonusRequestColumns, SignupBonusRequestData } from "./signup-bonus-request-columns";
 import SignupBonusRequestDataSection from "./signup-bonus-request-data-section";
@@ -65,7 +67,7 @@ export default function ViewAllSignUpRequest() {
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-8">
-      <div className="p-6 border-b border-gray-200 flex justify-between items-center
+      <div className="p-6 border-b border-gray-200 md:flex justify-between items-center
       ">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Sign Up Bonus Requests</h1>
@@ -73,11 +75,17 @@ export default function ViewAllSignUpRequest() {
             View and manage all sign up bonus requests
           </p>
         </div>
-        <Button className="bg-theme-dark-green text-white"
-          onClick={handleOpenAddRequestModal}>
-          <Plus className="h-4 w-4" />
-          Sign Up Bonus Request
-        </Button>
+
+        <div className="md:flex space-x-2 items-center space-y-2 md:space-y-0 md:mt-0 mt-4">
+          <ExportButton
+            Dialog={ExportSignUpBonusDialog}
+          />
+          <Button className="bg-theme-dark-green text-white py-2 h-[42px]"
+            onClick={handleOpenAddRequestModal}>
+            <Plus className="h-4 w-4" />
+            Sign Up Bonus Request
+          </Button>
+        </div>
       </div>
 
       <SignupBonusRequestDataSection

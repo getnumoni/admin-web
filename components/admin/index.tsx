@@ -9,6 +9,7 @@ import { useEffect, useRef } from 'react';
 import { MetricCard } from '../common/metric-card';
 import ActiveUsersCard from './active-users-card';
 import MostSupportedCharity from './most-supported-charity';
+import { RevenueRecord } from './review-dashboard';
 import TopPerformingMerchant from './top-performing-merchant';
 
 
@@ -117,10 +118,10 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {metrics.map((metric, index) => {
+        {metrics.map((metric) => {
           if (dashboardDetailsPending) {
             return (
-              <div key={index} className="bg-white rounded-xl p-4 border border-gray-100">
+              <div key={metric.title} className="bg-white rounded-xl p-4 border border-gray-100">
                 <Skeleton className="h-4 w-24 mb-3" />
                 <Skeleton className="h-8 w-32" />
               </div>
@@ -129,7 +130,7 @@ export default function Admin() {
 
           return (
             <MetricCard
-              key={index}
+              key={metric.title}
               title={metric.title}
               value={dashboardDetailsError ? extractErrorMessage(dashboardDetailsError) : metric.value}
               // change={metric.change}
@@ -141,6 +142,8 @@ export default function Admin() {
           );
         })}
       </div>
+
+      <RevenueRecord />
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 my-4'>
         <ActiveUsersCard />

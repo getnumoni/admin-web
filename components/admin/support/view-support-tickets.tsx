@@ -1,6 +1,7 @@
 "use client";
 
 import SearchInput from '@/components/common/search-input';
+import { ExportButton } from '@/components/common/export-button';
 import { Button } from '@/components/ui/button';
 import { DataTable } from "@/components/ui/data-table";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
@@ -10,6 +11,7 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
 import useGetSupportTicketList from "@/hooks/query/useGetSupportTicketList";
 import { RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { ExportSupportTicketDialog } from './export-support-ticket-dialog';
 import { SupportTicket, supportTicketColumns } from "./support-ticket-columns";
 
 export default function ViewSupportTickets() {
@@ -102,6 +104,9 @@ export default function ViewSupportTickets() {
 
           {/* Filter Buttons */}
           <div className="flex items-center gap-3">
+            <ExportButton
+              Dialog={ExportSupportTicketDialog}
+            />
             <button
               onClick={handleResetFilter}
               className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
@@ -132,6 +137,8 @@ export default function ViewSupportTickets() {
           }}
         />
       )}
+
+      {/* export dialog placeholder */}
     </div>
   );
 }
