@@ -1401,6 +1401,30 @@ type charityListParams = {
   endDate: string;
 }
 
+type exportAdminListParams = {
+  employeeName?: string;
+  startDate: string;
+  endDate: string;
+}
+
+type exportSignUpBonusListParams = {
+  customerId?: string;
+  resolved?: boolean;
+  startDate: string;
+  endDate: string;
+}
+
+type exportSupportTicketListParams = {
+  empName?: string;
+  userType?: string;
+  userId?: string;
+  status?: string;
+  createdDate?: string;
+  closingDate?: string;
+  startDate: string;
+  endDate: string;
+}
+
 type customerListExportParam = {
   customerName?: string;
   customerEmail?: string;
@@ -1426,5 +1450,5 @@ type ExportCustomerSharePointParams = {
   endDate: string;
 }
 
-export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, Bank, BankPayload, BankToken, BonusStatus, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, CacVerificationResponse, ChangeBranchStatusPayload, CharityData, charityListParams, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, customerListExportParam, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateRangeOption, DateSectionProps, DealData, DealInformationProps, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, ExportCustomerSharePointParams, ExportDealListParams, ExportDialogParam, ExportPosParam, ExportTypeMerchant, FilterType, Funding, FundingReconciliation, FundingReconciliationApiResponse, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantRewardRule, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PaginatedFundingReconciliationData, PaginatedPayoutData, Payout, PayoutApiResponse, PayoutPagination, PointAllocationApiItem, PointAllocationApiResponse, PointAllocationPagination, PointAnalyticsProps, PointFlowData, PosData, PurchaseTransactionExportParam, QRCodeCardProps, ReceiveMethodSectionProps, RegistrationBonus, Reward, RewardCapSectionProps, RewardData, RewardModalProps, RewardRule, RewardRuleApiItem, RewardRuleApiResponse, RewardRulesSectionProps, Rewards, RuleCardProps, SearchType, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, SponsorDealApiItem, SponsorDealApiResponse, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateDealStatusPayload, UpdateKycStatusPayload, UpdateMerchantPayload, UpdateMerchantVerificationStatusPayload, UpdatePosPayload, UpdateRewardRuleModalProps, VerifyBankNamePayload, VerifyBankPayload, VerifyPayOnUsBankPayload };
+export type { AccountInformationProps, ActiveBranchModalProps, AdjustBalancePayload, AdjustPointPayload, AdminNavigationItem, ApiActivityLog, AuthUser, AuthUserStore, AxiosError, Bank, BankPayload, BankToken, BonusStatus, Branch, BranchAnalyticsData, BranchManagerPayload, BranchSummaryData, BrandProfileProps, BrandSummaryProps, CacVerificationResponse, ChangeBranchStatusPayload, CharityData, charityListParams, ChartDataPoint, CreateAdminPayload, CreateCharityPayload, CreateCustomerKycPayload, CreateCustomersPayload, CreateDealsPayload, CreateMerchantsPayload, CreateModulePayload, CreatePrivilegeMappingPayload, CreateRewardsPayload, CreateRolePayload, CreateTicketTypePayload, Customer, CustomerAnalyticsData, CustomerAnalyticsResponse, CustomerCardProps, CustomerDetailsResponse, customerListExportParam, CustomerSectionProps, CustomerTransaction, DashboardMetrics, DashboardProps, DateRangeOption, DateSectionProps, DealData, DealInformationProps, EditDealPayload, ErrorDisplayProps, ExpirationSectionProps, exportAdminListParams, ExportCustomerSharePointParams, ExportDealListParams, ExportDialogParam, ExportPosParam, exportSignUpBonusListParams, exportSupportTicketListParams, ExportTypeMerchant, FilterType, Funding, FundingReconciliation, FundingReconciliationApiResponse, GetBranchesResponse, IndividualMerchantTransactionDetails, InfoItem, MainBranchSummaryProps, Merchant, MerchantDetailsResponse, MerchantRewardRule, MerchantTransaction, MetricCardProps, MetricItem, MilestoneTargetSectionProps, PaginatedFundingReconciliationData, PaginatedPayoutData, Payout, PayoutApiResponse, PayoutPagination, PointAllocationApiItem, PointAllocationApiResponse, PointAllocationPagination, PointAnalyticsProps, PointFlowData, PosData, PurchaseTransactionExportParam, QRCodeCardProps, ReceiveMethodSectionProps, RegistrationBonus, Reward, RewardCapSectionProps, RewardData, RewardModalProps, RewardRule, RewardRuleApiItem, RewardRuleApiResponse, RewardRulesSectionProps, Rewards, RuleCardProps, SearchType, SidebarProps, signInPayload, singleBranchDetails, SocialMediaData, SponsorDealApiItem, SponsorDealApiResponse, TanstackProviderProps, Transaction, UpdateBranchManagerPayload, UpdateDealStatusPayload, UpdateKycStatusPayload, UpdateMerchantPayload, UpdateMerchantVerificationStatusPayload, UpdatePosPayload, UpdateRewardRuleModalProps, VerifyBankNamePayload, VerifyBankPayload, VerifyPayOnUsBankPayload };
 
