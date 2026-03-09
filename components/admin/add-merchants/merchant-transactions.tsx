@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { ExportButton } from '@/components/common/export-button';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -18,8 +18,6 @@ export default function MerchantTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // 0-based for server-side pagination
   const [pageSize, setPageSize] = useState(20);
-
-  const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
 
   // Use searchTerm as merchantName filter, pass page (0-based) and size
   const { data, isPending, error, isError, refetch } = useGetMerchantTransactions({
@@ -110,13 +108,8 @@ export default function MerchantTransactions() {
           </div>
 
           <div className='flex gap-2'>
-            <Button
-              className='bg-theme-dark-green py-2 h-[42px]'
-              onClick={() => setExportModalOpen(true)}
-            >
-              Export
-            </Button>
 
+            <ExportButton Dialog={ExportTransactionsDialog} />
             {/* Reset Button */}
             <div className="flex items-center gap-3">
               <button
@@ -149,11 +142,7 @@ export default function MerchantTransactions() {
         />
       )}
 
-      {/* Export Dialog */}
-      <ExportTransactionsDialog
-        open={exportModalOpen}
-        onOpenChange={setExportModalOpen}
-      />
+
     </div>
   );
 }

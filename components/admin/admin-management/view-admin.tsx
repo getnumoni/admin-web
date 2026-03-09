@@ -1,6 +1,7 @@
 'use client';
 
 import SearchInput from '@/components/common/search-input';
+import { ExportButton } from '@/components/common/export-button';
 import { DataTable } from '@/components/ui/data-table';
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { ErrorState } from '@/components/ui/error-state';
@@ -11,6 +12,7 @@ import { Admin } from '@/lib/types/admin';
 import { ChevronDown, Filter, RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { adminColumns } from './admin-columns';
+import { ExportAdminListDialog } from './export-admin-list-dialog';
 
 export default function ViewAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,10 +20,7 @@ export default function ViewAdmin() {
   const [pageSize, setPageSize] = useState(12);
   const { data: adminList, isPending: isAdminListPending, error: isAdminError, isError: isAdminListError, refetch: refetchAdminList } = useGetAdminList();
   const admins = adminList?.data?.data?.pageData || [];
-  // console.log(admins);
-  // const [filterBy, setFilterBy] = useState('');
-  // const [roleFilter, setRoleFilter] = useState('');
-  // const [teamFilter, setTeamFilter] = useState('');
+
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter admins based on search term
@@ -73,6 +72,9 @@ export default function ViewAdmin() {
 
           {/* Filter Buttons */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <ExportButton
+              Dialog={ExportAdminListDialog}
+            />
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -125,6 +127,7 @@ export default function ViewAdmin() {
           }}
         />
       )}
+
     </div>
   );
 }
