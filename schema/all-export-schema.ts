@@ -36,6 +36,31 @@ const exportCustomerSharePointSchema = z.object({
 });
 
 
+const exportAdminListSchema = z.object({
+  employeeName: z.string().optional(),
+  startDate: z.date({
+    message: "Start date is required",
+  }),
+  endDate: z.date({
+    message: "End date is required",
+  }),
+})
+
+const exportSupportTicketListSchema = z.object({
+  empName: z.string().optional(),
+  userType: z.string().optional(),
+  userId: z.string().optional(),
+  status: z.string().optional(),
+  createdDate: z.date().optional(),
+  closingDate: z.date().optional(),
+  startDate: z.date({
+    message: "Start date is required",
+  }),
+  endDate: z.date({
+    message: "End date is required",
+  }),
+})
+
 const exportDealListSchema = z.object({
   status: z.string().optional(),
   startDate: z.date({
@@ -83,8 +108,19 @@ const exportCustomerListSchema = z.object({
   }),
 })
 
+const exportSignUpBonusListSchema = z.object({
+  customerId: z.string().optional(),
+  resolved: z.string().optional(),
+  startDate: z.date({
+    message: "Start date is required",
+  }),
+  endDate: z.date({
+    message: "End date is required",
+  }),
+})
+
 export {
-  exportCharityListSchema, exportCustomerListSchema, exportCustomerSharePointSchema, exportDealListSchema, exportMerchantTransactionSchema,
-  exportPosSchema, exportPurchaseTransactionSchema
+  exportAdminListSchema, exportCharityListSchema, exportCustomerListSchema, exportCustomerSharePointSchema, exportDealListSchema, exportMerchantTransactionSchema,
+  exportPosSchema, exportPurchaseTransactionSchema, exportSupportTicketListSchema, exportSignUpBonusListSchema
 };
 
