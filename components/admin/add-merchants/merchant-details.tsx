@@ -54,13 +54,7 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
     console.log("Edit description");
   };
 
-  // const handleManageCharity = () => {
-  //   console.log("Manage charity");
-  // };
 
-  // const handleNotifyMerchant = () => {
-  //   console.log("Notify merchant");
-  // };
 
   const handleHideReview = (id: string) => {
     console.log("Hide review:", id);
@@ -177,6 +171,7 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
       toast.error(errorMessage);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <BackButton />
@@ -309,6 +304,8 @@ export default function MerchantDetails({ merchantId, userId }: Readonly<Merchan
               userName={merchantData?.businessName}
               userId={merchantId ? merchantId as string : undefined}
               businessName={merchantData?.businessName}
+              settlementType={merchantData?.settlementType}
+              merchantId={merchantId as string}
               walletId={merchantData?.wallet?.userId}
               isDeletePending={isDeletePending}
               isResetPending={isResetPending}
