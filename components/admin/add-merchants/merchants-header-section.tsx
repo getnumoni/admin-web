@@ -22,6 +22,8 @@ interface MerchantsHeaderSectionProps {
   onApprovalStatusChange: (status: string) => void;
   onResetFilter: () => void;
   onExportModalOpen: (open: boolean) => void;
+  settlementType: string;
+  onSettlementTypeChange: (type: string) => void;
 }
 
 export default function MerchantsHeaderSection({
@@ -37,6 +39,8 @@ export default function MerchantsHeaderSection({
   onApprovalStatusChange,
   onResetFilter,
   onExportModalOpen,
+  settlementType,
+  onSettlementTypeChange,
 }: Readonly<MerchantsHeaderSectionProps>) {
 
   return (
@@ -70,9 +74,9 @@ export default function MerchantsHeaderSection({
           </div>
         </div>
 
-        {/* Second Row: Date Range + Approval Status + Reset Button */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+        {/* Second Row: Date Range + Approval Status + Settlement Type + Export + Reset */}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3 justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 flex-1 flex-wrap">
             {/* Date Range Selector */}
             <div className="w-full sm:w-64">
               <DateRangeSelector
@@ -99,26 +103,35 @@ export default function MerchantsHeaderSection({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Settlement Type Dropdown */}
+            <div className="w-full sm:w-48">
+              <Select value={settlementType} onValueChange={onSettlementTypeChange}>
+                <SelectTrigger className="w-full h-[42px] shadow-none">
+                  <SelectValue placeholder="Settlement Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="instant">Instant</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div>
+          <div className="flex items-center gap-3 mt-2 lg:mt-0">
             <Button
-              className='bg-theme-dark-green py-2 h-[42px]'
+              className='bg-theme-dark-green py-2 h-[42px] flex-1 sm:flex-none'
               onClick={() => onExportModalOpen(true)}
             >
               Export
             </Button>
-          </div>
 
-          {/* Reset Filter Button */}
-          <div className="flex items-center">
             <Button
               onClick={onResetFilter}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer h-[42px]"
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer h-[42px] flex-1 sm:flex-none"
             >
               <RefreshCw className="h-4 w-4" />
-              <span className="hidden sm:inline">Reset Filter</span>
-              <span className="sm:hidden">Reset</span>
+              <span>Reset Filter</span>
             </Button>
           </div>
         </div>
