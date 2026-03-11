@@ -16,6 +16,7 @@ export default function AccountInformation({
     { label: "Identity type", value: merchantData?.identificationType || "N/A" },
     { label: "Business Number", value: merchantData?.businessReqNo || "N/A" },
     { label: "KYC Status", value: merchantData?.kycStatus || "N/A", isBadge: true },
+    { label: "Settlement Type", value: merchantData?.settlementType || "N/A", isBadge: true },
   ];
 
   const rightColumnItems: InfoItem[] = [
@@ -35,8 +36,8 @@ export default function AccountInformation({
 
       <div className="grid grid-cols-2 gap-8">
         <div className="space-y-5">
-          {leftColumnItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-start">
+          {leftColumnItems.map((item) => (
+            <div key={item.label} className="flex flex-col items-start">
               <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
               <div className="flex items-center gap-2 mt-1">
                 {item.icon && <item.icon className="h-4 w-4 text-gray-500" />}
@@ -53,8 +54,8 @@ export default function AccountInformation({
           ))}
         </div>
         <div className="space-y-5">
-          {rightColumnItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-start">
+          {rightColumnItems.map((item) => (
+            <div key={item.label} className="flex flex-col items-start">
               <span className="text-sm text-gray-500 font-medium">{item.label}:</span>
               <div className="flex items-center gap-2 mt-1">
                 {item.icon && <item.icon className="h-4 w-4 text-gray-500" />}
