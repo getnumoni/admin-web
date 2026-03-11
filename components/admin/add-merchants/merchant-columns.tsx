@@ -108,13 +108,13 @@ export const merchantColumns: ColumnDef<Merchant>[] = [
       <div className="text-gray-600 text-sm">{row.getValue("email")}</div>
     ),
   },
-  // {
-  //   accessorKey: "businessPhoneNo",
-  //   header: "Phone Number",
-  //   cell: ({ row }) => (
-  //     <div className="text-gray-600 text-sm">{row.getValue("businessPhoneNo") || "N/A"}</div>
-  //   ),
-  // },
+  {
+    accessorKey: "settlementType",
+    header: "Settlement Type",
+    cell: ({ row }) => (
+      <div className="text-gray-600 text-sm">{row.getValue("settlementType") || "N/A"}</div>
+    ),
+  },
   {
     accessorKey: "category",
     header: "Category",
