@@ -11,6 +11,7 @@ interface GetAllMerchantsParams {
   startDate?: string;
   endDate?: string;
   approvalStatus?: string;
+  settlementType?: string;
 }
 
 const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
@@ -24,10 +25,11 @@ const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
     startDate,
     endDate,
     approvalStatus,
+    settlementType,
   } = params;
 
   const { data, isPending, error, isError, refetch } = useQuery({
-    queryKey: ["merchants", page, size, businessName, merchantEmail, merchantPhoneNo, merchantId, startDate, endDate, approvalStatus],
+    queryKey: ["merchants", page, size, businessName, merchantEmail, merchantPhoneNo, merchantId, startDate, endDate, approvalStatus, settlementType],
     queryFn: () => {
       const queryParams = new URLSearchParams();
 
@@ -43,6 +45,7 @@ const useGetAllMerchants = (params: GetAllMerchantsParams = {}) => {
       if (startDate) queryParams.append("startDate", startDate);
       if (endDate) queryParams.append("endDate", endDate);
       if (approvalStatus) queryParams.append("approvalStatus", approvalStatus);
+      if (settlementType) queryParams.append("settlementType", settlementType);
 
       const queryString = queryParams.toString();
       return api.get(`/admin/getMerchantList?${queryString}`);
