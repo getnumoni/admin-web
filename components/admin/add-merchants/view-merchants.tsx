@@ -29,6 +29,7 @@ export default function ViewMerchants() {
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
   const [approvalStatus, setApprovalStatus] = useState('');
+  const [settlementType, setSettlementType] = useState('');
 
   // Convert date range option to API date strings in dd-mm-yyyy format
   const { startDate, endDate } = useMemo(() => {
@@ -158,6 +159,7 @@ export default function ViewMerchants() {
     startDate,
     endDate,
     approvalStatus: approvalStatus && approvalStatus !== 'all' ? approvalStatus : undefined,
+    settlementType: settlementType && settlementType !== 'all' ? settlementType : undefined,
   });
 
   // Extract merchants data from API response
@@ -174,6 +176,7 @@ export default function ViewMerchants() {
     setCustomStartDate(undefined);
     setCustomEndDate(undefined);
     setApprovalStatus('');
+    setSettlementType('');
     setCurrentPage(0); // Reset to first page when clearing filters
   };
 
@@ -191,10 +194,10 @@ export default function ViewMerchants() {
     setCustomEndDate(end);
   };
 
-  // Reset to first page when debounced search term, filter type, date range, or approval status changes
+  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(0);
-  }, [debouncedSearchTerm, filterType, dateRangeOption, customStartDate, customEndDate, approvalStatus]);
+  }, [debouncedSearchTerm, filterType, dateRangeOption, customStartDate, customEndDate, approvalStatus, settlementType]);
 
   // Clear search term when filter type changes
   useEffect(() => {
@@ -259,6 +262,8 @@ export default function ViewMerchants() {
         onApprovalStatusChange={setApprovalStatus}
         onResetFilter={handleResetFilter}
         onExportModalOpen={setExportModalOpen}
+        settlementType={settlementType}
+        onSettlementTypeChange={setSettlementType}
       />
 
       {/* Data Table */}
