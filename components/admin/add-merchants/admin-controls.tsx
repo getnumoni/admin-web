@@ -5,11 +5,13 @@ import AdjustPointsDialog from "@/components/common/adjust-points-dialog";
 import ResetPasswordDialog from "@/components/common/reset-password-dialog";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { UpdateMerchantSettlementDialog } from "@/components/ui/update-merchant-settlement-dialog";
 import {
   Banknote,
   Coins,
   Key,
-  Trash2
+  Trash2,
+  RefreshCw
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +31,8 @@ interface AdminControlsProps {
   isAdjustPointsSuccess?: boolean;
   isAdjustBalancePending?: boolean;
   isAdjustBalanceSuccess?: boolean;
+  settlementType?: string;
+  merchantId?: string;
 }
 
 export default function AdminControls({
@@ -46,11 +50,16 @@ export default function AdminControls({
   isAdjustPointsSuccess = false,
   isAdjustBalancePending = false,
   isAdjustBalanceSuccess = false,
-}: AdminControlsProps) {
+  settlementType,
+  merchantId
+}: Readonly<AdminControlsProps>) {
   const [isAdjustPointsOpen, setIsAdjustPointsOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isUpdateSettlementTypeOpen, setIsUpdateSettlementTypeOpen] = useState(false);
+
+  console.log({ 'merchantId': merchantId, 'settlementType': settlementType })
 
   // Close adjust points modal when operation is successful
   useEffect(() => {
@@ -134,6 +143,13 @@ export default function AdminControls({
       variant: "outline" as const,
       className: "border-red-300 text-red-600 hover:bg-red-50",
     },
+    {
+      label: "Update Settlement Type",
+      icon: RefreshCw,
+      onClick: () => setIsUpdateSettlementTypeOpen(true),
+      variant: "outline" as const,
+      className: "border-gray-300 text-gray-700 hover:bg-gray-50",
+    }
   ];
 
   return (
@@ -194,6 +210,13 @@ export default function AdminControls({
         description="This will permanently delete the merchant and all associated data."
         itemName={businessName || userName || ""}
         isLoading={isDeletePending}
+      />
+
+      <UpdateMerchantSettlementDialog
+        isOpen={isUpdateSettlementTypeOpen}
+        onClose={() => setIsUpdateSettlementTypeOpen(false)}
+        currentSettlementType={settlementType}
+        merchantId={merchantId || userId || ""}
       />
     </>
   );
