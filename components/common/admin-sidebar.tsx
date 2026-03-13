@@ -191,7 +191,7 @@ export default function AdminSidebar({ isOpen, onClose }: Readonly<SidebarProps>
                 System Management
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(7, 10).map(renderNavigationItem)}
+                {adminNavigationItem.slice(7, 11).map(renderNavigationItem)}
               </div>
               <hr className="mt-4 border-gray-200" />
             </div>
@@ -202,7 +202,7 @@ export default function AdminSidebar({ isOpen, onClose }: Readonly<SidebarProps>
                 Analytics & Reports
               </h3>
               <div className="space-y-1">
-                {adminNavigationItem.slice(11).map(renderNavigationItem)}
+                {adminNavigationItem.slice(12).map(renderNavigationItem)}
               </div>
               {/* <hr className="mt-4 border-gray-200" /> */}
             </div>
