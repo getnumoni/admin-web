@@ -1,123 +1,341 @@
 # Numoni Admin Dashboard v2
 
-A comprehensive admin dashboard for managing the Numoni platform - a loyalty points and rewards system that connects merchants, customers, and charities. This application provides administrative tools for managing merchants, customers, charities, deals & promotions, and generating detailed reports.
+> A comprehensive, enterprise-grade admin dashboard for the **Numoni** platform — a loyalty points and rewards ecosystem connecting merchants, customers, and charities across Africa.
+
+---
+
+## 📖 Table of Contents
+
+- [Project Overview](#-project-overview)
+- [Features](#-features)
+- [Tech Stack](#%EF%B8%8F-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Available Scripts](#-available-scripts)
+- [Architecture](#%EF%B8%8F-architecture)
+- [API Proxy & CORS](#-api-proxy--cors-resolution)
+- [Contributing](#-contributing)
+- [Support](#-support)
+
+---
 
 ## 🚀 Project Overview
 
-The Numoni Admin Dashboard is a modern, full-featured administrative interface built with Next.js 15 and React 19. It serves as the central management hub for the Numoni ecosystem, enabling administrators to:
+The **Numoni Admin Dashboard v2** is a modern, full-featured administrative interface built with **Next.js 16** and **React 19**. It serves as the central management hub for the Numoni ecosystem, giving administrators powerful tools to:
 
--  **Manage Merchants**: Add, edit, and monitor merchant accounts, their transactions, and performance metrics
--  **Customer Management**: Handle customer accounts, view transaction history, and manage loyalty points
--  **Charity Operations**: Manage charity organizations, track donations, and monitor impact
--  **Deals & Promotions**: Create and manage promotional campaigns and special offers
--  **Admin Management**: Control admin user accounts, roles, and permissions
--  **Analytics & Reporting**: Generate comprehensive reports on sales, points, and charity activities
--  **Activity Monitoring**: Track system activities and user interactions
+- Onboard and manage **merchants** and their KYC verification lifecycle
+- Monitor and manage **customer** accounts, loyalty point balances, and transaction histories
+- Administer **charity** organisations, track donations, and measure impact
+- Create and approve **deals & promotions** (sponsored and internal)
+- Manage **admin users**, roles, modules, and permission matrices
+- Configure and manage **POS terminals** and branch locations
+- Process and monitor **sign-up bonus** requests
+- View real-time **analytics, reports, funding, and settlement overviews**
+- Handle **support tickets** raised by customers and merchants
+- Monitor the **alerts dashboard** and system-wide **activity logs**
+- Send and manage **notifications**
+- Track **transactions** across customers and merchants
+
+---
+
+## ✨ Features
+
+### 🏪 Merchant Management
+- Merchant registration and full onboarding flow
+- Business information and document management
+- KYC verification (CAC, NIN, TIN document checks)
+- Merchant verification status controls
+- Password reset and account controls
+- Transaction monitoring per merchant
+- Merchant reward points and reward type management
+- Performance analytics and settlement type configuration (daily/instant)
+- QR code generation and download (with S3 CORS proxy support)
+
+### 👥 Customer Management
+- Customer account creation and management
+- Loyalty points tracking and balance adjustments
+- Transaction history and shared points overview
+- Password reset and account deactivation/deletion
+- Customer reviews and feedback monitoring
+- Churn rate trend analytics
+
+### 🏥 Charity Operations
+- Charity registration and verification
+- Brand-charity association management
+- Donation tracking and total donation metrics
+- Most-supported charity leaderboards
+- Charity summary and impact reports
+
+### 🎁 Deals & Promotions
+- Internal and sponsored deal creation and management
+- Deal approval and status management
+- Deal performance analytics
+- File-based deal uploads
+
+### 🏦 POS & Branch Management
+- POS terminal creation, update, and deletion
+- Branch registration and configuration
+- Bulk POS upload via CSV
+- Sample CSV template download
+
+### 👮 Admin Management & RBAC
+- Admin user creation and management
+- Role creation and assignment
+- Module-based permission mapping
+- Role-level access control enforcement
+
+### 🎰 Bonus Management
+- Sign-up bonus request creation and listing
+- Registration bonus tracking
+- Bonus approval workflow
+- Bonus statistics dashboard
+
+### 📊 Reports & Analytics
+- Sales dashboard with date-range filtering
+- Point distribution and flow reports
+- Charity summary and top charities reports
+- Merchant usage analytics and deal performance
+- Donation trend visualisations
+- Revenue dashboard and settlement overview
+- Funding overview and reconciliation
+- Shared points and wallet balance stats
+- Total issued and redeemed points tracking
+
+### 🔔 Notifications
+- In-app notification centre
+- Mark notifications as read
+
+### 🎫 Support System
+- Support ticket creation and management
+- Ticket type configuration
+- Ticket detail view
+
+### 🔍 Activity & Audit
+- System-wide activity log monitoring
+- Audit trail listing
+
+### 🚨 Alerts Dashboard
+- Real-time alert monitoring across the platform
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Core Framework
 
--  **Next.js 15.5.4** - React framework with App Router
--  **React 19.1.0** - UI library
--  **TypeScript 5** - Type safety and development experience
+| Technology | Version | Purpose |
+|---|---|---|
+| [Next.js](https://nextjs.org/) | 16.1.5 | React framework with App Router |
+| [React](https://react.dev/) | 19.2.1 | UI library |
+| [TypeScript](https://www.typescriptlang.org/) | ^5.9.3 | Static typing |
 
 ### UI & Styling
 
--  **Tailwind CSS 4** - Utility-first CSS framework
--  **Radix UI** - Headless UI components for accessibility
--  **shadcn/ui** - Modern component library built on Radix UI
--  **Lucide React** - Icon library
--  **Framer Motion** - Animation library
--  **Recharts** - Data visualization and charts
+| Technology | Version | Purpose |
+|---|---|---|
+| [Tailwind CSS](https://tailwindcss.com/) | ^4.2.1 | Utility-first CSS framework |
+| [shadcn/ui](https://ui.shadcn.com/) | — | Pre-built accessible component library |
+| [Radix UI](https://www.radix-ui.com/) | various | Headless, accessible UI primitives |
+| [Lucide React](https://lucide.dev/) | ^0.544.0 | Icon library |
+| [Framer Motion](https://www.framer.com/motion/) | ^12.35.2 | Animations and transitions |
+| [Recharts](https://recharts.org/) | 3.1.0 | Data visualisation and charts |
+| [Sonner](https://sonner.emilkowal.ski/) | ^2.0.7 | Toast notifications |
+| [Vaul](https://vaul.emilkowal.ski/) | ^1.1.2 | Drawer component |
+| [next-themes](https://github.com/pacocoursey/next-themes) | ^0.4.6 | Theme management |
+| [cmdk](https://cmdk.paco.me/) | ^1.1.1 | Command palette |
+| [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css) | ^1.4.0 | Tailwind animation utilities |
 
 ### State Management & Data Fetching
 
--  **Zustand** - Lightweight state management
--  **TanStack Query (React Query)** - Server state management and caching
--  **React Hook Form** - Form handling and validation
--  **Zod** - Schema validation
+| Technology | Version | Purpose |
+|---|---|---|
+| [Zustand](https://zustand-demo.pmnd.rs/) | ^5.0.11 | Client-side global state |
+| [TanStack Query](https://tanstack.com/query) | ^5.90.21 | Server state, caching, and sync |
+| [TanStack Table](https://tanstack.com/table) | ^8.21.3 | Headless table management |
+| [React Hook Form](https://react-hook-form.com/) | ^7.71.2 | Form state and validation |
+| [Zod](https://zod.dev/) | ^4.3.6 | Schema-based runtime validation |
+| [@hookform/resolvers](https://github.com/react-hook-form/resolvers) | ^5.2.2 | Connects Zod schemas to React Hook Form |
+
+### Networking & Storage
+
+| Technology | Version | Purpose |
+|---|---|---|
+| [Axios](https://axios-http.com/) | ^1.13.6 | HTTP client with interceptors |
+| [cookies-next](https://github.com/andreizanik/cookies-next) | ^6.1.1 | Cookie-based secure token storage |
+
+### Utilities & Date Handling
+
+| Technology | Version | Purpose |
+|---|---|---|
+| [date-fns](https://date-fns.org/) | ^4.1.0 | Date manipulation and formatting |
+| [react-day-picker](https://react-day-picker.js.org/) | ^9.14.0 | Calendar/date picker UI |
+| [clsx](https://github.com/lukeed/clsx) | ^2.1.1 | Conditional class merging |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | ^3.5.0 | Tailwind class deduplication |
+| [class-variance-authority](https://cva.style/) | ^0.7.1 | Variant-based component styling |
 
 ### Authentication & Security
 
--  **JWT Tokens** - Authentication with automatic refresh
--  **Cookie-based Storage** - Secure token storage
--  **Role-based Access Control** - Admin permission system
+| Technology | Purpose |
+|---|---|
+| JWT Tokens | Access and refresh token-based authentication |
+| Cookie Storage | Secure, server-accessible token storage via `cookies-next` |
+| Role-Based Access Control | Module/privilege matrix for admin permissions |
+| Next.js Middleware | Server-side route protection |
 
-### Development Tools
+### Developer Tooling
 
--  **ESLint** - Code linting
--  **Husky** - Git hooks
--  **Commitlint** - Commit message linting
--  **Turbopack** - Fast bundling (Next.js)
+| Technology | Version | Purpose |
+|---|---|---|
+| [ESLint](https://eslint.org/) | ^9.39.4 | Linting with Next.js + TypeScript rules |
+| [Husky](https://typicode.github.io/husky/) | ^9.1.7 | Git hooks (pre-commit, commit-msg) |
+| [Commitlint](https://commitlint.js.org/) | ^20.4.3 | Conventional commit enforcement |
+| [Turbopack](https://turbo.build/pack) | built-in | Fast Next.js bundler for dev |
+| [TanStack Query DevTools](https://tanstack.com/query/latest/docs/framework/react/devtools) | ^5.91.3 | Query debugging in development |
+
+---
 
 ## 📁 Project Structure
 
 ```
 numoni-admin-v2/
-├── app/                          # Next.js App Router
-│   ├── api/                     # API routes
-│   │   ├── branches/            # Branch management endpoints
-│   │   ├── generateBankToken/   # Bank token generation
-│   │   ├── maps/               # Maps integration
-│   │   ├── pay-on-us/          # Payment processing
-│   │   └── places/             # Location services
-│   ├── auth/                    # Authentication pages
-│   │   └── sign-in/            # Login page
-│   ├── dashboard/              # Main dashboard pages
-│   │   ├── activity-logs/      # System activity monitoring
-│   │   ├── admin-management/   # Admin user management
-│   │   ├── charity/           # Charity management
-│   │   ├── customers/         # Customer management
-│   │   ├── deals-promo/       # Deals and promotions
-│   │   ├── merchants/         # Merchant management
-│   │   ├── notifications/     # Notification center
-│   │   ├── reports/           # Analytics and reporting
-│   │   ├── roles/             # Role and permission management
-│   │   └── support/           # Support ticket system
-│   ├── fonts/                 # Custom font files
-│   ├── globals.css            # Global styles
-│   └── layout.tsx             # Root layout
-├── components/                 # Reusable components
-│   ├── admin/                 # Admin-specific components
-│   │   ├── add-merchants/     # Merchant creation forms
-│   │   ├── admin-management/  # Admin management UI
-│   │   ├── charity/          # Charity management UI
-│   │   ├── customers/        # Customer management UI
-│   │   ├── deals-and-promo/  # Deals management UI
-│   │   ├── roles-and-permission/ # Role management UI
-│   │   └── support/          # Support system UI
-│   ├── auth/                 # Authentication components
-│   ├── common/               # Shared components
-│   └── ui/                   # Base UI components (shadcn/ui)
-├── constant/                 # Application constants
-│   ├── icons.ts             # Icon definitions
-│   ├── images.ts            # Image assets
-│   └── routes.ts            # Route definitions
-├── context/                 # React contexts
-├── data/                   # Mock data and constants
-├── hooks/                  # Custom React hooks
-│   ├── mutation/           # Data mutation hooks
-│   └── query/              # Data fetching hooks
-├── lib/                    # Utility libraries
-│   ├── schemas/            # Zod validation schemas
-│   ├── stores/             # Additional stores
-│   └── types/              # TypeScript type definitions
-├── stores/                 # Zustand stores
-│   ├── bank-store.ts       # Bank integration state
-│   ├── branch-store.ts     # Branch management state
-│   ├── pay-on-us-store.ts  # Payment processing state
-│   └── user-auth-store.ts  # Authentication state
-└── public/                 # Static assets
-    └── assets/             # Images and icons
+├── app/                              # Next.js App Router root
+│   ├── api/                         # Next.js API Routes (server-side)
+│   │   ├── branches/                # Branch management endpoints
+│   │   ├── generateBankToken/       # Bank token generation
+│   │   ├── images/proxy/            # S3 CORS image proxy
+│   │   ├── maps/                    # Google Maps integration
+│   │   ├── pay-on-us/               # Pay-on-us payment endpoints
+│   │   └── places/                  # Google Places location services
+│   ├── auth/
+│   │   └── sign-in/                 # Login page
+│   └── dashboard/                   # Protected dashboard pages
+│       ├── activity-logs/           # System activity log viewer
+│       ├── admin-management/        # Admin user management
+│       ├── alerts-dashboard/        # Real-time alerts monitoring
+│       ├── bonus/                   # Sign-up bonus management
+│       ├── charity/                 # Charity management
+│       ├── customers/               # Customer management
+│       ├── deals-promo/             # Deals and promotions
+│       ├── merchants/               # Merchant management
+│       ├── notifications/           # In-app notification centre
+│       ├── reports/                 # Analytics and reporting
+│       ├── roles/                   # Role and permission management
+│       ├── support/                 # Support ticket system
+│       └── transactions/            # Transaction management
+│
+├── components/                      # Reusable UI components
+│   ├── admin/                       # Feature-specific components
+│   │   ├── active-users-card.tsx
+│   │   ├── activity-logs.tsx
+│   │   ├── add-merchants/           # Merchant creation/onboarding forms
+│   │   ├── admin-management/        # Admin CRUD components
+│   │   ├── alert-dashboard/         # Alert display components
+│   │   ├── bonuses/                 # Bonus management UI
+│   │   ├── charity/                 # Charity CRUD components
+│   │   ├── customers/               # Customer management UI
+│   │   ├── deals-and-promo/         # Deal management UI
+│   │   ├── most-supported-charity.tsx
+│   │   ├── notification.tsx
+│   │   ├── pos-branch/              # POS and branch management
+│   │   ├── reports/                 # Report views and charts
+│   │   ├── review-dashboard.tsx
+│   │   ├── roles-and-permission/    # RBAC management UI
+│   │   ├── support/                 # Support ticket UI
+│   │   ├── top-performing-merchant.tsx
+│   │   └── transactions/            # Transaction views
+│   ├── auth/                        # Authentication components (sign-in form, guards)
+│   ├── common/                      # Shared layout components (sidebar, navbar, etc.)
+│   └── ui/                          # Base shadcn/ui components (button, input, table, etc.)
+│
+├── constant/                        # Static application constants
+│   ├── icons.ts                     # Centralised icon exports
+│   ├── images.ts                    # Static image asset paths
+│   └── routes.ts                    # Application route definitions
+│
+├── context/                         # React Context providers
+│
+├── data/                            # Static mock data and enumerations
+│
+├── hooks/                           # Custom React hooks
+│   ├── mutation/                    # 48 TanStack mutation hooks
+│   │   ├── useSignIn.ts
+│   │   ├── useCreateMerchants.ts
+│   │   ├── useCreateCharity.ts
+│   │   ├── useAddMerchantKyc.ts
+│   │   ├── useCreateDeals.ts
+│   │   ├── useUploadPosCsv.ts
+│   │   └── ...
+│   ├── query/                       # 90 TanStack query hooks
+│   │   ├── useGetAllMerchants.ts
+│   │   ├── useGetCustomers.ts
+│   │   ├── useGetAllCharity.ts
+│   │   ├── useGetDealList.ts
+│   │   ├── useGetAlertDashboard.ts
+│   │   ├── useGetReportSalesDashboard.ts
+│   │   └── ...
+│   └── utils/                       # Reusable utility hooks
+│       ├── useDebounce.ts
+│       ├── useExportCsv.ts
+│       ├── useKycVerification.ts
+│       ├── useDocumentVerification.ts
+│       ├── useDateSelection.ts
+│       └── ...
+│
+├── lib/                             # Core library and utilities
+│   ├── api.ts                       # Axios instance with auth interceptors
+│   ├── bank-api.ts                  # Bank integration Axios client
+│   ├── pay-on-us-api.ts             # Pay-on-us Axios client
+│   ├── helper.ts                    # QR code, image, and general utilities
+│   ├── cookies-utils.ts             # Cookie read/write helpers
+│   ├── phone-utils.ts               # Phone number formatting
+│   ├── sidebar-navigation-helper.ts # Sidebar nav config and permission filtering
+│   ├── merchant-kyc-helpers.ts      # KYC document helpers
+│   ├── types.ts                     # Global TypeScript type definitions
+│   ├── utils.ts                     # General utility functions (cn, etc.)
+│   ├── schemas/                     # Zod validation schemas
+│   │   ├── merchant-schema.ts
+│   │   ├── customer-schema.ts
+│   │   ├── charity-schema.ts
+│   │   ├── deal-schema.ts
+│   │   ├── admin-schema.ts
+│   │   ├── branch-schema.ts
+│   │   └── pos-branch-schema.ts
+│   ├── stores/                      # Additional Zustand store utilities
+│   └── types/                       # Domain-specific TypeScript types
+│       ├── admin.ts
+│       ├── customer.ts
+│       ├── activity-log.ts
+│       └── branch-api.ts
+│
+├── stores/                          # Global Zustand stores
+│   ├── user-auth-store.ts           # Auth state (user info, token management)
+│   ├── bank-store.ts                # Bank integration tokens
+│   ├── pay-on-us-store.ts           # Pay-on-us tokens
+│   └── branch-store.ts              # Branch data and operations
+│
+├── schema/                          # Additional schema definitions
+├── proxy.ts                         # Proxy utility
+├── public/assets/                   # Static files (images, icons)
+├── next.config.ts                   # Next.js configuration
+├── tsconfig.json                    # TypeScript configuration
+├── eslint.config.mjs                # ESLint configuration
+├── commitlint.config.mjs            # Commitlint configuration
+└── postcss.config.mjs               # PostCSS / Tailwind configuration
 ```
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
--  **Node.js** >= 19.0.0 < 23.0.0
--  **pnpm** (recommended package manager)
+| Requirement | Version |
+|---|---|
+| Node.js | >= 24.0.0 |
+| pnpm | Latest (yarn and npm are disabled by engine policy) |
+
+> **Note**: This project enforces `pnpm` as the only allowed package manager. Running `npm install` or `yarn install` will intentionally fail.
 
 ### Installation
 
@@ -140,12 +358,7 @@ numoni-admin-v2/
    cp .env.example .env.local
    ```
 
-   Configure the following environment variables:
-
-   ```env
-   NEXT_PUBLIC_API_URL=your_api_base_url
-   # Add other required environment variables
-   ```
+   Then fill in the values (see [Environment Variables](#-environment-variables)).
 
 4. **Run the development server**
 
@@ -153,322 +366,161 @@ numoni-admin-v2/
    pnpm dev
    ```
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Available Scripts
-
-```bash
-# Development
-pnpm dev              # Start development server with Turbopack
-pnpm build            # Build for production with Turbopack
-pnpm start            # Start production server
-pnpm clean            # Clean build artifacts and dependencies
-
-# Code Quality
-pnpm lint             # Run ESLint
-pnpm type-check       # Run TypeScript type checking
-pnpm commitlint       # Lint commit messages
-```
-
-## 🏗️ Architecture
-
-### State Management
-
-The application uses **Zustand** for client-side state management with the following stores:
-
--  **`user-auth-store`**: Manages authentication state, user data, and token refresh
--  **`bank-store`**: Handles bank integration tokens and API access
--  **`pay-on-us-store`**: Manages payment processing tokens
--  **`branch-store`**: Stores branch-related data and operations
-
-### Data Fetching
-
-**TanStack Query** is used for server state management:
-
--  **Query Hooks**: Located in `hooks/query/` for data fetching
--  **Mutation Hooks**: Located in `hooks/mutation/` for data modifications
--  **Automatic Caching**: Built-in caching and background refetching
--  **Optimistic Updates**: Enhanced user experience with immediate UI updates
-
-### Authentication Flow
-
-1. **Login**: Users authenticate via JWT tokens
-2. **Token Storage**: Secure cookie-based token storage
-3. **Auto Refresh**: Automatic token refresh using refresh tokens
-4. **Route Protection**: Middleware-based route protection
-5. **Role-based Access**: Admin permissions and role management
-
-### API Integration
-
--  **Axios**: HTTP client with interceptors
--  **Automatic Token Refresh**: Built-in token refresh mechanism
--  **Error Handling**: Centralized error handling and user feedback
--  **Type Safety**: Full TypeScript integration for API responses
-
-## 🔒 CORS Issue Resolution
-
-### Problem
-
-When downloading QR code images from S3 buckets, the browser was blocking the download due to CORS (Cross-Origin Resource Sharing) restrictions. The error occurred because:
-
-1. **S3 Bucket Configuration**: The S3 buckets (`cpip-dev-public.s3.eu-west-1.amazonaws.com`, etc.) don't have CORS headers configured
-2. **Canvas Taint**: When loading external images directly into a canvas element, browsers enforce CORS policies. If the image server doesn't send proper CORS headers, the canvas becomes "tainted" and cannot be exported
-3. **Direct Fetch Failure**: Attempting to fetch images directly from S3 using `fetch()` or `new Image()` fails when CORS headers are missing
-
-### Solution: Image Proxy API Route
-
-We implemented a **server-side proxy** approach that bypasses browser CORS restrictions:
-
-#### 1. Created Image Proxy API Route (`/app/api/images/proxy/route.ts`)
-
-This Next.js API route:
-
--  **Fetches images server-side**: Server-to-server requests don't have CORS restrictions
--  **Validates allowed domains**: Only allows requests from whitelisted S3 domains for security
--  **Returns images with proper headers**: Serves images with CORS headers that allow browser access
--  **Handles errors gracefully**: Returns appropriate error responses for invalid requests
-
-```typescript
-// Example usage:
-GET /api/images/proxy?url=https://cpip-dev-public.s3.eu-west-1.amazonaws.com/image.png
-```
-
-#### 2. Updated Image Loading Function (`lib/helper.ts`)
-
-Modified `loadImageWithCors()` to:
-
--  **Detect S3 URLs**: Automatically identifies S3 bucket URLs
--  **Route through proxy**: S3 URLs are automatically proxied through `/api/images/proxy`
--  **Handle local assets**: Local paths (like `/assets/icons/...`) are loaded directly without proxying
--  **Maintain fallback**: Still attempts direct loading for non-S3 external URLs
-
-#### How It Works
-
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Browser   │────────▶│  Next.js    │────────▶│  S3 Bucket  │
-│  (Client)   │         │  API Proxy  │         │  (Server)   │
-└─────────────┘         └──────────────┘         └─────────────┘
-     │                          │                         │
-     │ 1. Request image         │ 2. Fetch from S3        │
-     │    via proxy             │    (no CORS issue)     │
-     │                          │                         │
-     │◀─────────────────────────│ 3. Return with         │
-     │                          │    CORS headers        │
-     │                          │                         │
-     │ 4. Load into canvas      │                         │
-     │    (same-origin,         │                         │
-     │     no CORS issue)       │                         │
-```
-
-#### Benefits
-
-✅ **No AWS Configuration Required**: Works without modifying S3 bucket CORS settings  
-✅ **Secure**: Domain whitelisting prevents unauthorized image proxying  
-✅ **Transparent**: Client code doesn't need to know about the proxy  
-✅ **Performant**: Images are cached with proper cache headers  
-✅ **Backward Compatible**: Local assets and other external URLs still work normally
-
-#### Allowed Domains
-
-The proxy currently allows images from:
-
--  `cpip-dev-public.s3.eu-west-1.amazonaws.com`
--  `numoniimages.s3.amazonaws.com`
--  `numoni-prod-uploads.s3.eu-west-1.amazonaws.com`
--  `s3.amazonaws.com` (general S3 bucket pattern)
-
-To add more domains, update the `allowedDomains` array in `/app/api/images/proxy/route.ts`.
-
-#### Related Files
-
--  `/app/api/images/proxy/route.ts` - Image proxy API route
--  `/lib/helper.ts` - `loadImageWithCors()` function that uses the proxy
--  `/lib/helper.ts` - `downloadQRCodeImageWithLogo()` function that downloads QR codes
-
-## 🎨 UI Components
-
-### Component Library
-
-Built on **shadcn/ui** with **Radix UI** primitives:
-
--  **Accessibility**: WCAG compliant components
--  **Customizable**: Easy theming and customization
--  **Type Safe**: Full TypeScript support
--  **Consistent**: Design system consistency
-
-### Key Components
-
--  **MetricCard**: Dashboard metrics display
--  **DataTable**: Sortable and filterable data tables
--  **Form Components**: Validated form inputs with error handling
--  **Modal Dialogs**: Accessible modal and dialog components
--  **Navigation**: Responsive sidebar and navbar
--  **Charts**: Data visualization components
-
-## 📊 Features
-
-### Dashboard Overview
-
--  Real-time metrics and KPIs
--  Active users monitoring
--  Top-performing merchants
--  Most supported charities
--  Transaction summaries
-
-### Merchant Management
-
--  Merchant registration and onboarding
--  Business information management
--  Transaction monitoring
--  Performance analytics
--  KYC verification
--  Reward point management
-
-### Customer Management
-
--  Customer account management
--  Transaction history
--  Loyalty points tracking
--  Account controls (balance adjustment, password reset)
--  Customer reviews and feedback
-
-### Charity Operations
-
--  Charity registration and verification
--  Donation tracking
--  Impact reporting
--  Charity performance metrics
-
-### Admin Controls
-
--  Admin user management
--  Role and permission assignment
--  Activity logging and monitoring
--  System configuration
-
-### Reporting & Analytics
-
--  Sales reports
--  Points distribution reports
--  Charity impact reports
--  Custom date range filtering
--  Export capabilities
-
-## 🔧 Development
-
-### Code Style
-
--  **ESLint**: Configured with Next.js and TypeScript rules
--  **Prettier**: Code formatting (if configured)
--  **Husky**: Pre-commit hooks for code quality
--  **Commitlint**: Conventional commit messages
-
-### TypeScript
-
--  **Strict Mode**: Enabled for better type safety
--  **Path Mapping**: `@/*` alias for clean imports
--  **Type Definitions**: Comprehensive type definitions in `lib/types/`
-
-### Component Development
-
-1. **Create components** in appropriate directories
-2. **Use TypeScript** for all components
-3. **Follow naming conventions**: PascalCase for components
-4. **Add proper prop types** and interfaces
-5. **Include accessibility** attributes where needed
-
-## 🚀 Deployment
-
-### Build Process
-
-```bash
-pnpm build
-```
-
-The build process:
-
--  TypeScript compilation
--  Next.js optimization
--  Static asset optimization
--  Bundle analysis
-
-### Environment Configuration
-
-Ensure all required environment variables are set:
-
--  `NEXT_PUBLIC_API_URL`: Backend API base URL
--  Additional environment variables as needed
-
-### Production Considerations
-
--  **Image Optimization**: Next.js automatic image optimization
--  **Bundle Analysis**: Use `@next/bundle-analyzer` for optimization
--  **Performance**: Built-in Next.js performance optimizations
--  **Security**: Secure cookie settings and HTTPS enforcement
-
-## 🤝 Contributing
-
-### Development Workflow
-
-1. **Fork the repository**
-2. **Create a feature branch**
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Make your changes**
-4. **Run tests and linting**
-
-   ```bash
-   pnpm lint
-   pnpm type-check
-   ```
-
-5. **Commit your changes**
-
-   ```bash
-   git commit -m "feat: add your feature description"
-   ```
-
-6. **Push to your fork**
-
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-7. **Create a Pull Request**
-
-### Commit Convention
-
-This project uses conventional commits:
-
--  `feat:` New features
--  `fix:` Bug fixes
--  `docs:` Documentation changes
--  `style:` Code style changes
--  `refactor:` Code refactoring
--  `test:` Test additions or changes
--  `chore:` Build process or auxiliary tool changes
-
-### Code Review Process
-
-1. All changes require code review
-2. Ensure tests pass
-3. Follow TypeScript best practices
-4. Maintain component consistency
-5. Update documentation as needed
-
-## 🆘 Support
-
-For support and questions:
-
--  Create an issue in the repository
--  Contact the development team
--  Check the documentation
+5. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
 
-**Built with ❤️ using Next.js, React, and modern web technologies**
+## 🔐 Environment Variables
+
+Create a `.env.local` file at the project root. Use `.env.example` as a template:
+
+```env
+# Backend API base URL
+NEXT_PUBLIC_API_URL=https://your-api-url.com
+
+# Google Maps API Key (for location/maps integration)
+GOOGLE_MAPS_API_KEY=your_google_maps_key
+
+# Bank Integration
+BANK_URL=https://your-bank-api-url.com
+NEXT_PUBLIC_BANK_URL=${BANK_URL}
+BANK_CLIENT_ID=your_bank_client_id
+BANK_SECRET_KEY=your_bank_secret_key
+```
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | ✅ Yes | Base URL of the Numoni backend REST API |
+| `GOOGLE_MAPS_API_KEY` | ✅ Yes | Google Maps API key for maps and places features |
+| `BANK_URL` | ✅ Yes | Bank integration service base URL |
+| `NEXT_PUBLIC_BANK_URL` | ✅ Yes | Public bank URL (mirrors `BANK_URL`) |
+| `BANK_CLIENT_ID` | ✅ Yes | Client ID for bank token generation |
+| `BANK_SECRET_KEY` | ✅ Yes | Secret key for bank token generation |
+
+---
+
+## 📦 Available Scripts
+
+```bash
+# Development
+pnpm dev          # Start development server with Turbopack (hot reload)
+pnpm build        # Build for production with Turbopack
+pnpm start        # Start production server
+pnpm clean        # Remove .turbo, .next, and node_modules
+
+# Code Quality
+pnpm lint         # Run ESLint across the entire project
+pnpm type-check   # Run TypeScript compiler checks (no emit)
+pnpm commitlint   # Lint a commit message (used by Husky)
+```
+
+---
+
+## 🏗️ Architecture
+
+### Authentication Flow
+
+```
+1. User visits a protected route
+2. Next.js Middleware checks for valid auth tokens in cookies
+3. If no token → redirect to /auth/sign-in (with ?returnTo= param)
+4. User logs in → JWT access token + refresh token stored in cookies
+5. Axios interceptor auto-refreshes the access token on 401 responses
+6. On refresh failure → user is signed out and redirected to sign-in
+7. After sign-in → user is redirected to their originally intended route
+```
+
+### State Management
+
+The application uses **Zustand** for global client-side state. Each store is focused and minimal:
+
+| Store | File | Manages |
+|---|---|---|
+| Auth Store | `stores/user-auth-store.ts` | Authenticated user data and session state |
+| Bank Store | `stores/bank-store.ts` | Bank integration API tokens |
+| Pay-on-Us Store | `stores/pay-on-us-store.ts` | Pay-on-us payment tokens |
+| Branch Store | `stores/branch-store.ts` | Branch data and POS operations |
+
+### Data Fetching Pattern
+
+**TanStack Query** manages all server state. The hooks are organised by type:
+
+- **`hooks/query/`** — 90 data-fetching hooks using `useQuery` (listing, detail, statistics, reports)
+- **`hooks/mutation/`** — 48 mutation hooks using `useMutation` (create, update, delete operations)
+- **`hooks/utils/`** — 13 reusable utility hooks (pagination, filters, KYC, export, debounce)
+
+All API communication flows through a centralised Axios instance in `lib/api.ts`, which:
+- Attaches the Bearer token from cookies to every request
+- Intercepts 401 responses and attempts a silent token refresh
+- Falls back to sign-out if the refresh fails
+
+### Validation
+
+Forms are handled with **React Hook Form** + **Zod** through `@hookform/resolvers`. All schemas live in `lib/schemas/` and are shared between form validation and API payload typing.
+
+### Component Architecture
+
+```
+pages (app/dashboard/*/)
+  └── feature components (components/admin/*/...)
+        └── common/shared components (components/common/*)
+              └── base UI primitives (components/ui/*)
+```
+
+---
+
+## 🔒 API Proxy & CORS Resolution
+
+### Problem
+
+When downloading QR code images hosted on AWS S3 buckets, browsers block the request due to CORS restrictions because:
+1. S3 buckets lack the required CORS response headers
+2. Loading cross-origin images into a `<canvas>` "taints" the canvas, preventing export
+
+### Solution
+
+A **server-side image proxy** at `/api/images/proxy` fetches S3 images server-side (bypassing CORS) and serves them back to the browser with the correct headers.
+
+```
+Browser → /api/images/proxy?url=<s3-url> → S3 Bucket
+                        ↓
+              Image returned with CORS headers
+                        ↓
+              Canvas loads image (same-origin, no taint)
+```
+
+**Whitelisted S3 domains:**
+- `cpip-dev-public.s3.eu-west-1.amazonaws.com`
+- `numoniimages.s3.amazonaws.com`
+- `numoni-prod-uploads.s3.eu-west-1.amazonaws.com`
+- `s3.amazonaws.com`
+
+**Key files:**
+- `app/api/images/proxy/route.ts` — The proxy API route
+- `lib/helper.ts` → `loadImageWithCors()` — Detects S3 URLs and routes through proxy
+- `lib/helper.ts` → `downloadQRCodeImageWithLogo()` — QR code downloader
+
+---
+
+## 🤝 Contributing
+
+Please refer to the [**CONTRIBUTING.md**](./CONTRIBUTING.md) file for the full contribution guide, including:
+- Development workflow
+- Branch naming conventions
+- Commit message standards (Conventional Commits)
+- Code style and TypeScript rules
+- Pull request process
+
+---
+
+## 🆘 Support
+
+For questions, bug reports, or feature requests:
+
+- Open a GitHub issue in the repository
+- Contact the core development team directly
+- Review the documentation in the `docs/` directory
+
+---
+
+*Built with ❤️ by the Numoni engineering team — powered by Next.js, React, and TypeScript.*
