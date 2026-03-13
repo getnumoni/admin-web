@@ -111,8 +111,8 @@ export default function MerchantsHeaderSection({
                   <SelectValue placeholder="Settlement Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="instant">Instant</SelectItem>
+                  <SelectItem value="DAILY">Daily</SelectItem>
+                  <SelectItem value="INSTANT">Instant</SelectItem>
                 </SelectContent>
               </Select>
             </div>
